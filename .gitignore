@@ -1,10 +1,10 @@
 # Compiled class file
 *.class
-
+.mvn
 .idea
 # Log file
 *.log
-
+target
 # BlueJ files
 *.ctxt
 
