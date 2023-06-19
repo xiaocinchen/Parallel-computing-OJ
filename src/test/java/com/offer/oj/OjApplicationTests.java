@@ -1,6 +1,7 @@
 package com.offer.oj;
 
 import com.offer.oj.service.JetcacheExample;
+import com.offer.oj.util.Encryption;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -15,6 +16,7 @@ class OjApplicationTests {
     void contextLoads() {
     }
 
+
     @Test
     void jedisTest() {
         System.out.println(jetcacheExample.getUserById(132L));
@@ -24,4 +26,12 @@ class OjApplicationTests {
         System.out.println(jetcacheExample.getUserById(132L));
     }
 
+    @Test()
+    void testEncryption() {
+        String password = "123456";
+        String hash = Encryption.hashPassword("123456");
+        System.out.println(hash);
+        System.out.println(Encryption.checkPassword(password, hash));
+        System.out.println(Encryption.checkPassword("password", hash));
+    }
 }
