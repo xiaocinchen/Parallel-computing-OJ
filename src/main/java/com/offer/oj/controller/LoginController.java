@@ -13,12 +13,6 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
-    @PostMapping("/name")
-    @ResponseBody
-    public Integer name(int a){
-        return a;
-    }
-
     @PostMapping("/register")
     @ResponseBody
     public Result register(@RequestBody UserDTO userDTO){
