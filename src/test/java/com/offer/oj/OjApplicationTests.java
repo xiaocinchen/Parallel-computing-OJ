@@ -1,6 +1,8 @@
 package com.offer.oj;
 
+import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.service.JetcacheExample;
+import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -11,6 +13,9 @@ class OjApplicationTests {
 
     @Autowired
     private JetcacheExample jetcacheExample;
+
+    @Autowired
+    private UserService userService;
 
     @Test
     void contextLoads() {
@@ -33,5 +38,16 @@ class OjApplicationTests {
         System.out.println(hash);
         System.out.println(Encryption.checkPassword(password, hash));
         System.out.println(Encryption.checkPassword("password", hash));
+    }
+
+    @Test
+    void testRegister(){
+        UserDTO userDTO = new UserDTO();
+        userDTO.setFirstName("xiao");
+        userDTO.setLastName("spade");
+        userDTO.setGender("male");
+        userDTO.setPassword("1232123123");
+        userDTO.setUsername("chen1120111");
+        System.out.println(userService.register(userDTO, true));
     }
 }

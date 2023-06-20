@@ -13,6 +13,8 @@ public interface OjUserMapper {
 
     OjUser selectByPrimaryKey(Integer id);
 
+    OjUser selectByUsername(String username);
+
     int updateByPrimaryKeySelective(OjUser record);
 
     int updateByPrimaryKey(OjUser record);
