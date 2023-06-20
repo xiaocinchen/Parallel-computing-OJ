@@ -48,6 +48,17 @@ public class Result<T> implements Serializable {
         this.data = data;
     }
 
+    /**
+     * 失败构造函数
+     */
+    public Result(String message) {
+        this.success = false;
+        this.message = message;
+    }
+
+    public Result(){}
+
+
     @Override
     public String toString() {
         return "Result{" +

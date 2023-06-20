@@ -23,6 +23,13 @@
     from oj_user
     where id = #{id,jdbcType=INTEGER}
   </select>
+  <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
+    <!--@xiaocinchen-->
+    select
+    <include refid="Base_Column_List" />
+    from oj_user
+    where username= #{username,jdbcType=VARCHAR}
+  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
     <!--@mbg.generated-->
     delete from oj_user
