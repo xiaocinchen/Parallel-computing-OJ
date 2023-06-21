@@ -2,50 +2,41 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 <mapper namespace="com.offer.oj.dao.mapper.OjUserMapper">
   <resultMap id="BaseResultMap" type="com.offer.oj.domain.OjUser">
-    <!--@mbg.generated-->
-    <!--@Table oj_user-->
     <id column="id" jdbcType="INTEGER" property="id" />
     <result column="username" jdbcType="VARCHAR" property="username" />
     <result column="first_name" jdbcType="VARCHAR" property="firstName" />
     <result column="last_name" jdbcType="VARCHAR" property="lastName" />
-    <result column="gender" jdbcType="OTHER" property="gender" />
+    <result column="gender" jdbcType="CHAR" property="gender" />
     <result column="password" jdbcType="VARCHAR" property="password" />
-    <result column="role" jdbcType="OTHER" property="role" />
+    <result column="role" jdbcType="CHAR" property="role" />
   </resultMap>
   <sql id="Base_Column_List">
-    <!--@mbg.generated-->
-    id, username, first_name, last_name, gender, `password`, `role`
+    id, username, first_name, last_name, gender, password, role
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    <!--@mbg.generated-->
     select 
     <include refid="Base_Column_List" />
     from oj_user
     where id = #{id,jdbcType=INTEGER}
   </select>
-  <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
-    <!--@xiaocinchen-->
-    select
-    <include refid="Base_Column_List" />
-    from oj_user
-    where username= #{username,jdbcType=VARCHAR}
-  </select>
   <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
-    <!--@mbg.generated-->
     delete from oj_user
     where id = #{id,jdbcType=INTEGER}
   </delete>
-  <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.offer.oj.domain.OjUser" useGeneratedKeys="true">
-    <!--@mbg.generated-->
-    insert into oj_user (username, first_name, last_name, 
-      gender, `password`, `role`)
-    values (#{username,jdbcType=VARCHAR}, #{firstName,jdbcType=VARCHAR}, #{lastName,jdbcType=VARCHAR}, 
-      #{gender,jdbcType=OTHER}, #{password,jdbcType=VARCHAR}, #{role,jdbcType=OTHER})
+  <insert id="insert" parameterType="com.offer.oj.domain.OjUser">
+    insert into oj_user (id, username, first_name, 
+      last_name, gender, password, 
+      role)
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{firstName,jdbcType=VARCHAR}, 
+      #{lastName,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, #{password,jdbcType=VARCHAR}, 
+      #{role,jdbcType=CHAR})
   </insert>
-  <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.offer.oj.domain.OjUser" useGeneratedKeys="true">
-    <!--@mbg.generated-->
+  <insert id="insertSelective" parameterType="com.offer.oj.domain.OjUser">
     insert into oj_user
     <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
       <if test="username != null">
         username,
       </if>
@@ -59,13 +50,16 @@
         gender,
       </if>
       <if test="password != null">
-        `password`,
+        password,
       </if>
       <if test="role != null">
-        `role`,
+        role,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
       <if test="username != null">
         #{username,jdbcType=VARCHAR},
       </if>
@@ -76,18 +70,17 @@
         #{lastName,jdbcType=VARCHAR},
       </if>
       <if test="gender != null">
-        #{gender,jdbcType=OTHER},
+        #{gender,jdbcType=CHAR},
       </if>
       <if test="password != null">
         #{password,jdbcType=VARCHAR},
       </if>
       <if test="role != null">
-        #{role,jdbcType=OTHER},
+        #{role,jdbcType=CHAR},
       </if>
     </trim>
   </insert>
   <update id="updateByPrimaryKeySelective" parameterType="com.offer.oj.domain.OjUser">
-    <!--@mbg.generated-->
     update oj_user
     <set>
       <if test="username != null">
@@ -100,26 +93,31 @@
         last_name = #{lastName,jdbcType=VARCHAR},
       </if>
       <if test="gender != null">
-        gender = #{gender,jdbcType=OTHER},
+        gender = #{gender,jdbcType=CHAR},
       </if>
       <if test="password != null">
-        `password` = #{password,jdbcType=VARCHAR},
+        password = #{password,jdbcType=VARCHAR},
       </if>
       <if test="role != null">
-        `role` = #{role,jdbcType=OTHER},
+        role = #{role,jdbcType=CHAR},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByPrimaryKey" parameterType="com.offer.oj.domain.OjUser">
-    <!--@mbg.generated-->
     update oj_user
     set username = #{username,jdbcType=VARCHAR},
       first_name = #{firstName,jdbcType=VARCHAR},
       last_name = #{lastName,jdbcType=VARCHAR},
-      gender = #{gender,jdbcType=OTHER},
-      `password` = #{password,jdbcType=VARCHAR},
-      `role` = #{role,jdbcType=OTHER}
+      gender = #{gender,jdbcType=CHAR},
+      password = #{password,jdbcType=VARCHAR},
+      role = #{role,jdbcType=CHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from oj_user
+    where username = #{username,jdbcType=VARCHAR}
+  </select>
 </mapper>

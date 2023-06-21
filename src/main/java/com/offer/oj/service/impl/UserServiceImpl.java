@@ -12,6 +12,8 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import javax.annotation.Resource;
 import java.util.stream.Stream;
 
 @Slf4j
@@ -61,7 +63,7 @@ public class UserServiceImpl implements UserService {
         OjUser ojUser = new OjUser();
         BeanUtils.copyProperties(userDTO, ojUser);
         try {
-            ojUserMapper.insert(ojUser);
+            ojUserMapper.insertSelective(ojUser);
             message = "用户注册成功";
             log.info(message + "{}", userDTO.getUsername());
         } catch (Exception e) {

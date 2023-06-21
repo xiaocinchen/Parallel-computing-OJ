@@ -20,7 +20,7 @@ jetcache:
       port: 6379
 #      password: 123456
 mybatis:
-  mapper-locations: com.offer.oj.mapper/*.xml
+  mapper-locations: mybatis/mapper/*.xml
   type-aliases-package: com.offer.oj.domain
 
 server:
