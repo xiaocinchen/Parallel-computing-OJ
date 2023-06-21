@@ -1,21 +1,19 @@
 package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.OjUser;
-import org.apache.ibatis.annotations.Mapper;
 
-@Mapper
 public interface OjUserMapper {
     int deleteByPrimaryKey(Integer id);
 
-    int insert(OjUser record);
+    int insert(OjUser row);
 
-    int insertSelective(OjUser record);
+    int insertSelective(OjUser row);
 
     OjUser selectByPrimaryKey(Integer id);
 
+    int updateByPrimaryKeySelective(OjUser row);
+
+    int updateByPrimaryKey(OjUser row);
+
     OjUser selectByUsername(String username);
-
-    int updateByPrimaryKeySelective(OjUser record);
-
-    int updateByPrimaryKey(OjUser record);
 }

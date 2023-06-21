@@ -1,11 +1,7 @@
 package com.offer.oj.domain;
 
-import java.io.Serial;
 import java.io.Serializable;
 
-/**
- * 用户表
- */
 public class OjUser implements Serializable {
     private Integer id;
 
@@ -15,13 +11,12 @@ public class OjUser implements Serializable {
 
     private String lastName;
 
-    private Object gender;
+    private String gender;
 
     private String password;
 
-    private Object role;
+    private String role;
 
-    @Serial
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -37,7 +32,7 @@ public class OjUser implements Serializable {
     }
 
     public void setUsername(String username) {
-        this.username = username;
+        this.username = username == null ? null : username.trim();
     }
 
     public String getFirstName() {
@@ -45,7 +40,7 @@ public class OjUser implements Serializable {
     }
 
     public void setFirstName(String firstName) {
-        this.firstName = firstName;
+        this.firstName = firstName == null ? null : firstName.trim();
     }
 
     public String getLastName() {
@@ -53,15 +48,15 @@ public class OjUser implements Serializable {
     }
 
     public void setLastName(String lastName) {
-        this.lastName = lastName;
+        this.lastName = lastName == null ? null : lastName.trim();
     }
 
-    public Object getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(Object gender) {
-        this.gender = gender;
+    public void setGender(String gender) {
+        this.gender = gender == null ? null : gender.trim();
     }
 
     public String getPassword() {
@@ -69,32 +64,15 @@ public class OjUser implements Serializable {
     }
 
     public void setPassword(String password) {
-        this.password = password;
+        this.password = password == null ? null : password.trim();
     }
 
-    public Object getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Object role) {
-        this.role = role;
-    }
-
-    @Override
-    public String toString() {
-        StringBuilder sb = new StringBuilder();
-        sb.append(getClass().getSimpleName());
-        sb.append(" [");
-        sb.append("Hash = ").append(hashCode());
-        sb.append(", id=").append(id);
-        sb.append(", username=").append(username);
-        sb.append(", firstName=").append(firstName);
-        sb.append(", lastName=").append(lastName);
-        sb.append(", gender=").append(gender);
-        sb.append(", password=").append(password);
-        sb.append(", role=").append(role);
-        sb.append("]");
-        return sb.toString();
+    public void setRole(String role) {
+        this.role = role == null ? null : role.trim();
     }
 
     @Override
@@ -110,12 +88,12 @@ public class OjUser implements Serializable {
         }
         OjUser other = (OjUser) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
-                && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
-                && (this.getFirstName() == null ? other.getFirstName() == null : this.getFirstName().equals(other.getFirstName()))
-                && (this.getLastName() == null ? other.getLastName() == null : this.getLastName().equals(other.getLastName()))
-                && (this.getGender() == null ? other.getGender() == null : this.getGender().equals(other.getGender()))
-                && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
-                && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()));
+            && (this.getUsername() == null ? other.getUsername() == null : this.getUsername().equals(other.getUsername()))
+            && (this.getFirstName() == null ? other.getFirstName() == null : this.getFirstName().equals(other.getFirstName()))
+            && (this.getLastName() == null ? other.getLastName() == null : this.getLastName().equals(other.getLastName()))
+            && (this.getGender() == null ? other.getGender() == null : this.getGender().equals(other.getGender()))
+            && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
+            && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()));
     }
 
     @Override
@@ -130,5 +108,23 @@ public class OjUser implements Serializable {
         result = prime * result + ((getPassword() == null) ? 0 : getPassword().hashCode());
         result = prime * result + ((getRole() == null) ? 0 : getRole().hashCode());
         return result;
+    }
+
+    @Override
+    public String toString() {
+        StringBuilder sb = new StringBuilder();
+        sb.append(getClass().getSimpleName());
+        sb.append(" [");
+        sb.append("Hash = ").append(hashCode());
+        sb.append(", id=").append(id);
+        sb.append(", username=").append(username);
+        sb.append(", firstName=").append(firstName);
+        sb.append(", lastName=").append(lastName);
+        sb.append(", gender=").append(gender);
+        sb.append(", password=").append(password);
+        sb.append(", role=").append(role);
+        sb.append(", serialVersionUID=").append(serialVersionUID);
+        sb.append("]");
+        return sb.toString();
     }
 }
