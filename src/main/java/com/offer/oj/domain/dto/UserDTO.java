@@ -10,11 +10,11 @@ public class UserDTO implements Serializable {
 
     private String lastName;
 
-    private Object gender;
+    private String gender;
 
     private String password;
 
-    private Object role;
+    private String role;
 
     public String getUsername() {
         return username;
@@ -40,11 +40,11 @@ public class UserDTO implements Serializable {
         this.lastName = lastName;
     }
 
-    public Object getGender() {
+    public String getGender() {
         return gender;
     }
 
-    public void setGender(Object gender) {
+    public void setGender(String gender) {
         this.gender = gender;
     }
 
@@ -56,11 +56,11 @@ public class UserDTO implements Serializable {
         this.password = password;
     }
 
-    public Object getRole() {
+    public String getRole() {
         return role;
     }
 
-    public void setRole(Object role) {
+    public void setRole(String role) {
         this.role = role;
     }
 
