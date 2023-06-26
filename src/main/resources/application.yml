@@ -25,3 +25,9 @@ mybatis:
 
 server:
   port: 8080
+
+logging:
+  file:
+    name: sys.log
+    path: log
+  config: classpath:log/logback-spring.xml
