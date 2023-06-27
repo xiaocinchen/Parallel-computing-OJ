@@ -9,9 +9,10 @@
     <result column="gender" jdbcType="CHAR" property="gender" />
     <result column="password" jdbcType="VARCHAR" property="password" />
     <result column="role" jdbcType="CHAR" property="role" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, username, first_name, last_name, gender, password, role
+    id, username, first_name, last_name, gender, password, role, email
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -26,10 +27,10 @@
   <insert id="insert" parameterType="com.offer.oj.domain.OjUser">
     insert into oj_user (id, username, first_name, 
       last_name, gender, password, 
-      role)
+      role, email)
     values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{firstName,jdbcType=VARCHAR}, 
       #{lastName,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, #{password,jdbcType=VARCHAR}, 
-      #{role,jdbcType=CHAR})
+      #{role,jdbcType=CHAR}, #{email,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.offer.oj.domain.OjUser">
     insert into oj_user
@@ -55,6 +56,9 @@
       <if test="role != null">
         role,
       </if>
+      <if test="email != null">
+        email,
+      </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
       <if test="id != null">
@@ -77,6 +81,9 @@
       </if>
       <if test="role != null">
         #{role,jdbcType=CHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
       </if>
     </trim>
   </insert>
@@ -101,6 +108,9 @@
       <if test="role != null">
         role = #{role,jdbcType=CHAR},
       </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
   </update>
@@ -111,7 +121,8 @@
       last_name = #{lastName,jdbcType=VARCHAR},
       gender = #{gender,jdbcType=CHAR},
       password = #{password,jdbcType=VARCHAR},
-      role = #{role,jdbcType=CHAR}
+      role = #{role,jdbcType=CHAR},
+      email = #{email,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
@@ -119,5 +130,11 @@
     <include refid="Base_Column_List" />
     from oj_user
     where username = #{username,jdbcType=VARCHAR}
+  </select>
+  <select id="selectByEmail" parameterType="java.lang.String" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from oj_user
+    where email = #{email,jdbcType=VARCHAR}
   </select>
 </mapper>

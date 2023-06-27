@@ -17,6 +17,8 @@ public class OjUser implements Serializable {
 
     private String role;
 
+    private String email;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -75,6 +77,14 @@ public class OjUser implements Serializable {
         this.role = role == null ? null : role.trim();
     }
 
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email == null ? null : email.trim();
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -93,7 +103,8 @@ public class OjUser implements Serializable {
             && (this.getLastName() == null ? other.getLastName() == null : this.getLastName().equals(other.getLastName()))
             && (this.getGender() == null ? other.getGender() == null : this.getGender().equals(other.getGender()))
             && (this.getPassword() == null ? other.getPassword() == null : this.getPassword().equals(other.getPassword()))
-            && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()));
+            && (this.getRole() == null ? other.getRole() == null : this.getRole().equals(other.getRole()))
+            && (this.getEmail() == null ? other.getEmail() == null : this.getEmail().equals(other.getEmail()));
     }
 
     @Override
@@ -107,6 +118,7 @@ public class OjUser implements Serializable {
         result = prime * result + ((getGender() == null) ? 0 : getGender().hashCode());
         result = prime * result + ((getPassword() == null) ? 0 : getPassword().hashCode());
         result = prime * result + ((getRole() == null) ? 0 : getRole().hashCode());
+        result = prime * result + ((getEmail() == null) ? 0 : getEmail().hashCode());
         return result;
     }
 
@@ -123,6 +135,7 @@ public class OjUser implements Serializable {
         sb.append(", gender=").append(gender);
         sb.append(", password=").append(password);
         sb.append(", role=").append(role);
+        sb.append(", email=").append(email);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();
