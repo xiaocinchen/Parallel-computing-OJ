@@ -16,7 +16,7 @@ public class SpringSecurityConfig {
                     try {
                         authorize
                                 // 放行登录接口
-                                .requestMatchers("/v1/**").permitAll()
+                                .requestMatchers("/**").permitAll()
                                 // 放行资源目录
                                 .requestMatchers("/static/**", "/resources/**").permitAll()
                                 // 其余的都需要权限校验

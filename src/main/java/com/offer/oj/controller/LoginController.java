@@ -5,6 +5,7 @@ import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @Controller
@@ -15,7 +16,14 @@ public class LoginController {
 
     @PostMapping("/register")
     @ResponseBody
-    public Result register(@RequestBody UserDTO userDTO){
+    public Result register(@RequestBody UserDTO userDTO) {
         return userService.register(userDTO, true);
     }
+
+    @RequestMapping("index")
+    public String index(String name, Model model) {
+        model.addAttribute("name", name);
+        return "index";
+    }
+
 }
