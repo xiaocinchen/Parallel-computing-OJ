@@ -14,11 +14,15 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
 @Slf4j
 @Service
 public class UserServiceImpl implements UserService {
+
+    private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
+
 
     @Autowired
     private OjUserMapper ojUserMapper;
@@ -32,6 +36,9 @@ public class UserServiceImpl implements UserService {
             log.error(message);
         } else if (userDTO.getUsername().length() > 20 || userDTO.getUsername().length() < 6) {
             message = "The username should be between 6 and 20 characters! " + userDTO.getUsername();
+            log.error(message);
+        } else if (!Pattern.compile(EMAIL_REGEX).matcher(userDTO.getEmail()).matches()) {
+            message = "Email format error! " + userDTO.getEmail();
             log.error(message);
         } else if (userDTO.getPassword().length() > 20 || userDTO.getPassword().length() < 8 || !userDTO.getPassword().matches("[a-zA-Z0-9]+")) {
             message = "Password should be composed of 8 to 20 characters of numbers or English!";
@@ -47,6 +54,9 @@ public class UserServiceImpl implements UserService {
             log.error(message);
         } else if (ojUserMapper.selectByUsername(userDTO.getUsername()) != null) {
             message = "Username already exists! " + userDTO.getUsername();
+            log.error(message);
+        } else if (ojUserMapper.selectByEmail(userDTO.getEmail()) != null) {
+            message = "Email already exists! " + userDTO.getEmail();
             log.error(message);
         }
         if (!message.isEmpty()) {
@@ -78,6 +88,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public boolean isUserDTOEmpty(UserDTO userDTO) {
-        return StringUtils.isEmpty(userDTO.getUsername()) || StringUtils.isEmpty(userDTO.getPassword()) || StringUtils.isEmpty(userDTO.getFirstName()) || StringUtils.isEmpty(userDTO.getLastName()) || userDTO.getGender() == null;
+        return StringUtils.isEmpty(userDTO.getUsername())
+                || StringUtils.isEmpty(userDTO.getPassword())
+                || StringUtils.isEmpty(userDTO.getFirstName())
+                || StringUtils.isEmpty(userDTO.getLastName())
+                || StringUtils.isEmpty(userDTO.getEmail())
+                || userDTO.getGender() == null;
     }
 }

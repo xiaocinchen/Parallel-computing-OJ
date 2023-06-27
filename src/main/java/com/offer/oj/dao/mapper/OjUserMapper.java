@@ -21,4 +21,7 @@ public interface OjUserMapper {
 
     @Cached(name = "userCache", key = "#username", expire = 300, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.REMOTE)
     OjUser selectByUsername(String username);
+
+    @Cached(name = "userCache", key = "#email", expire = 300, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.REMOTE)
+    OjUser selectByEmail(String email);
 }

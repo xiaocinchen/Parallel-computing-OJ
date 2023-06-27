@@ -6,6 +6,8 @@ public class UserDTO implements Serializable {
 
     private String username;
 
+    private String email;
+
     private String firstName;
 
     private String lastName;
@@ -22,6 +24,14 @@ public class UserDTO implements Serializable {
 
     public void setUsername(String username) {
         this.username = username;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 
     public String getFirstName() {
@@ -68,11 +78,12 @@ public class UserDTO implements Serializable {
     public String toString() {
         return "UserDTO{" +
                 "username='" + username + '\'' +
+                ", email='" + email + '\'' +
                 ", firstName='" + firstName + '\'' +
                 ", lastName='" + lastName + '\'' +
-                ", gender=" + gender +
+                ", gender='" + gender + '\'' +
                 ", password='" + password + '\'' +
-                ", role=" + role +
+                ", role='" + role + '\'' +
                 '}';
     }
 }
