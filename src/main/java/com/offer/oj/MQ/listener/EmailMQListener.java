@@ -6,7 +6,9 @@ import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.template.QuickConfig;
 import com.offer.oj.domain.dto.EmailDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
+import com.offer.oj.domain.enums.CacheEnum;
 import com.rabbitmq.client.Channel;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.amqp.support.AmqpHeaders;
@@ -22,7 +24,7 @@ import javax.annotation.PostConstruct;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.Map;
-
+@Slf4j
 @Service
 public class EmailMQListener {
 
@@ -38,8 +40,8 @@ public class EmailMQListener {
 
     @PostConstruct
     public void init() {
-        QuickConfig qc = QuickConfig.newBuilder("userCache")
-                .expire(Duration.ofSeconds(100))
+        QuickConfig qc = QuickConfig.newBuilder(CacheEnum.USER_CACHE.getValue())
+                .expire(Duration.ofSeconds(70))
                 .cacheType(CacheType.BOTH) // two level cache
                 .syncLocal(true) // invalidate local cache in all jvm process after update
                 .build();
@@ -51,7 +53,6 @@ public class EmailMQListener {
             exchange = @Exchange(value = "email_exchange", type = ExchangeTypes.TOPIC),
             key = "email.#"), ackMode = "MANUAL")
     @RabbitHandler
-    @PostConstruct
     public void listenRegisterVerifyEmail(@Payload EmailDTO emailDTO, @Headers Map<String, Object> headers, Channel channel) throws IOException {
         long deliveryTag = (long) headers.get(AmqpHeaders.DELIVERY_TAG);
         SimpleMailMessage message = new SimpleMailMessage();
@@ -62,6 +63,7 @@ public class EmailMQListener {
         message.setText(emailDTO.getContent());
         try {
             mailSender.send(message);
+            verificationDTO.setUsername(emailDTO.getUsername());
             verificationDTO.setCode(emailDTO.getCode());
             verificationDTOCache.put(verificationDTO, emailDTO.getCode()); // to be changed;
             channel.basicAck(deliveryTag, false);

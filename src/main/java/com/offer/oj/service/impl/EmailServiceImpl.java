@@ -21,6 +21,7 @@ public class EmailServiceImpl implements EmailService {
         EmailDTO emailDTO = new EmailDTO();
         BeanUtils.copyProperties(userDTO, emailDTO);
         String content = "Your code is 2017.";
+        emailDTO.setCode("2017");
         emailDTO.setHtml(false);
         emailDTO.setContent(content);
         emailDTO.setSubject("This is a registration verification email!");

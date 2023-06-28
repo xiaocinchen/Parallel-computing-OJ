@@ -17,7 +17,7 @@ public class LoginController {
     @PostMapping("/register")
     @ResponseBody
     public Result register(@RequestBody UserDTO userDTO) {
-        return userService.register(userDTO, true);
+        return userService.registerSendEmail(userDTO, true);
     }
 
     @RequestMapping("index")

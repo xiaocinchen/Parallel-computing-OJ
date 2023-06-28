@@ -9,7 +9,5 @@ public class VerificationDTO implements Serializable {
 
     private String code;
 
-    private enum type{
-        REGISTER
-    };
+    private String type;
 }

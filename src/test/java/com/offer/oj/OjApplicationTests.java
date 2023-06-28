@@ -1,6 +1,7 @@
 package com.offer.oj;
 
 import com.offer.oj.domain.dto.UserDTO;
+import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.JetcacheExample;
 import com.offer.oj.service.UserService;
@@ -45,21 +46,27 @@ class OjApplicationTests {
     }
 
     @Test
-    void testRegister(){
+    void testRegister() {
         UserDTO userDTO = new UserDTO();
         userDTO.setFirstName("xiao");
         userDTO.setLastName("spade");
         userDTO.setGender("male");
         userDTO.setPassword("1232123123");
         userDTO.setUsername("chen1120111");
-        System.out.println(userService.register(userDTO, true));
+        System.out.println(userService.registerSendEmail(userDTO, true));
     }
 
     @Test
-    void testSendEmail(){
+    void testSendEmail() {
         UserDTO userDTO = new UserDTO();
         userDTO.setUsername("provider7");
         userDTO.setEmail("spadexiao6@gmail.com");
         emailService.sendRegisterVerifyEmail(userDTO);
+    }
+
+    @Test
+    void testEnumClass(){
+        String a ="REGISTER";
+        System.out.println(a.equals(EmailTypeEnum.REGISTER.getValue()));
     }
 }

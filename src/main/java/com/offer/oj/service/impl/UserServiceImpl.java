@@ -5,6 +5,8 @@ import com.offer.oj.dao.Result;
 import com.offer.oj.dao.mapper.OjUserMapper;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.OjUser;
+import com.offer.oj.domain.dto.VerificationDTO;
+import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
 import io.micrometer.common.util.StringUtils;
@@ -14,6 +16,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.annotation.Resource;
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -28,7 +31,7 @@ public class UserServiceImpl implements UserService {
     private OjUserMapper ojUserMapper;
 
     @Override
-    public Result register(UserDTO userDTO, boolean isStudent) {
+    public Result registerSendEmail(UserDTO userDTO, boolean isStudent) {
         Result result = new Result<>();
         String message = "";
         if (isUserDTOEmpty(userDTO)) {
@@ -87,8 +90,22 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Result registerVerifyEmail(VerificationDTO verification) {
+        String message = "";
+        if (Objects.isNull(verification) || StringUtils.isEmpty(verification.getUsername()) || StringUtils.isEmpty(verification.getCode()) || StringUtils.isEmpty(verification.getType())) {
+            message = "验证码信息缺失";
+            log.error(message);
+        } else if (verification.getType().equals(EmailTypeEnum.REGISTER.getValue())) {
+            log.info("开始验证邮件");
+
+        }
+        return null;
+    }
+
+    @Override
     public boolean isUserDTOEmpty(UserDTO userDTO) {
-        return StringUtils.isEmpty(userDTO.getUsername())
+        return Objects.isNull(userDTO)
+                || StringUtils.isEmpty(userDTO.getUsername())
                 || StringUtils.isEmpty(userDTO.getPassword())
                 || StringUtils.isEmpty(userDTO.getFirstName())
                 || StringUtils.isEmpty(userDTO.getLastName())
