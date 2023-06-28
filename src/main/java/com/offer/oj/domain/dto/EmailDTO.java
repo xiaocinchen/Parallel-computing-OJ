@@ -5,8 +5,7 @@ import lombok.Data;
 import java.io.Serializable;
 
 @Data
-public class UserDTO implements Serializable {
-
+public class EmailDTO implements Serializable {
     private String username;
 
     private String email;
@@ -15,10 +14,13 @@ public class UserDTO implements Serializable {
 
     private String lastName;
 
-    private String gender;
-
-    private String password;
-
     private String role;
 
+    private String content;
+
+    private String subject;
+
+    private String code;
+
+    private boolean isHtml;
 }

@@ -1,6 +1,7 @@
 package com.offer.oj;
 
 import com.offer.oj.domain.dto.UserDTO;
+import com.offer.oj.service.EmailService;
 import com.offer.oj.service.JetcacheExample;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
@@ -16,6 +17,9 @@ class OjApplicationTests {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Test
     void contextLoads() {
@@ -49,5 +53,13 @@ class OjApplicationTests {
         userDTO.setPassword("1232123123");
         userDTO.setUsername("chen1120111");
         System.out.println(userService.register(userDTO, true));
+    }
+
+    @Test
+    void testSendEmail(){
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("provider7");
+        userDTO.setEmail("spadexiao6@gmail.com");
+        emailService.sendRegisterVerifyEmail(userDTO);
     }
 }
