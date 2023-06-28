@@ -3,6 +3,7 @@ package com.offer.oj.service.impl;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.dao.mapper.OjUserMapper;
+import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.service.UserService;
@@ -13,7 +14,6 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import javax.annotation.Resource;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -94,5 +94,21 @@ public class UserServiceImpl implements UserService {
                 || StringUtils.isEmpty(userDTO.getLastName())
                 || StringUtils.isEmpty(userDTO.getEmail())
                 || userDTO.getGender() == null;
+    }
+
+    @Override
+    public Result login(LoginDTO loginDTO) {
+        OjUser ojUser=ojUserMapper.selectByUsername(loginDTO.getUsername());
+        if(ojUser==null){
+            return new Result("Incorrect Username or Password!");
+        }else if(!Encryption.checkPassword(loginDTO.getPassword(),ojUser.getPassword())){
+            return new Result("Incorrect Username or Password!");
+        }else{
+            Result result=new Result();
+            result.setSuccess(true);
+            result.setCode(0);
+            result.setMessage("Login successfully!");
+            return result;
+        }
     }
 }
