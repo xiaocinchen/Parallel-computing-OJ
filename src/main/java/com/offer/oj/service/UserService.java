@@ -8,7 +8,7 @@ public interface UserService {
     /**
      * 注册第一步：发验证邮件
      */
-    Result registerSendEmail(UserDTO user, boolean isStudent);
+    Result<String> registerSendEmail(UserDTO user);
 
     /**
      * 注册第二步：验证邮件

@@ -1,5 +1,8 @@
 package com.offer.oj.dao;
 
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
 import java.io.Serializable;
 
 /**
@@ -7,6 +10,8 @@ import java.io.Serializable;
  * @Date: 2023/6/19 00:33
  * @Author: Simuel
  */
+@Data
+@NoArgsConstructor
 public class Result<T> implements Serializable {
     private boolean success;
 
@@ -16,56 +21,17 @@ public class Result<T> implements Serializable {
 
     private T data;
 
-    public boolean isSuccess() {
-        return success;
-    }
-
-    public void setSuccess(boolean success) {
-        this.success = success;
-    }
-
-    public Integer getCode() {
-        return code;
-    }
-
-    public void setCode(Integer code) {
-        this.code = code;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
-
-    public T getData() {
-        return data;
-    }
-
-    public void setData(T data) {
-        this.data = data;
-    }
-
     /**
-     * 失败构造函数
+     * 简单构造函数
      */
-    public Result(String message) {
-        this.success = false;
+    public Result(boolean success, String message) {
+        this.success = success;
         this.message = message;
     }
 
-    public Result(){}
-
-
-    @Override
-    public String toString() {
-        return "Result{" +
-                "success=" + success +
-                ", code=" + code +
-                ", message='" + message + '\'' +
-                ", data=" + data +
-                '}';
+    public void setSimpleResult(boolean success, String message){
+        this.success = success;
+        this.message = message;
     }
+
 }

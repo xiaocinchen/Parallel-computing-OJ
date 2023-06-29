@@ -7,6 +7,7 @@ import com.alicp.jetcache.template.QuickConfig;
 import com.offer.oj.domain.dto.EmailDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.CacheEnum;
+import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.ExchangeTypes;
@@ -34,19 +35,10 @@ public class EmailMQListener {
     @Autowired
     private CacheManager cacheManager;
 
-    private Cache<VerificationDTO, String> verificationDTOCache;
+    private Cache<String, VerificationDTO> verificationDTOCache;
 
     private static final String SENDER = "707103676@qq.com";
 
-    @PostConstruct
-    public void init() {
-        QuickConfig qc = QuickConfig.newBuilder(CacheEnum.USER_CACHE.getValue())
-                .expire(Duration.ofSeconds(70))
-                .cacheType(CacheType.BOTH) // two level cache
-                .syncLocal(true) // invalidate local cache in all jvm process after update
-                .build();
-        verificationDTOCache = cacheManager.getOrCreateCache(qc);
-    }
 
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "email_queue", durable = "true", autoDelete = "false"),
@@ -65,9 +57,13 @@ public class EmailMQListener {
             mailSender.send(message);
             verificationDTO.setUsername(emailDTO.getUsername());
             verificationDTO.setCode(emailDTO.getCode());
-            verificationDTOCache.put(verificationDTO, emailDTO.getCode()); // to be changed;
+            verificationDTO.setType(EmailTypeEnum.REGISTER.getValue());
+            verificationDTOCache= cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
+            verificationDTOCache.put(verificationDTO.getUsername(), verificationDTO); // to be changed;
             channel.basicAck(deliveryTag, false);
+            log.info("邮件已发送 {}",emailDTO.getUsername());
         } catch (Exception e) {
+            log.error(String.valueOf(e));
             channel.basicNack(deliveryTag, false, true);
         }
     }
