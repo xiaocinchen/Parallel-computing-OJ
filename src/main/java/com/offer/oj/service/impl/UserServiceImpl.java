@@ -96,7 +96,6 @@ public class UserServiceImpl implements UserService {
             result.setSuccess(false);
         }
         result.setMessage(message);
-        result.setData("2023");
         return result;
     }
 

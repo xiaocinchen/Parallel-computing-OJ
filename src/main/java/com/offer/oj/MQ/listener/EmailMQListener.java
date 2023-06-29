@@ -5,6 +5,7 @@ import com.alicp.jetcache.CacheManager;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.template.QuickConfig;
 import com.offer.oj.domain.dto.EmailDTO;
+import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
@@ -37,6 +38,8 @@ public class EmailMQListener {
 
     private Cache<String, VerificationDTO> verificationDTOCache;
 
+    private Cache<String, UserDTO> userDTOCache;
+
     private static final String SENDER = "707103676@qq.com";
 
 
@@ -60,11 +63,14 @@ public class EmailMQListener {
             verificationDTO.setType(EmailTypeEnum.REGISTER.getValue());
             verificationDTOCache= cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
             verificationDTOCache.put(verificationDTO.getUsername(), verificationDTO); // to be changed;
-            channel.basicAck(deliveryTag, false);
             log.info("邮件已发送 {}",emailDTO.getUsername());
         } catch (Exception e) {
-            log.error(String.valueOf(e));
-            channel.basicNack(deliveryTag, false, true);
+            log.error("邮件发送失败{}: ", String.valueOf(e));
+            userDTOCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
+            userDTOCache.remove(emailDTO.getUsername());
+//            channel.basicNack(deliveryTag, false, true);
+//            throw new RuntimeException("邮件发送失败");
         }
+        channel.basicAck(deliveryTag, false);
     }
 }
