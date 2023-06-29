@@ -2,7 +2,6 @@ package com.offer.oj.dao;
 
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
-import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.UserDTO;
 
 import java.util.concurrent.TimeUnit;

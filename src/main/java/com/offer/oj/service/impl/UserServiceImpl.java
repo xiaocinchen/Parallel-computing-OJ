@@ -142,6 +142,7 @@ public class UserServiceImpl implements UserService {
             ojUserMapper.insertSelective(ojUser);
             message = "用户注册成功";
             log.info(message + "{}", userDTO.getUsername());
+            userDTOCache.remove(userDTO.getUsername());
         } catch (Exception e) {
             message = "用户注册失败";
             log.error(message + "{}", userDTO.getUsername(), e);
