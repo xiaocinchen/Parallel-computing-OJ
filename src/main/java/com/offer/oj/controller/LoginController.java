@@ -29,8 +29,6 @@ public class LoginController {
 
     @GetMapping("/login")
     public Result login(@RequestBody LoginDTO loginDTO){
-
-        System.out.println(loginDTO);
         return userService.login(loginDTO);
     }
 

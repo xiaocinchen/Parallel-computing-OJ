@@ -98,8 +98,11 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result login(LoginDTO loginDTO) {
+        if(null==loginDTO.getUsername()||null==loginDTO.getPassword()){
+            return new Result("Incomplete Login Information!");
+        }
         OjUser ojUser=ojUserMapper.selectByUsername(loginDTO.getUsername());
-        if(ojUser==null){
+        if(null==ojUser){
             return new Result("Incorrect Username or Password!");
         }else if(!Encryption.checkPassword(loginDTO.getPassword(),ojUser.getPassword())){
             return new Result("Incorrect Username or Password!");
