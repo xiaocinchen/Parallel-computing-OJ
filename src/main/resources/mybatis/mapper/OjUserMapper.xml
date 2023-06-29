@@ -15,7 +15,7 @@
     id, username, first_name, last_name, gender, password, role, email
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
-    select 
+    select
     <include refid="Base_Column_List" />
     from oj_user
     where id = #{id,jdbcType=INTEGER}
@@ -25,11 +25,11 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.offer.oj.domain.OjUser">
-    insert into oj_user (id, username, first_name, 
-      last_name, gender, password, 
+    insert into oj_user (id, username, first_name,
+      last_name, gender, password,
       role, email)
-    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{firstName,jdbcType=VARCHAR}, 
-      #{lastName,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, #{password,jdbcType=VARCHAR}, 
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{firstName,jdbcType=VARCHAR},
+      #{lastName,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, #{password,jdbcType=VARCHAR},
       #{role,jdbcType=CHAR}, #{email,jdbcType=VARCHAR})
   </insert>
   <insert id="insertSelective" parameterType="com.offer.oj.domain.OjUser">
@@ -125,16 +125,58 @@
       email = #{email,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
-  <select id="selectByUsername" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from oj_user
-    where username = #{username,jdbcType=VARCHAR}
+
+  <!-- 查列表 -->
+  <select id="queryForList" parameterType="UserInnerQuery" resultMap="BaseResultMap">
+      SELECT
+      <include refid="Base_Column_List"/>
+      FROM
+      oj_user
+      WHERE 1=1
+      <include refid="dynamicWhere"/>
+      <include refid="pagination"/>
   </select>
-  <select id="selectByEmail" parameterType="java.lang.String" resultMap="BaseResultMap">
-    select
-    <include refid="Base_Column_List" />
-    from oj_user
-    where email = #{email,jdbcType=VARCHAR}
+
+  <!--  查数量-->
+  <select id="queryForCount" parameterType="UserInnerQuery" resultType="Integer">
+    SELECT count(*) FROM oj_user
+    WHERE 1=1
+    <include refid="dynamicWhere"/>
   </select>
+
+  <sql id="dynamicWhere">
+    <if test="id != null">
+      AND id = #{id}
+    </if>
+    <if test="username != null">
+      AND username = #{username}
+    </if>
+    <if test="firstName != null">
+      AND first_name = #{first_name}
+    </if>
+    <if test="lastName != null">
+      AND last_name = #{last_name}
+    </if>
+    <if test="gender != null">
+      AND gender = #{gender}
+    </if>
+    <if test="password != null">
+      AND password = #{password}
+    </if>
+    <if test="role != null">
+      AND role = #{role}
+    </if>
+    <if test="email != null">
+      AND email = #{email}
+    </if>
+  </sql>
+
+  <sql id="pagination">
+    <if test="pageSize!=null and startRow!=null">
+      <![CDATA[
+          LIMIT #{startRow} , #{pageSize}
+           ]]>
+    </if>
+  </sql>
+
 </mapper>

@@ -1,11 +1,18 @@
 package com.offer.oj.service.impl;
 
 
+import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.CacheManager;
 import com.offer.oj.dao.Result;
+import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjUserMapper;
 import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.OjUser;
+import com.offer.oj.domain.dto.VerificationDTO;
+import com.offer.oj.domain.enums.CacheEnum;
+import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.service.EmailService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
 import io.micrometer.common.util.StringUtils;
@@ -13,7 +20,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.ObjectUtils;
 
+import java.util.Objects;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -23,13 +32,25 @@ public class UserServiceImpl implements UserService {
 
     private static final String EMAIL_REGEX = "^[A-Za-z0-9+_.-]+@[A-Za-z0-9.-]+$";
 
+    @Autowired
+    private UserMapper userMapper;
+
+    @Autowired
+    private EmailService emailService;
 
     @Autowired
     private OjUserMapper ojUserMapper;
 
+    @Autowired
+    private CacheManager cacheManager;
+
+    private Cache<String, VerificationDTO> verificationDTOCache;
+
+    private Cache<String, UserDTO> userDTOCache;
+
     @Override
-    public Result register(UserDTO userDTO, boolean isStudent) {
-        Result result = new Result<>();
+    public Result<String> registerSendEmail(UserDTO userDTO) {
+        Result<String> result = new Result<>();
         String message = "";
         if (isUserDTOEmpty(userDTO)) {
             message = "Incomplete user information";
@@ -52,23 +73,67 @@ public class UserServiceImpl implements UserService {
         } else if (Stream.of("male", "female", "secret").noneMatch(userDTO.getGender()::equals)) {
             message = "Unknown gender! " + userDTO.getGender();
             log.error(message);
-        } else if (ojUserMapper.selectByUsername(userDTO.getUsername()) != null) {
+        } else if (userMapper.selectByUsername(userDTO.getUsername()) != null) {
             message = "Username already exists! " + userDTO.getUsername();
             log.error(message);
-        } else if (ojUserMapper.selectByEmail(userDTO.getEmail()) != null) {
+        } else if (userMapper.selectByEmail(userDTO.getEmail()) != null) {
             message = "Email already exists! " + userDTO.getEmail();
             log.error(message);
         }
-        if (!message.isEmpty()) {
-            result.setSuccess(false);
-            result.setMessage(message);
-            return result;
-        }
-        if (isStudent) {
-            userDTO.setRole("student");
+        if (message.isEmpty()) {
+            try {
+                Cache<String, UserDTO> usernameCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
+                usernameCache.put(userDTO.getUsername(), userDTO);
+                result.setSuccess(true);
+                message = "验证邮件!";
+                emailService.sendRegisterVerifyEmail(userDTO);
+                log.info(message);
+            } catch (Exception e) {
+                log.error(String.valueOf(e));
+                result.setSuccess(false);
+            }
         } else {
-            userDTO.setRole("teacher");
+            result.setSuccess(false);
         }
+        result.setMessage(message);
+        return result;
+    }
+
+    @Override
+    public Result registerVerifyEmail(VerificationDTO verification) {
+        Result result = new Result();
+        String message = "";
+        if (Objects.isNull(verification) || ObjectUtils.isEmpty(verification.getUsername()) || ObjectUtils.isEmpty(verification.getCode()) || ObjectUtils.isEmpty(verification.getType())) {
+            message = "验证码信息缺失";
+            log.error(message);
+        } else if (verification.getType().equals(EmailTypeEnum.REGISTER.getValue())) {
+            log.info("开始验证邮件");
+            userDTOCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
+            UserDTO userDTO = userDTOCache.get(verification.getUsername());
+            if (Objects.isNull(userDTO)) {
+                message = "注册信息不存在或已过期!";
+                log.error(message);
+                result.setSimpleResult(false, message);
+                return result;
+            }
+            verificationDTOCache = cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
+            if (!Objects.isNull(verificationDTOCache.get(userDTO.getUsername())) && !Objects.isNull(verificationDTOCache.get(userDTO.getUsername()).getCode()) && verificationDTOCache.get(userDTO.getUsername()).getCode().equals(verification.getCode())) {
+                message = "邮件验证成功!";
+                log.info(message);
+                result = register(userDTO);
+                verificationDTOCache.remove(userDTO.getUsername());
+            } else {
+                message = "验证码错误或已过期，邮件验证失败!";
+                result.setSimpleResult(false, message);
+                log.error(message + "{}", verificationDTOCache.get(userDTO.getUsername()));
+            }
+        }
+        return result;
+    }
+
+    public Result register(UserDTO userDTO) {
+        Result result = new Result();
+        String message = "";
         userDTO.setPassword(Encryption.hashPassword(userDTO.getPassword()));
         OjUser ojUser = new OjUser();
         BeanUtils.copyProperties(userDTO, ojUser);
@@ -76,38 +141,39 @@ public class UserServiceImpl implements UserService {
             ojUserMapper.insertSelective(ojUser);
             message = "用户注册成功";
             log.info(message + "{}", userDTO.getUsername());
+            userDTOCache.remove(userDTO.getUsername());
         } catch (Exception e) {
             message = "用户注册失败";
             log.error(message + "{}", userDTO.getUsername(), e);
             throw new RuntimeException("用户表插入异常");
         }
-        result.setSuccess(true);
-        result.setMessage(message);
+        result.setSimpleResult(true, message);
         return result;
     }
 
     @Override
     public boolean isUserDTOEmpty(UserDTO userDTO) {
-        return StringUtils.isEmpty(userDTO.getUsername())
-                || StringUtils.isEmpty(userDTO.getPassword())
-                || StringUtils.isEmpty(userDTO.getFirstName())
-                || StringUtils.isEmpty(userDTO.getLastName())
-                || StringUtils.isEmpty(userDTO.getEmail())
+        return Objects.isNull(userDTO)
+                || ObjectUtils.isEmpty(userDTO.getUsername())
+                || ObjectUtils.isEmpty(userDTO.getPassword())
+                || ObjectUtils.isEmpty(userDTO.getFirstName())
+                || ObjectUtils.isEmpty(userDTO.getLastName())
+                || ObjectUtils.isEmpty(userDTO.getEmail())
                 || userDTO.getGender() == null;
     }
 
     @Override
     public Result login(LoginDTO loginDTO) {
-        if(null==loginDTO.getUsername()||null==loginDTO.getPassword()){
-            return new Result("Incomplete Login Information!");
+        if (null == loginDTO.getUsername() || null == loginDTO.getPassword()) {
+            return new Result(false, "Incomplete Login Information!");
         }
-        OjUser ojUser=ojUserMapper.selectByUsername(loginDTO.getUsername());
-        if(null==ojUser){
-            return new Result("Incorrect Username or Password!");
-        }else if(!Encryption.checkPassword(loginDTO.getPassword(),ojUser.getPassword())){
-            return new Result("Incorrect Username or Password!");
-        }else{
-            Result result=new Result();
+        UserDTO userDTO = userMapper.selectByUsername(loginDTO.getUsername());
+        if (null == userDTO) {
+            return new Result(false, "Incorrect Username or Password!");
+        } else if (!Encryption.checkPassword(loginDTO.getPassword(), userDTO.getPassword())) {
+            return new Result(false, "Incorrect Username or Password!");
+        } else {
+            Result result = new Result();
             result.setSuccess(true);
             result.setCode(0);
             result.setMessage("Login successfully!");

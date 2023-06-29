@@ -3,7 +3,9 @@ package com.offer.oj.dao.mapper;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.anno.Cached;
 import com.offer.oj.domain.OjUser;
+import com.offer.oj.domain.query.UserInnerQuery;
 
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 public interface OjUserMapper {
@@ -19,9 +21,8 @@ public interface OjUserMapper {
 
     int updateByPrimaryKey(OjUser row);
 
-    @Cached(name = "userCache", key = "#username", expire = 300, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.REMOTE)
-    OjUser selectByUsername(String username);
+    List<OjUser> queryForList(UserInnerQuery userInnerQuery);
 
-    @Cached(name = "userCache", key = "#email", expire = 300, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.REMOTE)
-    OjUser selectByEmail(String email);
+    Integer queryForCount(UserInnerQuery userInnerQuery);
+
 }

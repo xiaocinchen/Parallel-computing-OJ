@@ -1,15 +1,15 @@
-package com.offer.oj.domain.dto;
+package com.offer.oj.domain.query;
 
 import lombok.Data;
 
 import java.io.Serializable;
 
 @Data
-public class UserDTO implements Serializable {
+public class UserInnerQuery extends BaseInnerQuery implements Serializable {
+
+    private Integer id;
 
     private String username;
-
-    private String email;
 
     private String firstName;
 
@@ -20,5 +20,7 @@ public class UserDTO implements Serializable {
     private String password;
 
     private String role;
+
+    private String email;
 
 }
