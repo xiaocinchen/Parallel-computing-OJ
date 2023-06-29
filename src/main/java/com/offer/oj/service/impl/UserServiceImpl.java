@@ -6,6 +6,7 @@ import com.alicp.jetcache.CacheManager;
 import com.offer.oj.dao.Result;
 import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjUserMapper;
+import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.VerificationDTO;
@@ -159,5 +160,24 @@ public class UserServiceImpl implements UserService {
                 || ObjectUtils.isEmpty(userDTO.getLastName())
                 || ObjectUtils.isEmpty(userDTO.getEmail())
                 || userDTO.getGender() == null;
+    }
+
+    @Override
+    public Result login(LoginDTO loginDTO) {
+        if (null == loginDTO.getUsername() || null == loginDTO.getPassword()) {
+            return new Result(false, "Incomplete Login Information!");
+        }
+        UserDTO userDTO = userMapper.selectByUsername(loginDTO.getUsername());
+        if (null == userDTO) {
+            return new Result(false, "Incorrect Username or Password!");
+        } else if (!Encryption.checkPassword(loginDTO.getPassword(), userDTO.getPassword())) {
+            return new Result(false, "Incorrect Username or Password!");
+        } else {
+            Result result = new Result();
+            result.setSuccess(true);
+            result.setCode(0);
+            result.setMessage("Login successfully!");
+            return result;
+        }
     }
 }

@@ -1,6 +1,7 @@
 package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
+import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.service.UserService;
@@ -9,7 +10,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
-@Controller
+@RestController
 @RequestMapping("/v1")
 public class LoginController {
     @Autowired
@@ -30,7 +31,13 @@ public class LoginController {
 
     @RequestMapping("/register/verify")
     @ResponseBody
-    public Result verifyEmail(@RequestBody VerificationDTO verificationDTO){
+    public Result verifyEmail(@RequestBody VerificationDTO verificationDTO) {
         return userService.registerVerifyEmail(verificationDTO);
     }
+
+    @GetMapping("/login")
+    public Result login(@RequestBody LoginDTO loginDTO) {
+        return userService.login(loginDTO);
+    }
+
 }
