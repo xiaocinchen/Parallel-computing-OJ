@@ -4,6 +4,8 @@ import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.service.UserService;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -12,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @RestController
 @RequestMapping("/v1")
 public class LoginController {
+
     @Autowired
     private UserService userService;
 
@@ -21,15 +24,15 @@ public class LoginController {
         return userService.register(userDTO, true);
     }
 
-    @RequestMapping("index")
-    public String index(String name, Model model) {
-        model.addAttribute("name", name);
-        return "index";
+    @PostMapping("/login")
+    @ResponseBody
+    public Result login(@RequestBody LoginDTO loginDTO, HttpServletResponse response){
+        return userService.login(loginDTO, response);
     }
 
-    @GetMapping("/login")
-    public Result login(@RequestBody LoginDTO loginDTO){
-        return userService.login(loginDTO);
+    @GetMapping("/logout")
+    @ResponseBody
+    public Result logout(@CookieValue(required = false, value = "TOKEN") Cookie cookie){
+        return userService.logout(cookie);
     }
-
 }

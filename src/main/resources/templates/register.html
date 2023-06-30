@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Register</title>
+</head>
+<body>
+  <h1>Register</h1>
+  <form onsubmit="register(); return false;">
+    Username:<input id="username"/><br>
+    First Name:<input id="firstName"/><br>
+    Last Name:<input id="lastName"/><br>
+    Gender:<select id="gender">
+    <option value="male">Male</option>
+    <option value="female">Female</option>
+    <option value="secret">Secret</option>
+  </select><br>
+    Password:<input id="password"/><br>
+    Role:<select id="role">
+    <option value="student">Student</option>
+    <option value="teacher">Teacher</option>
+  </select><br>
+    Email:<input id="email"/><br>
+    <button type="submit">Register</button>
+  </form>
+  <script type="text/javascript">
+    function register(){
+      let username=document.getElementById('username')
+      let firstName=document.getElementById('firstName')
+      let lastName=document.getElementById('lastName')
+      let gender=document.getElementById('gender')
+      let password=document.getElementById('password')
+      let role=document.getElementById('role')
+      let email=document.getElementById('email')
+      let xhr=new XMLHttpRequest();
+      xhr.open('POST','/v1/register')
+      xhr.setRequestHeader('Content-Type','application/json')
+      xhr.onreadystatechange=()=>{
+        if(4===xhr.readyState){
+          let res=JSON.parse(xhr.responseText)
+          if(res.success){
+            alert('Register Successfully!')
+            window.location.replace('/view/login')
+          }
+        }
+      }
+      xhr.send(JSON.stringify({username:username.value,firstName:firstName.value,lastName:lastName.value,gender:gender.value,password:password.value,role:role.value,email:email.value}))
+    }
+  </script>
+</body>
+</html>

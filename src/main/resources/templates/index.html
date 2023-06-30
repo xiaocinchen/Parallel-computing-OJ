@@ -2,10 +2,31 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>项⽬⾸⻚</title>
+    <title>Index</title>
 </head>
 <body>
-<h1>第⼀个⻚⾯</h1>
-<div th:text="${name}"></div>
+    <h1>Index</h1>
+    <div th:text="${name}"></div>
+    <button onclick="logout()">Logout</button>
+    <script type="text/javascript">
+
+        function init(){
+
+        }
+        function logout(){
+            let xhr=new XMLHttpRequest()
+            xhr.open('GET','/v1/logout')
+            xhr.onreadystatechange=()=>{
+                if(4===xhr.readyState){
+                    let res=JSON.parse(xhr.responseText);
+                    if(res.success){
+                        alert("Logout Successfully!")
+                        window.location.replace('/view/login')
+                    }
+                }
+            }
+            xhr.send()
+        }
+    </script>
 </body>
 </html>
