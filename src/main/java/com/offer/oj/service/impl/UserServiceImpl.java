@@ -15,14 +15,18 @@ import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
+import com.offer.oj.util.LoginCacheUtil;
 import io.micrometer.common.util.StringUtils;
+import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Objects;
+import java.util.Collection;
+import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
 
@@ -163,21 +167,74 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result login(LoginDTO loginDTO) {
+    public Result login(LoginDTO loginDTO, HttpServletResponse response)) {
+
+        // Incomplete input
         if (null == loginDTO.getUsername() || null == loginDTO.getPassword()) {
             return new Result(false, "Incomplete Login Information!");
         }
+
+        // Incorrect info
         UserDTO userDTO = userMapper.selectByUsername(loginDTO.getUsername());
         if (null == userDTO) {
             return new Result(false, "Incorrect Username or Password!");
         } else if (!Encryption.checkPassword(loginDTO.getPassword(), userDTO.getPassword())) {
             return new Result(false, "Incorrect Username or Password!");
-        } else {
-            Result result = new Result();
+        }
+
+        // Correct info & Login
+        else {
+            // SSO
+            Integer userId=ojUser.getId();                     // Get UserId
+            String token= UUID.randomUUID().toString();                  // Get Token
+            Collection<Integer> values= LoginCacheUtil.loginUser.values(); // Save Token
+            values.remove(userId);
+            LoginCacheUtil.loginUser.put(token,userId);
+            Cookie cookie=new Cookie("TOKEN",token);                     // Set Cookie
+            cookie.setDomain("127.0.0.1");
+            cookie.setPath("/");
+            response.addCookie(cookie);
+            // Return result
+            Result result=new Result();
             result.setSuccess(true);
             result.setCode(0);
             result.setMessage("Login successfully!");
             return result;
         }
+    }
+    @Override
+    public boolean isLogin(Cookie cookie) {
+        return null!=cookie && LoginCacheUtil.loginUser.containsKey(cookie.getValue());
+    }
+
+    @Override
+    public Result logout(Cookie cookie) {
+        if(null!=cookie){
+            LoginCacheUtil.loginUser.remove(cookie.getValue());
+        }
+        Result result=new Result();
+        result.setSuccess(true);
+        result.setCode(0);
+        result.setMessage("Logout Successfully!");
+        return result;
+    }
+
+
+    @Override
+    public Result userInfo(Cookie cookie) {
+        Result result;
+        if(null!=cookie){
+            Integer userId=LoginCacheUtil.loginUser.get(cookie.getValue());
+            OjUser user=ojUserMapper.selectByPrimaryKey(userId);
+            result=new Result();
+            result.setSuccess(true);
+            result.setCode(0);
+            result.setMessage("Get User Info Successfully!");
+            result.setData(user.getUsername());
+        }
+        else{
+            result=new Result("Cannot Get User Info!");
+        }
+        return result;
     }
 }
