@@ -27,11 +27,23 @@ public class UserMapperImpl implements UserMapper {
         return userDTOList.isEmpty() ? null : userDTOList.get(0);
     }
 
-    public UserDTO selectByEmail(String email){
+    public UserDTO selectByEmail(String email) {
         UserInnerQuery userInnerQuery = new UserInnerQuery();
         userInnerQuery.setEmail(email);
         List<UserDTO> userDTOList = getUserDTO((userInnerQuery));
         return userDTOList.isEmpty() ? null : userDTOList.get(0);
+    }
+
+    @Override
+    public Integer selectIdByUsername(String username) {
+        UserInnerQuery userInnerQuery = new UserInnerQuery();
+        userInnerQuery.setUsername(username);
+        List<OjUser> ojUserList = ojUserMapper.queryForList(userInnerQuery);
+        if (CollectionUtils.isEmpty(ojUserList)) {
+            return null;
+        } else {
+            return ojUserList.get(0).getId();
+        }
     }
 
     private List<UserDTO> getUserDTO(UserInnerQuery userInnerQuery) {

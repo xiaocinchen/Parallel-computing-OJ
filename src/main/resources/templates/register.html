@@ -33,7 +33,7 @@
       let role=document.getElementById('role')
       let email=document.getElementById('email')
       let xhr=new XMLHttpRequest();
-      xhr.open('POST','/v1/register')
+      xhr.open('POST','/v1/register/send')
       xhr.setRequestHeader('Content-Type','application/json')
       xhr.onreadystatechange=()=>{
         if(4===xhr.readyState){

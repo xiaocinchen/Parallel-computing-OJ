@@ -12,4 +12,6 @@ public interface UserMapper {
 
     @Cached(name = "userCache", key = "#email", expire = 300, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.REMOTE)
     UserDTO selectByEmail(String email);
+
+    Integer selectIdByUsername(String username);
 }

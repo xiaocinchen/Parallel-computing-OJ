@@ -26,6 +26,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
 import java.util.Collection;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
 import java.util.stream.Stream;
@@ -167,7 +168,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result login(LoginDTO loginDTO, HttpServletResponse response)) {
+    public Result login(LoginDTO loginDTO, HttpServletResponse response) {
 
         // Incomplete input
         if (null == loginDTO.getUsername() || null == loginDTO.getPassword()) {
@@ -185,7 +186,7 @@ public class UserServiceImpl implements UserService {
         // Correct info & Login
         else {
             // SSO
-            Integer userId=ojUser.getId();                     // Get UserId
+            Integer userId=userMapper.selectIdByUsername(loginDTO.getUsername());                     // Get UserId
             String token= UUID.randomUUID().toString();                  // Get Token
             Collection<Integer> values= LoginCacheUtil.loginUser.values(); // Save Token
             values.remove(userId);
@@ -233,7 +234,7 @@ public class UserServiceImpl implements UserService {
             result.setData(user.getUsername());
         }
         else{
-            result=new Result("Cannot Get User Info!");
+            result=new Result(false, "Cannot Get User Info!");
         }
         return result;
     }
