@@ -21,7 +21,6 @@ public class UserController {
     @GetMapping("/info")
     @ResponseBody
     public Result info(@CookieValue(required = false, value = "TOKEN") Cookie cookie){
-//        return userService.userInfo(cookie);
-        return null;
+        return userService.userInfo(cookie);
     }
 }

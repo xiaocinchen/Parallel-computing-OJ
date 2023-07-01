@@ -6,12 +6,23 @@
 </head>
 <body>
     <h1>Index</h1>
-    <div th:text="${name}"></div>
+    <h2 id="username">Welcome!</h2>
     <button onclick="logout()">Logout</button>
     <script type="text/javascript">
 
+        init();
         function init(){
-
+            let xhr=new XMLHttpRequest()
+            xhr.open('GET','/user/info')
+            xhr.onreadystatechange=()=>{
+                if(4===xhr.readyState){
+                    let res=JSON.parse(xhr.responseText);
+                    if(res.success){
+                        document.getElementById('username').innerHTML='Welcome, '+res.data+'!'
+                    }
+                }
+            }
+            xhr.send()
         }
         function logout(){
             let xhr=new XMLHttpRequest()

@@ -4,5 +4,5 @@ import java.util.HashMap;
 import java.util.Map;
 
 public class LoginCacheUtil {
-    public static Map<String, String> loginUser=new HashMap<>();
+    public static Map<String, Integer> loginUser=new HashMap<>();
 }

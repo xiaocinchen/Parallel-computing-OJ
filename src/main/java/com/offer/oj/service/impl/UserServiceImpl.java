@@ -120,9 +120,9 @@ public class UserServiceImpl implements UserService {
         // Correct info & Login
         else{
             // SSO
-            String userId=ojUser.getId().toString();                     // Get UserId
+            Integer userId=ojUser.getId();                     // Get UserId
             String token= UUID.randomUUID().toString();                  // Get Token
-            Collection<String> values= LoginCacheUtil.loginUser.values(); // Save Token
+            Collection<Integer> values= LoginCacheUtil.loginUser.values(); // Save Token
             values.remove(userId);
             LoginCacheUtil.loginUser.put(token,userId);
             Cookie cookie=new Cookie("TOKEN",token);                     // Set Cookie
@@ -157,10 +157,19 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public Result userInfo(Cookie cookie) {
+        Result result;
         if(null!=cookie){
-            String userId=LoginCacheUtil.loginUser.get(cookie.getValue());
-
+            Integer userId=LoginCacheUtil.loginUser.get(cookie.getValue());
+            OjUser user=ojUserMapper.selectByPrimaryKey(userId);
+            result=new Result();
+            result.setSuccess(true);
+            result.setCode(0);
+            result.setMessage("Get User Info Successfully!");
+            result.setData(user.getUsername());
         }
-        return null;
+        else{
+            result=new Result("Cannot Get User Info!");
+        }
+        return result;
     }
 }
