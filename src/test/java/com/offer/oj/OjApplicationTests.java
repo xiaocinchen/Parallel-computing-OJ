@@ -1,6 +1,10 @@
 package com.offer.oj;
 
+import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.UserDTO;
+import com.offer.oj.domain.dto.VerificationDTO;
+import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.service.EmailService;
 import com.offer.oj.service.JetcacheExample;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
@@ -16,6 +20,9 @@ class OjApplicationTests {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
 
     @Test
     void contextLoads() {
@@ -41,13 +48,53 @@ class OjApplicationTests {
     }
 
     @Test
-    void testRegister(){
+    void testRegister() throws InterruptedException {
         UserDTO userDTO = new UserDTO();
         userDTO.setFirstName("xiao");
         userDTO.setLastName("spade");
         userDTO.setGender("male");
         userDTO.setPassword("1232123123");
-        userDTO.setUsername("chen1120111");
-        System.out.println(userService.register(userDTO, true));
+        userDTO.setUsername("ll20111");
+        userDTO.setEmail("spadexi6@gmail.com");
+        Result<String> result = userService.registerSendEmail(userDTO);
+        System.out.println(result);
+        if (result.isSuccess()) {
+            Thread.sleep(2000);
+            userDTO.setUsername("xxx");
+            testSendEmail(userDTO);
+        }
+        else{
+            return;
+        }
+    }
+
+    @Test
+    void testSendEmail() throws InterruptedException {
+        UserDTO userDTO = new UserDTO();
+        userDTO.setUsername("provider7");
+        userDTO.setEmail("spadexiao6@gmail.com");
+        emailService.sendRegisterVerifyEmail(userDTO);
+        Thread.sleep(3000);
+        VerificationDTO verificationDTO = new VerificationDTO();
+        verificationDTO.setCode("2017");
+        verificationDTO.setUsername("provider7");
+        verificationDTO.setType("REGISTER");
+        userService.registerVerifyEmail(verificationDTO);
+    }
+
+    void testSendEmail(UserDTO userDTO) throws InterruptedException {
+        emailService.sendRegisterVerifyEmail(userDTO);
+        Thread.sleep(2000);
+        VerificationDTO verificationDTO = new VerificationDTO();
+        verificationDTO.setCode("2017");
+        verificationDTO.setUsername(userDTO.getUsername());
+        verificationDTO.setType("REGISTER");
+        userService.registerVerifyEmail(verificationDTO);
+    }
+
+    @Test
+    void testEnumClass() {
+        String a = "REGISTER";
+        System.out.println(a.equals(EmailTypeEnum.REGISTER.getValue()));
     }
 }
