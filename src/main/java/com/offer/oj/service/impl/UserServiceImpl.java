@@ -93,7 +93,7 @@ public class UserServiceImpl implements UserService {
                 Cache<String, UserDTO> usernameCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
                 usernameCache.put(userDTO.getUsername(), userDTO);
                 result.setSuccess(true);
-                message = "验证邮件!";
+                message = "Verify email!";
                 emailService.sendRegisterVerifyEmail(userDTO);
                 log.info(message);
             } catch (Exception e) {
@@ -112,26 +112,26 @@ public class UserServiceImpl implements UserService {
         Result result = new Result();
         String message = "";
         if (Objects.isNull(verification) || ObjectUtils.isEmpty(verification.getUsername()) || ObjectUtils.isEmpty(verification.getCode()) || ObjectUtils.isEmpty(verification.getType())) {
-            message = "验证码信息缺失";
+            message = "Missing verification code information.";
             log.error(message);
         } else if (verification.getType().equals(EmailTypeEnum.REGISTER.getValue())) {
-            log.info("开始验证邮件");
+            log.info("Start verifying email.");
             userDTOCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
             UserDTO userDTO = userDTOCache.get(verification.getUsername());
             if (Objects.isNull(userDTO)) {
-                message = "注册信息不存在或已过期!";
+                message = "Registration information does not exist or has expired!";
                 log.error(message);
                 result.setSimpleResult(false, message);
                 return result;
             }
             verificationDTOCache = cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
             if (!Objects.isNull(verificationDTOCache.get(userDTO.getUsername())) && !Objects.isNull(verificationDTOCache.get(userDTO.getUsername()).getCode()) && verificationDTOCache.get(userDTO.getUsername()).getCode().equals(verification.getCode())) {
-                message = "邮件验证成功!";
+                message = "Email verification successful!";
                 log.info(message);
                 result = register(userDTO);
                 verificationDTOCache.remove(userDTO.getUsername());
             } else {
-                message = "验证码错误或已过期，邮件验证失败!";
+                message = "Verification code error or expired, email verification failed!";
                 result.setSimpleResult(false, message);
                 log.error(message + "{}", verificationDTOCache.get(userDTO.getUsername()));
             }
@@ -147,13 +147,13 @@ public class UserServiceImpl implements UserService {
         BeanUtils.copyProperties(userDTO, ojUser);
         try {
             ojUserMapper.insertSelective(ojUser);
-            message = "用户注册成功";
+            message = "User registration successful.";
             log.info(message + "{}", userDTO.getUsername());
             userDTOCache.remove(userDTO.getUsername());
         } catch (Exception e) {
-            message = "用户注册失败";
+            message = "User registration failed.";
             log.error(message + "{}", userDTO.getUsername(), e);
-            throw new RuntimeException("用户表插入异常");
+            throw new RuntimeException("User table insertion exception.");
         }
         result.setSimpleResult(true, message);
         return result;
@@ -167,7 +167,7 @@ public class UserServiceImpl implements UserService {
                 || ObjectUtils.isEmpty(userDTO.getFirstName())
                 || ObjectUtils.isEmpty(userDTO.getLastName())
                 || ObjectUtils.isEmpty(userDTO.getEmail())
-                || userDTO.getGender() == null;
+                || ObjectUtils.isEmpty(userDTO.getGender());
     }
 
     @Override
