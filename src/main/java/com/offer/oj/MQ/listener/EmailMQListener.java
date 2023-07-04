@@ -15,6 +15,7 @@ import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.messaging.handler.annotation.Headers;
@@ -40,7 +41,10 @@ public class EmailMQListener {
 
     private Cache<String, UserDTO> userDTOCache;
 
-    private static final String SENDER = "707103676@qq.com";
+    @Value("${spring.mail.username}")
+    private static String address;
+
+    private static final String SENDER = "OJ<"+address+">";
 
 
     @RabbitListener(bindings = @QueueBinding(
@@ -62,7 +66,7 @@ public class EmailMQListener {
             verificationDTO.setCode(emailDTO.getCode());
             verificationDTO.setType(EmailTypeEnum.REGISTER.getValue());
             verificationDTOCache= cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
-            verificationDTOCache.put(verificationDTO.getUsername(), verificationDTO); // to be changed;
+            verificationDTOCache.put(verificationDTO.getUsername(), verificationDTO);
             log.info("邮件已发送 {}",emailDTO.getUsername());
         } catch (Exception e) {
             log.error("邮件发送失败{}: ", String.valueOf(e));
