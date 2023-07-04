@@ -195,7 +195,7 @@ public class UserServiceImpl implements UserService {
             values.remove(userId);
             LoginCacheUtil.loginUser.put(token,userId);
             Cookie cookie=new Cookie("TOKEN",token);                     // Set Cookie
-            cookie.setDomain("127.0.0.1");
+            cookie.setDomain(ip);
             cookie.setPath("/");
             response.addCookie(cookie);
             // Return result
