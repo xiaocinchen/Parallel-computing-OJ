@@ -16,12 +16,12 @@ import com.offer.oj.service.EmailService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
 import com.offer.oj.util.LoginCacheUtil;
-import io.micrometer.common.util.StringUtils;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
@@ -52,6 +52,9 @@ public class UserServiceImpl implements UserService {
     private Cache<String, VerificationDTO> verificationDTOCache;
 
     private Cache<String, UserDTO> userDTOCache;
+
+    @Value("${server.ip}")
+    private String ip;
 
     @Override
     public Result<String> registerSendEmail(UserDTO userDTO) {

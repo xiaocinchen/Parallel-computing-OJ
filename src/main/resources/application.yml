@@ -109,9 +109,6 @@ spring:
     template:
       mandatory: true
   mail:
-    host: smtp.qq.com
-    username: 707103676@qq.com
-    password: raawxbidzytebfej
     default-encoding: UTF-8
     properties:
       mail:
