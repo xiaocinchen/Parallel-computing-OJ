@@ -42,9 +42,9 @@ public class EmailMQListener {
     private Cache<String, UserDTO> userDTOCache;
 
     @Value("${spring.mail.username}")
-    private static String address;
+    private String address;
 
-    private static final String SENDER = "OJ<"+address+">";
+    private final String SENDER = "OJ<"+address+">";
 
 
     @RabbitListener(bindings = @QueueBinding(
