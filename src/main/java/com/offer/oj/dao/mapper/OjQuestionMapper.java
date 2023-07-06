@@ -1,6 +1,10 @@
 package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.OjQuestion;
+import com.offer.oj.domain.OjUser;
+import com.offer.oj.domain.query.QuestionInnerQuery;
+
+import java.util.List;
 
 public interface OjQuestionMapper {
     int deleteByPrimaryKey(Integer id);
@@ -16,4 +20,8 @@ public interface OjQuestionMapper {
     int updateByPrimaryKeyWithBLOBs(OjQuestion row);
 
     int updateByPrimaryKey(OjQuestion row);
+
+    List<OjUser> queryForList(QuestionInnerQuery questionInnerQuery);
+
+    Integer queryForCount(QuestionInnerQuery questionInnerQuery);
 }
