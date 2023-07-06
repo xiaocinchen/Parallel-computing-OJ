@@ -11,6 +11,8 @@ public class Encryption {
 
     private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(WORKLOAD);
 
+    private Encryption(){}
+
     /**
      * 将密码哈希
      */
