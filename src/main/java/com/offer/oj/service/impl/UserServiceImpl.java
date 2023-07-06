@@ -265,7 +265,6 @@ public class UserServiceImpl implements UserService {
         }
         else{
             //发送邮件
-            emailService.sendResetPasswordEmail(user);
             message = "send email successfully!";
             log.info(message);
             result.setSimpleResult(true, message);
