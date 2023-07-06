@@ -156,4 +156,60 @@
       category = #{category,jdbcType=VARCHAR}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <!-- 查列表 -->
+  <select id="queryForList" parameterType="QuestionInnerQuery" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    oj_question
+    WHERE 1=1
+    <include refid="dynamicWhere"/>
+    <include refid="pagination"/>
+  </select>
+
+  <!--  查数量-->
+  <select id="queryForCount" parameterType="QuestionInnerQuery" resultType="Integer">
+    SELECT count(*) FROM oj_question
+    WHERE 1=1
+    <include refid="dynamicWhere"/>
+  </select>
+
+  <sql id="dynamicWhere">
+    <if test="id != null">
+      AND id = #{id}
+    </if>
+    <if test="createTime != null">
+      AND create_time = #{create_time}
+    </if>
+    <if test="modifyTime != null">
+      AND modify_time = #{modify_time}
+    </if>
+    <if test="title != null">
+      AND title = #{title}
+    </if>
+    <if test="modifier != null">
+      AND modifier = #{modifier}
+    </if>
+    <if test="status != null">
+      AND status = #{status}
+    </if>
+    <if test="pictureUrl != null">
+      AND picture_url = #{picture_url}
+    </if>
+    <if test="category != null">
+      AND category = #{category}
+    </if>
+    <if test="description != null">
+      AND description = #{description}
+    </if>
+  </sql>
+
+  <sql id="pagination">
+    <if test="pageSize!=null and startRow!=null">
+      <![CDATA[
+          LIMIT #{startRow} , #{pageSize}
+           ]]>
+    </if>
+  </sql>
 </mapper>
