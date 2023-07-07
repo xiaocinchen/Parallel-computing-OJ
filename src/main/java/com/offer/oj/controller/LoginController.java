@@ -1,6 +1,7 @@
 package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
+import com.offer.oj.domain.dto.ForgetPasswordDTO;
 import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
@@ -42,5 +43,10 @@ public class LoginController {
     @ResponseBody
     public Result logout(@CookieValue(required = false, value = "TOKEN") Cookie cookie){
         return userService.logout(cookie);
+    }
+    @PostMapping("/forget-passwoed")
+    @ResponseBody
+    public Result forgetPassword(@RequestBody ForgetPasswordDTO forgetPasswordDTO) {
+        return userService.forgetPassword(forgetPasswordDTO);
     }
 }

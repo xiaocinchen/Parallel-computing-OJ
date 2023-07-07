@@ -2,17 +2,21 @@ package com.offer.oj;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
+import com.offer.oj.domain.dto.ForgetPasswordDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.domain.query.QuestionInnerQuery;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.JetcacheExample;
+import com.offer.oj.service.KaptchaService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
+
+import java.io.IOException;
 
 @SpringBootTest
 class OjApplicationTests {
@@ -25,6 +29,9 @@ class OjApplicationTests {
 
     @Autowired
     private EmailService emailService;
+
+    @Autowired
+    private KaptchaService kaptchaService;
 
     @Autowired
     private OjQuestionMapper ojQuestionMapper;
@@ -103,6 +110,19 @@ class OjApplicationTests {
         System.out.println(a.equals(EmailTypeEnum.REGISTER.getValue()));
     }
 
+    @Test
+    void testKaptcha() throws IOException {
+        UserDTO userDTO = new UserDTO();
+        String code = kaptchaService.getKaptchaImage(userDTO).getData().getCode();
+        kaptchaService.checkKaptcha(code);
+    }
+    @Test
+    void testForgetPassword(){
+        ForgetPasswordDTO user = new ForgetPasswordDTO();
+        user.setUsername("ll20111");
+        user.setEmail("spade6@gmail.com");
+        userService.forgetPassword(user);
+    }
     @Test
     void testOjQuestionMapper(){
         QuestionInnerQuery questionInnerQuery = new QuestionInnerQuery();
