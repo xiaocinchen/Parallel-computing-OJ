@@ -1,6 +1,7 @@
 package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
+import com.offer.oj.domain.dto.ForgetPasswordDTO;
 import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
@@ -8,8 +9,6 @@ import com.offer.oj.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -42,5 +41,11 @@ public class LoginController {
     @ResponseBody
     public Result logout(@CookieValue(required = false, value = "TOKEN") Cookie cookie){
         return userService.logout(cookie);
+    }
+
+    @GetMapping("/forget-password")
+    @ResponseBody
+    public Result forgetPassword(@RequestBody ForgetPasswordDTO forgetPasswordDTO){
+        return userService.forgetPassword(forgetPasswordDTO);
     }
 }
