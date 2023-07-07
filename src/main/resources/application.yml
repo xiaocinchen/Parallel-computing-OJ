@@ -24,7 +24,7 @@ mybatis:
   type-aliases-package: com.offer.oj.domain
 
 server:
-  port: 8081
+  port: 8080
 
 logging:
   file:
