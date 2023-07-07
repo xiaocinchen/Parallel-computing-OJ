@@ -48,5 +48,4 @@ public interface UserService {
      * forget password
      */
     Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
-
 }
