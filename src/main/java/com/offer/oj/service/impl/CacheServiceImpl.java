@@ -42,7 +42,7 @@ public class CacheServiceImpl implements CacheService {
     @PostConstruct
     public void initKaptchaCache() {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.KAPTCHA_CACHE.getValue())
-                .expire(Duration.ofMinutes(100))
+                .expire(Duration.ofMinutes(5))
                 .localExpire(Duration.ofSeconds(60))
                 .cacheType(CacheType.BOTH)
                 .syncLocal(true)
