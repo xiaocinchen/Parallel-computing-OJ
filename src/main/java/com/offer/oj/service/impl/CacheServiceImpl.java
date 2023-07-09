@@ -38,4 +38,15 @@ public class CacheServiceImpl implements CacheService {
                 .build();
         cacheManager.getOrCreateCache(quickConfig);
     }
+
+    @PostConstruct
+    public void initKaptchaCache() {
+        QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.KAPTCHA_CACHE.getValue())
+                .expire(Duration.ofMinutes(5))
+                .localExpire(Duration.ofSeconds(60))
+                .cacheType(CacheType.BOTH)
+                .syncLocal(true)
+                .build();
+        cacheManager.getOrCreateCache(quickConfig);
+    }
 }
