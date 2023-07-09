@@ -21,7 +21,7 @@ public interface OjQuestionMapper {
 
     int updateByPrimaryKey(OjQuestion row);
 
-    List<OjUser> queryForList(QuestionInnerQuery questionInnerQuery);
+    List<OjQuestion> queryForList(QuestionInnerQuery questionInnerQuery);
 
     Integer queryForCount(QuestionInnerQuery questionInnerQuery);
 }
