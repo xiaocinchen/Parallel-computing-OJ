@@ -1,7 +1,7 @@
 package com.offer.oj.domain.enums;
 
 public enum CacheEnum {
-    REGISTER_CACHE("registerCache"), USER_CACHE("userCache");
+    REGISTER_CACHE("registerCache"), USER_CACHE("userCache"), KAPTCHA_CACHE("kaptchaCache");
     private final String value;
 
     private CacheEnum(String value) {

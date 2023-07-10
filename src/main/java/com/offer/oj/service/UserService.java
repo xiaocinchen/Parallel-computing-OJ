@@ -1,6 +1,7 @@
 package com.offer.oj.service;
 
 import com.offer.oj.dao.Result;
+import com.offer.oj.domain.dto.ForgetPasswordDTO;
 import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
@@ -43,4 +44,8 @@ public interface UserService {
      */
     Result userInfo(Cookie cookie);
 
+    /**
+     * forget password
+     */
+    Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
 }

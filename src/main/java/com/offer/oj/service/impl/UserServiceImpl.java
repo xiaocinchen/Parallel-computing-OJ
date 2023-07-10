@@ -6,6 +6,7 @@ import com.alicp.jetcache.CacheManager;
 import com.offer.oj.dao.Result;
 import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjUserMapper;
+import com.offer.oj.domain.dto.ForgetPasswordDTO;
 import com.offer.oj.domain.dto.LoginDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.OjUser;
@@ -238,6 +239,35 @@ public class UserServiceImpl implements UserService {
         }
         else{
             result=new Result(false, "Cannot Get User Info!");
+        }
+        return result;
+    }
+
+    @Override
+    public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
+        Result result=new Result();
+        String message = "";
+        UserDTO user = userMapper.selectByUsername(forgetPasswordDTO.getUsername());
+        String email = user.getEmail();
+        if (Objects.isNull(forgetPasswordDTO.getUsername()) || Objects.isNull(forgetPasswordDTO.getEmail())) {
+            message = "Incomplete Information!";
+            log.error(message);
+            result.setSimpleResult(false, message);
+        }
+        else if (Objects.isNull(user)) {
+            message = "Incorrect Username!";
+            log.error(message);
+            result.setSimpleResult(false, message);
+        } else if (!email.equals(forgetPasswordDTO.getEmail())) {
+            message = "Incorrect Username or Email!";
+            log.error(message);
+            result.setSimpleResult(false, message);
+        }
+        else{
+            //发送邮件
+            message = "send email successfully!";
+            log.info(message);
+            result.setSimpleResult(true, message);
         }
         return result;
     }
