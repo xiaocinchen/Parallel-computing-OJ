@@ -15,7 +15,7 @@ public class QuestionDTO implements Serializable {
 
     private boolean status;
 
-    private String picture_url;
+    private String pictureUrl;
 
     private String category;
 }
