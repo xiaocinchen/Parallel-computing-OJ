@@ -2,6 +2,7 @@ package com.offer.oj;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
+import com.offer.oj.domain.dto.ForgetPasswordDTO;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.ForgetPasswordDTO;
@@ -11,8 +12,8 @@ import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.domain.query.QuestionInnerQuery;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.JetcacheExample;
-import com.offer.oj.service.QuestionService;
 import com.offer.oj.service.KaptchaService;
+import com.offer.oj.service.QuestionService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
 import org.junit.jupiter.api.Test;
