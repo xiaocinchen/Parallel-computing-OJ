@@ -19,4 +19,6 @@ public interface QuestionService {
     boolean isValidUrl(String url) throws IOException;
 
     Result deleteQuestion(QuestionDTO questionDTO);
+
+    Result modifyQuestion(QuestionDTO questionDTO);
 }

@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
@@ -87,6 +88,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
+    @Transactional
     public Result deleteQuestion(QuestionDTO questionDTO) {
         String message = "";
         Result result = new Result<>();
@@ -114,5 +116,11 @@ public class QuestionServiceImpl implements QuestionService {
             }
         }
         return result;
+    }
+
+    @Override
+    @Transactional
+    public Result modifyQuestion(QuestionDTO questionDTO) {
+        return null;
     }
 }

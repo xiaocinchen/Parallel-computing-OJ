@@ -50,7 +50,7 @@ public class QuestionController {
         return result;
     }
 
-    @Transient
+
     @DeleteMapping("/question/delete")
     public Result deleteQuestion(@CookieValue("TOKEN")Cookie cookie, int questionId){
         String message="";
@@ -77,4 +77,5 @@ public class QuestionController {
         }
         return result;
     }
+
 }
