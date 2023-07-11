@@ -5,6 +5,7 @@ import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjUserMapper;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.enums.RoleEnum;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.LoginCacheUtil;
@@ -58,7 +59,7 @@ public class QuestionController {
             Integer userId= LoginCacheUtil.loginUser.get(cookie.getValue());
             String username;
             QuestionDTO questionDTO = new QuestionDTO();
-            if((username = (userService.verifyRole(userId,"Teacher"))) !=null){
+            if((username = (userService.verifyRole(userId, RoleEnum.TEACHER.getValue()))) !=null){
                 questionDTO.setUsername(username);
                 questionDTO.setQuestionId(questionId);
                 result =  questionService.deleteQuestion(questionDTO);
