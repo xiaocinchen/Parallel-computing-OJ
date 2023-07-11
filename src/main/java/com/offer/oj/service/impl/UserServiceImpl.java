@@ -271,4 +271,18 @@ public class UserServiceImpl implements UserService {
         }
         return result;
     }
+
+    @Override
+    public String verifyRole(int id, String role) {
+        UserDTO userDTO = userMapper.selectById(id);
+        if (userDTO == null){
+            log.info("No such user! userid: {}", id);
+            return null;
+        }
+        if (userDTO.getRole().equals(role)){
+            return userDTO.getUsername();
+        }else{
+            return null;
+        }
+    }
 }

@@ -48,4 +48,6 @@ public interface UserService {
      * forget password
      */
     Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
+
+    String verifyRole(int id, String role);
 }

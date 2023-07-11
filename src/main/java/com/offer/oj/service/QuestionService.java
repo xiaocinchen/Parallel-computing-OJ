@@ -12,9 +12,11 @@ public interface QuestionService {
     /**
      * 新增题目
      */
-    Result<String> addQuestion(OjUser user, QuestionDTO questionDTO) throws IOException;
+    Result addQuestion(QuestionDTO questionDTO) throws IOException;
 
     boolean isQuestionDTOEmpty(QuestionDTO questionDTO);
 
     boolean isValidUrl(String url) throws IOException;
+
+    Result deleteQuestion(QuestionDTO questionDTO);
 }

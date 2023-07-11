@@ -2,8 +2,6 @@ package com.offer.oj.service.impl;
 
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
-import com.offer.oj.domain.OjQuestion;
-import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -11,6 +9,7 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
+
 import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
@@ -25,17 +24,17 @@ public class QuestionServiceImpl implements QuestionService {
     private QuestionMapper questionMapper;
 
     @Override
-    public Result<String> addQuestion(OjUser user, QuestionDTO questionDTO) throws IOException {
-        Result<String> result = new Result<>();
+    public Result addQuestion(QuestionDTO questionDTO) throws IOException {
+        Result result = new Result();
         String message = "";
 
-        if (isQuestionDTOEmpty(questionDTO)){
+        if (isQuestionDTOEmpty(questionDTO)) {
             message = "Incomplete question information";
             log.error(message);
-        } else if (questionDTO.getTitle().length() < 2 ||questionDTO.getTitle().length() > 25) {
+        } else if (questionDTO.getTitle().length() < 2 || questionDTO.getTitle().length() > 25) {
             message = "The title should be between 2 and 25 characters! " + questionDTO.getTitle();
             log.error(message);
-        } else if (questionDTO.getDescription().length() < 20 || questionDTO.getDescription().length() > 200 ) {
+        } else if (questionDTO.getDescription().length() < 20 || questionDTO.getDescription().length() > 200) {
             message = "description should be between 20 and 100 characters!";
             log.error(message);
         } else if (!isValidUrl(questionDTO.getPictureUrl())) {
@@ -43,13 +42,11 @@ public class QuestionServiceImpl implements QuestionService {
             log.error(message);
         }
         if (message.isEmpty()) {
-            OjQuestion ojQuestion = new OjQuestion();
             try {
-                questionDTO.setModifier(user.getUsername());
-                BeanUtils.copyProperties(questionDTO, ojQuestion);
-                questionMapper.insertSelective(ojQuestion);
+                questionDTO.setModifier(questionDTO.getUsername());
+                questionMapper.insertSelective(questionDTO);
                 result.setSuccess(true);
-                message = "Submit successfully!";
+                message = "Submit question successfully!";
                 log.info(message);
             } catch (Exception e) {
                 log.error(String.valueOf(e));
@@ -87,5 +84,35 @@ public class QuestionServiceImpl implements QuestionService {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public Result deleteQuestion(QuestionDTO questionDTO) {
+        String message = "";
+        Result result = new Result<>();
+        if (questionDTO == null || questionDTO.getQuestionId() == null) {
+            message = "Lack parameters!";
+            log.error(message + "question: {}", questionDTO);
+            result.setMessage(message);
+            result.setSuccess(false);
+        } else {
+            if (questionMapper.selectQuestionById(questionDTO.getQuestionId()) == null) {
+                message = "Delete question failed: No such question, Id=" + questionDTO.getQuestionId();
+                log.warn(message);
+                result.setMessage(message);
+                result.setSuccess(false);
+            } else if (questionMapper.deleteQuestionById(questionDTO)) {
+                message = "Delete question success. Id = " + questionDTO.getQuestionId();
+                log.info(message);
+                result.setMessage(message);
+                result.setSuccess(true);
+            } else {
+                message = "Delete question failed. Id = " + questionDTO.getQuestionId();
+                log.info(message);
+                result.setMessage(message);
+                result.setSuccess(false);
+            }
+        }
+        return result;
     }
 }

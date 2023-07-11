@@ -7,6 +7,10 @@ import java.io.Serializable;
 @Data
 public class QuestionDTO implements Serializable {
 
+    private String username;
+
+    private Integer questionId;
+
     private String title;
 
     private String description;
