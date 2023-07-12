@@ -1,9 +1,7 @@
 package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
-import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjUserMapper;
-import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.util.LoginCacheUtil;
@@ -12,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
@@ -29,15 +28,7 @@ public class QuestionController {
         String message = "";
         if(null!=cookie){
             Integer userId= LoginCacheUtil.loginUser.get(cookie.getValue());
-            OjUser user=ojUserMapper.selectByPrimaryKey(userId);
-            if(user.getRole().equals("teacher")){
-                result =  questionService.addQuestion(user, questionDTO);
-            }
-            else {
-                message = "Permission denied!";
-                result.setSuccess(false);
-                result.setMessage(message);
-            }
+            questionService.addQuestion(userId, questionDTO);
         }
         else{
             message = "Cannot Get User Info!";
@@ -46,4 +37,11 @@ public class QuestionController {
         }
         return result;
     }
+
+    @PostMapping("/select-question")
+    @ResponseBody
+    public List<QuestionDTO> selectQuestion(String title){
+        return  questionService.selectQuestion(title);
+    }
+
 }

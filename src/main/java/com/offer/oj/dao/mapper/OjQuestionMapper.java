@@ -2,7 +2,10 @@ package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.OjQuestion;
 import com.offer.oj.domain.OjUser;
+import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.query.QuestionInnerQuery;
+import org.apache.ibatis.annotations.Param;
+import org.apache.ibatis.annotations.Select;
 
 import java.util.List;
 
@@ -24,4 +27,6 @@ public interface OjQuestionMapper {
     List<OjQuestion> queryForList(QuestionInnerQuery questionInnerQuery);
 
     Integer queryForCount(QuestionInnerQuery questionInnerQuery);
+
+    List<OjQuestion> selectAllQuestionByTitle(@Param("title") String title);
 }
