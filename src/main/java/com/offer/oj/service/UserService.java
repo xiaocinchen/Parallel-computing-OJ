@@ -49,5 +49,5 @@ public interface UserService {
      */
     Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
 
-    String verifyRole(int id, String role);
+    String verifyRole(Integer id, String role);
 }

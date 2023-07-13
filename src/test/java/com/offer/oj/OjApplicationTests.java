@@ -6,7 +6,6 @@ import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.dto.ForgetPasswordDTO;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
-import com.offer.oj.domain.dto.ForgetPasswordDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.EmailTypeEnum;
@@ -170,7 +169,7 @@ class OjApplicationTests {
     void deleteQuestion(){
         int id = 9;
         QuestionDTO questionDTO = new QuestionDTO();
-        questionDTO.setQuestionId(id);
+        questionDTO.setId(id);
         questionService.deleteQuestion(questionDTO);
     }
 }

@@ -3,6 +3,7 @@ package com.offer.oj.service.impl;
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -92,24 +93,24 @@ public class QuestionServiceImpl implements QuestionService {
     public Result deleteQuestion(QuestionDTO questionDTO) {
         String message = "";
         Result result = new Result<>();
-        if (questionDTO == null || questionDTO.getQuestionId() == null) {
+        if (questionDTO == null || questionDTO.getId() == null) {
             message = "Lack parameters!";
             log.error(message + "question: {}", questionDTO);
             result.setMessage(message);
             result.setSuccess(false);
         } else {
-            if (questionMapper.selectQuestionById(questionDTO.getQuestionId()) == null) {
-                message = "Delete question failed: No such question, Id=" + questionDTO.getQuestionId();
+            if (questionMapper.selectQuestionById(questionDTO.getId()) == null) {
+                message = "Delete question failed: No such question, Id=" + questionDTO.getId();
                 log.warn(message);
                 result.setMessage(message);
                 result.setSuccess(false);
-            } else if (questionMapper.deleteQuestionById(questionDTO)) {
-                message = "Delete question success. Id = " + questionDTO.getQuestionId();
+            } else if (questionMapper.deleteQuestionById(questionDTO.getId())) {
+                message = "Delete question success. Id = " + questionDTO.getId();
                 log.info(message);
                 result.setMessage(message);
                 result.setSuccess(true);
             } else {
-                message = "Delete question failed. Id = " + questionDTO.getQuestionId();
+                message = "Delete question failed. Id = " + questionDTO.getId();
                 log.info(message);
                 result.setMessage(message);
                 result.setSuccess(false);
@@ -121,6 +122,20 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     @Transactional
     public Result modifyQuestion(QuestionDTO questionDTO) {
+        String message = "";
+        if (questionDTO == null || questionDTO.getId() == null){
+            message = "Lack parameters!";
+            log.error(message + "question: {}", questionDTO);
+        }
+        QuestionModifyQuery questionModifyQuery = new QuestionModifyQuery();
+        BeanUtils.copyProperties(questionDTO, questionModifyQuery);
+//        try{
+//            if (questionMapper.modifyQuestion(questionModifyQuery)){
+//                log.info("Modify question success. Id = "+questionDTO.getId());
+//
+//            }
+//
+//        }
         return null;
     }
 }

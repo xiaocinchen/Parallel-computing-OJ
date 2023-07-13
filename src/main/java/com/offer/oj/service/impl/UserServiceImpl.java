@@ -273,7 +273,11 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public String verifyRole(int id, String role) {
+    public String verifyRole(Integer id, String role) {
+        if (id == null){
+            log.info("The user has wrong qualification!");
+            return null;
+        }
         UserDTO userDTO = userMapper.selectById(id);
         if (userDTO == null){
             log.info("No such user! userid: {}", id);
