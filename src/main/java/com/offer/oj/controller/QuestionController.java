@@ -1,9 +1,6 @@
 package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
-import com.offer.oj.dao.UserMapper;
-import com.offer.oj.dao.mapper.OjUserMapper;
-import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.enums.RoleEnum;
 import com.offer.oj.service.QuestionService;
@@ -15,7 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.beans.Transient;
 import java.io.IOException;
-import java.util.List;
+
 
 @RestController
 @RequestMapping("/v1")
