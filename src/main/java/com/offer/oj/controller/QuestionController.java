@@ -15,6 +15,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.beans.Transient;
 import java.io.IOException;
+import java.util.List;
 
 @RestController
 @RequestMapping("/v1")
@@ -24,7 +25,7 @@ public class QuestionController {
 
     @Autowired
     private UserService userService;
-    @GetMapping("/question/add")
+    @PostMapping("/question/add")
     @ResponseBody
     public Result addQuestion(@CookieValue(required = false, value = "TOKEN") Cookie cookie, QuestionDTO questionDTO) throws IOException {
         Result result = new Result();
@@ -77,4 +78,5 @@ public class QuestionController {
         }
         return result;
     }
+
 }

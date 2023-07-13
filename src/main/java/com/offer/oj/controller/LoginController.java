@@ -44,7 +44,7 @@ public class LoginController {
     public Result logout(@CookieValue(required = false, value = "TOKEN") Cookie cookie){
         return userService.logout(cookie);
     }
-    @PostMapping("/forget-passwoed")
+    @PostMapping("/forget-password")
     @ResponseBody
     public Result forgetPassword(@RequestBody ForgetPasswordDTO forgetPasswordDTO) {
         return userService.forgetPassword(forgetPasswordDTO);
