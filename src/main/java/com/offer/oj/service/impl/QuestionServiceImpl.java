@@ -3,6 +3,7 @@ package com.offer.oj.service.impl;
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -121,21 +122,28 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     @Transactional
-    public Result modifyQuestion(QuestionDTO questionDTO) {
+    public Result modifyQuestion(VariableQuestionDTO questionDTO) {
         String message = "";
-        if (questionDTO == null || questionDTO.getId() == null){
+        Result result = new Result();
+        if (questionDTO == null || questionDTO.getId() == null) {
             message = "Lack parameters!";
             log.error(message + "question: {}", questionDTO);
+            result.setSimpleResult(false, message);
+            return result;
         }
         QuestionModifyQuery questionModifyQuery = new QuestionModifyQuery();
         BeanUtils.copyProperties(questionDTO, questionModifyQuery);
-//        try{
-//            if (questionMapper.modifyQuestion(questionModifyQuery)){
-//                log.info("Modify question success. Id = "+questionDTO.getId());
-//
-//            }
-//
-//        }
-        return null;
+        try{
+            if (questionMapper.modifyQuestion(questionModifyQuery)){
+                message = "Modify question success.";
+            } else {
+                message = "Modify question fail.";
+            }
+            result.setSimpleResult(true, message);
+            log.info(message+"Id = "+questionDTO.getId());
+        }catch (Exception e){
+            throw new RuntimeException("Modify question Exception.");
+        }
+        return result;
     }
 }

@@ -2,6 +2,7 @@ package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.enums.RoleEnum;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.service.UserService;
@@ -65,19 +66,17 @@ public class QuestionController {
                 result = questionService.deleteQuestion(questionDTO);
             } else {
                 message = "Permission denied!";
-                result.setSuccess(false);
-                result.setMessage(message);
+                result.setSimpleResult(false, message);
             }
         } else {
             message = "Cannot Get User Info!";
-            result.setSuccess(false);
-            result.setMessage(message);
+            result.setSimpleResult(false, message);
         }
         return result;
     }
 
     @PutMapping("/question/modify")
-    public Result modifyQuestion(@CookieValue("TOKEN") Cookie cookie, @Validated @RequestBody QuestionDTO questionDTO, BindingResult bindingResult) {
+    public Result modifyQuestion(@CookieValue("TOKEN") Cookie cookie, @Validated @RequestBody VariableQuestionDTO variableQuestionDTO, BindingResult bindingResult) {
         String message = "";
         Result result = new Result<>();
         if (bindingResult.hasErrors()) {
@@ -89,8 +88,8 @@ public class QuestionController {
             Integer userId = LoginCacheUtil.loginUser.get(cookie.getValue());
             String username;
             if ((username = (userService.verifyRole(userId, RoleEnum.TEACHER.getValue()))) != null) {
-                questionDTO.setUsername(username);
-                result = questionService.modifyQuestion(questionDTO);
+                variableQuestionDTO.setModifier(username);
+                result = questionService.modifyQuestion(variableQuestionDTO);
             } else {
                 message = "Permission denied!";
                 result.setSuccess(false);

@@ -4,6 +4,7 @@ import com.offer.oj.dao.Result;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.UserDTO;
+import com.offer.oj.domain.dto.VariableQuestionDTO;
 import jakarta.servlet.http.Cookie;
 
 import java.io.IOException;
@@ -20,5 +21,5 @@ public interface QuestionService {
 
     Result deleteQuestion(QuestionDTO questionDTO);
 
-    Result modifyQuestion(QuestionDTO questionDTO);
+    Result modifyQuestion(VariableQuestionDTO questionDTO);
 }
