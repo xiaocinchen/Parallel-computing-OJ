@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
 
+
 @RestController
 @Slf4j
 @RequestMapping("/v1")
@@ -25,7 +26,7 @@ public class QuestionController {
 
     @Autowired
     private UserService userService;
-    @GetMapping("/question/add")
+    @PostMapping("/question/add")
     @ResponseBody
     public Result addQuestion(@CookieValue(required = false, value = "TOKEN") Cookie cookie, QuestionDTO questionDTO) throws IOException {
         Result result = new Result();

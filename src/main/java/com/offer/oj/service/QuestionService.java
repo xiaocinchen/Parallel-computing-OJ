@@ -8,12 +8,18 @@ import com.offer.oj.domain.dto.VariableQuestionDTO;
 import jakarta.servlet.http.Cookie;
 
 import java.io.IOException;
+import java.util.List;
 
 public interface QuestionService {
     /**
      * 新增题目
      */
     Result addQuestion(QuestionDTO questionDTO) throws IOException;
+
+    /**
+    * 查找题目
+    */
+    List<QuestionDTO> selectQuestion(String title);
 
     boolean isQuestionDTOEmpty(QuestionDTO questionDTO);
 

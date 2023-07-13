@@ -212,4 +212,8 @@
            ]]>
     </if>
   </sql>
+
+  <select id="selectAllQuestionByTitle" resultMap="BaseResultMap">
+    select * from oj_question where title like '%${title}%'
+  </select>
 </mapper>

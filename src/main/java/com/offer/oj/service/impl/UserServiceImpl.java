@@ -150,7 +150,7 @@ public class UserServiceImpl implements UserService {
             ojUserMapper.insertSelective(ojUser);
             message = "User registration successful.";
             log.info(message + "{}", userDTO.getUsername());
-            userDTOCache.remove(userDTO.getUsername());
+//            userDTOCache.remove(userDTO.getUsername());
         } catch (Exception e) {
             message = "User registration failed.";
             log.error(message + "{}", userDTO.getUsername(), e);
@@ -160,7 +160,6 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
-    @Override
     public boolean isUserDTOEmpty(UserDTO userDTO) {
         return Objects.isNull(userDTO)
                 || ObjectUtils.isEmpty(userDTO.getUsername())
@@ -199,6 +198,7 @@ public class UserServiceImpl implements UserService {
             cookie.setDomain(ip);
             cookie.setPath("/");
             response.addCookie(cookie);
+            System.out.println(cookie.getValue());
             // Return result
             Result result=new Result();
             result.setSuccess(true);

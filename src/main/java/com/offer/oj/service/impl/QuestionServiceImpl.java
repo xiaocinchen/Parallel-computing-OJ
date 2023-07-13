@@ -7,15 +7,13 @@ import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
-
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.List;
 import java.util.Objects;
 
 
@@ -27,10 +25,9 @@ public class QuestionServiceImpl implements QuestionService {
     private QuestionMapper questionMapper;
 
     @Override
-    public Result addQuestion(QuestionDTO questionDTO) throws IOException {
-        Result result = new Result();
+    public Result addQuestion(QuestionDTO questionDTO){
+        Result<String> result = new Result<>();
         String message = "";
-
         if (isQuestionDTOEmpty(questionDTO)) {
             message = "Incomplete question information";
             log.error(message);
@@ -64,6 +61,20 @@ public class QuestionServiceImpl implements QuestionService {
 
 
     @Override
+    public List<QuestionDTO> selectQuestion(String title) {
+        //精准查找
+        List<QuestionDTO> questionDTO = questionMapper.selectByTitle(title);
+        if (! ObjectUtils.isEmpty(questionDTO)){
+            return questionDTO;
+        }
+        //模糊查找
+        else {
+            List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
+            return questionDTOList;
+        }
+    }
+
+    @Override
     public boolean isQuestionDTOEmpty(QuestionDTO questionDTO) {
         return Objects.isNull(questionDTO)
                 || ObjectUtils.isEmpty(questionDTO.getTitle())
@@ -72,7 +83,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public boolean isValidUrl(String url) throws IOException {
+    public boolean isValidUrl(String url){
         URI uri = null;
         try {
             uri = new URI(url);
