@@ -1,5 +1,6 @@
 package com.offer.oj.service.impl;
 
+import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.CacheManager;
 import com.alicp.jetcache.anno.CacheType;
 import com.alicp.jetcache.template.QuickConfig;
@@ -10,6 +11,7 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
+import java.util.HashSet;
 
 @Service
 public class CacheServiceImpl implements CacheService {
@@ -48,5 +50,22 @@ public class CacheServiceImpl implements CacheService {
                 .syncLocal(true)
                 .build();
         cacheManager.getOrCreateCache(quickConfig);
+    }
+
+    @PostConstruct
+    public void initLoginCache() {
+        QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.LOGIN_CACHE.getValue())
+                .expire(Duration.ofDays(1))
+                .localExpire(Duration.ofHours(12))
+                .cacheType(CacheType.BOTH)
+                .syncLocal(true)
+                .build();
+        cacheManager.getOrCreateCache(quickConfig);
+    }
+
+
+    @Override
+    public Cache<Object, Object> getCache(String cacheEnum){
+        return new HashSet<>(CacheEnum.getValues()).contains(cacheEnum) ? cacheManager.getCache(cacheEnum) : null;
     }
 }

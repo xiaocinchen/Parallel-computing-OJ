@@ -13,6 +13,7 @@ import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.service.CacheService;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
@@ -26,6 +27,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import javax.annotation.PostConstruct;
 import java.util.Collection;
 import java.util.Objects;
 import java.util.UUID;
@@ -46,6 +48,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private OjUserMapper ojUserMapper;
+
+    @Autowired
+    private CacheService cacheService;
 
     @Autowired
     private CacheManager cacheManager;
@@ -192,9 +197,8 @@ public class UserServiceImpl implements UserService {
             // SSO
             Integer userId=userMapper.selectIdByUsername(loginDTO.getUsername());                     // Get UserId
             String token= UUID.randomUUID().toString();                  // Get Token
-            Collection<Integer> values= LoginCacheUtil.loginUser.values(); // Save Token
-            values.remove(userId);
-            LoginCacheUtil.loginUser.put(token,userId);
+            cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).put(token, userId);// Save Token
+//            loginCache.put(token, userId);
             Cookie cookie=new Cookie("TOKEN",token);                     // Set Cookie
             cookie.setDomain(ip);
             cookie.setPath("/");
