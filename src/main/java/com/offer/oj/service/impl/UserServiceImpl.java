@@ -198,7 +198,6 @@ public class UserServiceImpl implements UserService {
             Integer userId=userMapper.selectIdByUsername(loginDTO.getUsername());                     // Get UserId
             String token= UUID.randomUUID().toString();                  // Get Token
             cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).put(token, userId);// Save Token
-//            loginCache.put(token, userId);
             Cookie cookie=new Cookie("TOKEN",token);                     // Set Cookie
             cookie.setDomain(ip);
             cookie.setPath("/");
@@ -213,13 +212,13 @@ public class UserServiceImpl implements UserService {
     }
     @Override
     public boolean isLogin(Cookie cookie) {
-        return null!=cookie && LoginCacheUtil.loginUser.containsKey(cookie.getValue());
+        return null!=cookie && cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).get(cookie.getValue())!=null;
     }
 
     @Override
     public Result logout(Cookie cookie) {
         if(null!=cookie){
-            LoginCacheUtil.loginUser.remove(cookie.getValue());
+            cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).remove(cookie.getValue());
         }
         Result result=new Result();
         result.setSuccess(true);
@@ -233,7 +232,7 @@ public class UserServiceImpl implements UserService {
     public Result userInfo(Cookie cookie) {
         Result result;
         if(null!=cookie){
-            Integer userId=LoginCacheUtil.loginUser.get(cookie.getValue());
+            Integer userId= (Integer) cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).get(cookie.getValue());
             OjUser user=ojUserMapper.selectByPrimaryKey(userId);
             result=new Result();
             result.setSuccess(true);

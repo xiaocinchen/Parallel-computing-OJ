@@ -11,7 +11,6 @@ import org.springframework.stereotype.Service;
 
 import javax.annotation.PostConstruct;
 import java.time.Duration;
-import java.util.HashSet;
 
 @Service
 public class CacheServiceImpl implements CacheService {
@@ -57,7 +56,7 @@ public class CacheServiceImpl implements CacheService {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.LOGIN_CACHE.getValue())
                 .expire(Duration.ofDays(1))
                 .localExpire(Duration.ofHours(12))
-                .cacheType(CacheType.BOTH)
+                .cacheType(CacheType.LOCAL)
                 .syncLocal(true)
                 .build();
         cacheManager.getOrCreateCache(quickConfig);
@@ -66,6 +65,6 @@ public class CacheServiceImpl implements CacheService {
 
     @Override
     public Cache<Object, Object> getCache(String cacheEnum){
-        return new HashSet<>(CacheEnum.getValues()).contains(cacheEnum) ? cacheManager.getCache(cacheEnum) : null;
+        return CacheEnum.getValues().contains(cacheEnum) ? cacheManager.getCache(cacheEnum) : null;
     }
 }

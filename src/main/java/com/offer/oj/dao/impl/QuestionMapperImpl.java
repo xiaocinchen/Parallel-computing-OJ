@@ -66,9 +66,13 @@ public class QuestionMapperImpl implements QuestionMapper {
         try {
             OjQuestion ojQuestion = new OjQuestion();
             BeanUtils.copyProperties(question, ojQuestion);
-            ojQuestionMapper.updateByPrimaryKeySelective(ojQuestion);
-            log.info("Update Question Success.");
-            return true;
+            if (ojQuestionMapper.updateByPrimaryKeySelective(ojQuestion) == 1){
+                log.info("Update Question Success.");
+                return true;
+            } else {
+                log.warn("Update Question fail. QuestionId={}", question.getId());
+                return false;
+            }
         } catch (Exception e){
             log.error("Update Question Error.", e);
             return false;

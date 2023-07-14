@@ -1,7 +1,7 @@
 package com.offer.oj.domain.enums;
 
 import java.util.Arrays;
-import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public enum CacheEnum {
@@ -25,7 +25,7 @@ public enum CacheEnum {
         return value;
     }
 
-    public static List<String> getValues(){
-        return Arrays.stream(CacheEnum.values()).map(CacheEnum::getValue).collect(Collectors.toList());
+    public static Set<String> getValues(){
+        return Arrays.stream(CacheEnum.values()).map(CacheEnum::getValue).collect(Collectors.toSet());
     }
 }

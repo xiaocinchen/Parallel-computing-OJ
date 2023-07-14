@@ -3,11 +3,11 @@ package com.offer.oj.controller;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
-import com.offer.oj.domain.enums.RoleEnum;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.LoginCacheUtil;
 import jakarta.servlet.http.Cookie;
+import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.BindingResult;
@@ -53,52 +53,24 @@ public class QuestionController {
 
 
     @DeleteMapping("/question/delete")
-    public Result deleteQuestion(@CookieValue("TOKEN") Cookie cookie, Integer questionId) {
-        String message = "";
-        Result result = new Result();
-        if (null != cookie) {
-            Integer userId = LoginCacheUtil.loginUser.get(cookie.getValue());
-            String username;
-            QuestionDTO questionDTO = new QuestionDTO();
-            if ((username = (userService.verifyRole(userId, RoleEnum.TEACHER.getValue()))) != null) {
-                questionDTO.setUsername(username);
-                questionDTO.setId(questionId);
-                result = questionService.deleteQuestion(questionDTO);
-            } else {
-                message = "Permission denied!";
-                result.setSimpleResult(false, message);
-            }
-        } else {
-            message = "Cannot Get User Info!";
-            result.setSimpleResult(false, message);
-        }
-        return result;
+    public Result deleteQuestion(HttpServletRequest request, Integer questionId) {
+        QuestionDTO questionDTO = new QuestionDTO();
+        questionDTO.setUsername((String) request.getAttribute("username"));
+        questionDTO.setId(questionId);
+        return questionService.deleteQuestion(questionDTO);
     }
 
     @PutMapping("/question/modify")
-    public Result modifyQuestion(@CookieValue("TOKEN") Cookie cookie, @Validated @RequestBody VariableQuestionDTO variableQuestionDTO, BindingResult bindingResult) {
+    public Result modifyQuestion(HttpServletRequest request, @Validated @RequestBody VariableQuestionDTO variableQuestionDTO, BindingResult bindingResult) {
         String message = "";
         Result result = new Result<>();
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(s -> log.info(s.getDefaultMessage()));
             message = "Question Info incomplete.";
-            result.setSuccess(false);
-            result.setMessage(message);
-        } else if (null != cookie) {
-            Integer userId = LoginCacheUtil.loginUser.get(cookie.getValue());
-            String username;
-            if ((username = (userService.verifyRole(userId, RoleEnum.TEACHER.getValue()))) != null) {
-                variableQuestionDTO.setModifier(username);
-                result = questionService.modifyQuestion(variableQuestionDTO);
-            } else {
-                message = "Permission denied!";
-                result.setSuccess(false);
-                result.setMessage(message);
-            }
+            result.setSimpleResult(false, message);
         } else {
-            message = "Cannot Get User Info!";
-            result.setSuccess(false);
-            result.setMessage(message);
+            variableQuestionDTO.setModifier((String) request.getAttribute("username"));
+            result = questionService.modifyQuestion(variableQuestionDTO);
         }
         return result;
     }

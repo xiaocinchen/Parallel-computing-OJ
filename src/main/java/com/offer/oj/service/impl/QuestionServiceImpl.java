@@ -97,24 +97,20 @@ public class QuestionServiceImpl implements QuestionService {
         if (questionDTO == null || questionDTO.getId() == null) {
             message = "Lack parameters!";
             log.error(message + "question: {}", questionDTO);
-            result.setMessage(message);
-            result.setSuccess(false);
+            result.setSimpleResult(false, message);
         } else {
             if (questionMapper.selectQuestionById(questionDTO.getId()) == null) {
                 message = "Delete question failed: No such question, Id=" + questionDTO.getId();
                 log.warn(message);
-                result.setMessage(message);
-                result.setSuccess(false);
+                result.setSimpleResult(false, message);
             } else if (questionMapper.deleteQuestionById(questionDTO.getId())) {
                 message = "Delete question success. Id = " + questionDTO.getId();
                 log.info(message);
-                result.setMessage(message);
-                result.setSuccess(true);
+                result.setSimpleResult(true, message);
             } else {
                 message = "Delete question failed. Id = " + questionDTO.getId();
                 log.info(message);
-                result.setMessage(message);
-                result.setSuccess(false);
+                result.setSimpleResult(false, message);
             }
         }
         return result;
@@ -133,15 +129,15 @@ public class QuestionServiceImpl implements QuestionService {
         }
         QuestionModifyQuery questionModifyQuery = new QuestionModifyQuery();
         BeanUtils.copyProperties(questionDTO, questionModifyQuery);
-        try{
-            if (questionMapper.modifyQuestion(questionModifyQuery)){
+        try {
+            if (questionMapper.modifyQuestion(questionModifyQuery)) {
                 message = "Modify question success.";
             } else {
                 message = "Modify question fail.";
             }
             result.setSimpleResult(true, message);
-            log.info(message+"Id = "+questionDTO.getId());
-        }catch (Exception e){
+            log.info(message + "Id = " + questionDTO.getId());
+        } catch (Exception e) {
             throw new RuntimeException("Modify question Exception.");
         }
         return result;
