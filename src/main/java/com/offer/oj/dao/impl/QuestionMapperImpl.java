@@ -4,6 +4,7 @@ import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.OjQuestion;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -17,7 +18,7 @@ public class QuestionMapperImpl implements QuestionMapper {
     private OjQuestionMapper ojQuestionMapper;
 
     @Override
-    public Boolean insertSelective(QuestionDTO question) {
+    public Boolean insertSelective(VariableQuestionDTO question) {
         OjQuestion ojQuestion = new OjQuestion();
         BeanUtils.copyProperties(question, ojQuestion);
         try {

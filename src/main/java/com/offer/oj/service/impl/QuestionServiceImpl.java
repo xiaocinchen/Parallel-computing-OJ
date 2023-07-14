@@ -27,27 +27,18 @@ public class QuestionServiceImpl implements QuestionService {
     private QuestionMapper questionMapper;
 
     @Override
-    public Result addQuestion(QuestionDTO questionDTO) throws IOException {
+    public Result addQuestion(VariableQuestionDTO variableQuestionDTO) throws IOException {
         Result result = new Result();
         String message = "";
-
-        if (isQuestionDTOEmpty(questionDTO)) {
-            message = "Incomplete question information";
+        if (!isValidUrl(variableQuestionDTO.getPictureUrl())) {
+            message = "picture_url is invalid !" + variableQuestionDTO.getPictureUrl();
             log.error(message);
-        } else if (questionDTO.getTitle().length() < 2 || questionDTO.getTitle().length() > 25) {
-            message = "The title should be between 2 and 25 characters! " + questionDTO.getTitle();
-            log.error(message);
-        } else if (questionDTO.getDescription().length() < 20 || questionDTO.getDescription().length() > 200) {
-            message = "description should be between 20 and 100 characters!";
-            log.error(message);
-        } else if (!isValidUrl(questionDTO.getPictureUrl())) {
-            message = "picture_url is invalid !" + questionDTO.getPictureUrl();
-            log.error(message);
+            result.setSuccess(false);
         }
-        if (message.isEmpty()) {
+        else {
             try {
-                questionDTO.setModifier(questionDTO.getUsername());
-                questionMapper.insertSelective(questionDTO);
+                variableQuestionDTO.setModifier(variableQuestionDTO.getModifier());
+                questionMapper.insertSelective(variableQuestionDTO);
                 result.setSuccess(true);
                 message = "Submit question successfully!";
                 log.info(message);
@@ -55,21 +46,12 @@ public class QuestionServiceImpl implements QuestionService {
                 log.error(String.valueOf(e));
                 result.setSuccess(false);
             }
-        } else {
-            result.setSuccess(false);
         }
         result.setMessage(message);
         return result;
     }
 
 
-    @Override
-    public boolean isQuestionDTOEmpty(QuestionDTO questionDTO) {
-        return Objects.isNull(questionDTO)
-                || ObjectUtils.isEmpty(questionDTO.getTitle())
-                || ObjectUtils.isEmpty(questionDTO.getDescription())
-                || ObjectUtils.isEmpty(questionDTO.getPictureUrl());
-    }
 
     @Override
     public boolean isValidUrl(String url) throws IOException {
