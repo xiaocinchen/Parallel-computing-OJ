@@ -45,11 +45,26 @@
 <!--            enableDeleteByExample="false"-->
 <!--            enableSelectByExample="false"-->
 <!--            selectByExampleQueryId="false" />-->
-        <table tableName="oj_question" enableCountByExample="false"
-               enableUpdateByExample="false"
-               enableDeleteByExample="false"
-               enableSelectByExample="false"
-               selectByExampleQueryId="false" />
+<!--        <table tableName="oj_question" enableCountByExample="false"-->
+<!--               enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false"-->
+<!--               enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false" />-->
+<!--            <table tableName="oj_group_question_bridge" enableCountByExample="false"-->
+<!--                   enableUpdateByExample="false"-->
+<!--                   enableDeleteByExample="false"-->
+<!--                   enableSelectByExample="false"-->
+<!--                   selectByExampleQueryId="false" />-->
+<!--            <table tableName="oj_code" enableCountByExample="false"-->
+<!--                   enableUpdateByExample="false"-->
+<!--                   enableDeleteByExample="false"-->
+<!--                   enableSelectByExample="false"-->
+<!--                   selectByExampleQueryId="false" />-->
+<!--            <table tableName="oj_question_group" enableCountByExample="false"-->
+<!--                   enableUpdateByExample="false"-->
+<!--                   enableDeleteByExample="false"-->
+<!--                   enableSelectByExample="false"-->
+<!--                   selectByExampleQueryId="false" />-->
             <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
     </context>
 </generatorConfiguration>
