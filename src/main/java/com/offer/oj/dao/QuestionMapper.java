@@ -9,7 +9,7 @@ import java.util.List;
 
 public interface QuestionMapper {
     Boolean insertSelective(VariableQuestionDTO question);
-    Boolean insertSelective(QuestionDTO question);
+
     List<QuestionDTO> selectByTitle(String title);
 
     List<QuestionDTO> fuzzySelectByTitle(String title);

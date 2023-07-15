@@ -4,6 +4,7 @@ import com.offer.oj.MQ.sender.EmailMQSender;
 import com.offer.oj.domain.dto.EmailDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.service.EmailService;
+import com.offer.oj.service.KaptchaService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,6 +16,9 @@ public class EmailServiceImpl implements EmailService {
 
     @Autowired
     private EmailMQSender emailMQSender;
+
+    @Autowired
+    private KaptchaService kaptchaService;
 
     @Override
     public void sendRegisterVerifyEmail(UserDTO userDTO) {

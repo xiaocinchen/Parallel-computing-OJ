@@ -33,7 +33,7 @@ public class KaptchaServiceImpl implements KaptchaService {
     private HttpServletResponse response;
 
     @Override
-    public Result<KaptchaDTO> getKaptchaImage(UserDTO userDTO) throws IOException {
+    public Result<KaptchaDTO> getKaptcha(UserDTO userDTO) throws IOException {
         String kaptchaText = producer.createText();
         log.info("******************当前验证码为：{}******************", kaptchaText);
         BufferedImage kaptchaImage = producer.createImage(kaptchaText);

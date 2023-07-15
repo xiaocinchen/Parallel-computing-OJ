@@ -2,6 +2,7 @@ package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.dto.UserIdentityDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.enums.RoleEnum;
 import com.offer.oj.service.QuestionService;
@@ -22,9 +23,6 @@ import java.io.IOException;
 public class QuestionController {
     @Autowired
     private QuestionService questionService;
-
-    @Autowired
-    private UserService userService;
 
     @PostMapping("/question/add")
     @ResponseBody
@@ -59,7 +57,7 @@ public class QuestionController {
             message = "Question Info incomplete.";
             result.setSimpleResult(false, message);
         } else {
-            variableQuestionDTO.setModifier((String) request.getAttribute("username"));
+            variableQuestionDTO.setModifier(((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getUsername());
             result = questionService.modifyQuestion(variableQuestionDTO);
         }
         return result;

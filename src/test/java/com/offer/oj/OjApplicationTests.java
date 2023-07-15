@@ -2,7 +2,6 @@ package com.offer.oj;
 
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
-import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.OjUser;
@@ -124,7 +123,7 @@ class OjApplicationTests {
     @Test
     void testKaptcha() throws IOException {
         UserDTO userDTO = new UserDTO();
-        String code = kaptchaService.getKaptchaImage(userDTO).getData().getCode();
+        String code = kaptchaService.getKaptcha(userDTO).getData().getCode();
         kaptchaService.checkKaptcha(code);
     }
     @Test

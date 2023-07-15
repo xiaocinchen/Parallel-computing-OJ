@@ -7,7 +7,7 @@ import java.io.IOException;
 
 public interface KaptchaService {
 
-    Result<KaptchaDTO> getKaptchaImage(UserDTO userDTO) throws IOException;
+    Result<KaptchaDTO> getKaptcha(UserDTO userDTO) throws IOException;
 
     void saveKaptchaCode(KaptchaDTO kaptchaDTO, UserDTO userDTO);
 
