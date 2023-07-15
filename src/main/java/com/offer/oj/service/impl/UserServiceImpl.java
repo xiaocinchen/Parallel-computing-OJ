@@ -8,6 +8,7 @@ import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjUserMapper;
 import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.OjUser;
+import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.service.CacheService;
@@ -244,25 +245,30 @@ public class UserServiceImpl implements UserService {
     public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
         Result result = new Result();
         String message = "";
-        UserDTO user = userMapper.selectByUsername(forgetPasswordDTO.getUsername());
-        String email = user.getEmail();
         if (Objects.isNull(forgetPasswordDTO.getUsername()) || Objects.isNull(forgetPasswordDTO.getEmail())) {
             message = "Incomplete Information!";
             log.error(message);
             result.setSimpleResult(false, message);
-        } else if (Objects.isNull(user)) {
+        }
+        if (Objects.isNull(userMapper.selectByUsername(forgetPasswordDTO.getUsername()))){
             message = "Incorrect Username!";
             log.error(message);
             result.setSimpleResult(false, message);
-        } else if (!email.equals(forgetPasswordDTO.getEmail())) {
-            message = "Incorrect Username or Email!";
-            log.error(message);
-            result.setSimpleResult(false, message);
-        } else {
-            //发送邮件
-            message = "send email successfully!";
-            log.info(message);
-            result.setSimpleResult(true, message);
+        }
+        else {
+            UserDTO user = userMapper.selectByUsername(forgetPasswordDTO.getUsername());
+            String email = user.getEmail();
+            if (!email.equals(forgetPasswordDTO.getEmail())) {
+                message = "Incorrect Username or Email!";
+                log.error(message);
+                result.setSimpleResult(false, message);
+            }
+            else{
+                //发送邮件
+                message = "send email successfully!";
+                log.info(message);
+                result.setSimpleResult(true, message);
+            }
         }
         return result;
     }

@@ -7,10 +7,13 @@ import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.ObjectUtils;
+
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
