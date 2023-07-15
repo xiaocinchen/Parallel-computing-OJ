@@ -25,26 +25,18 @@ public class QuestionServiceImpl implements QuestionService {
     private QuestionMapper questionMapper;
 
     @Override
-    public Result addQuestion(QuestionDTO questionDTO){
-        Result<String> result = new Result<>();
+    public Result addQuestion(VariableQuestionDTO variableQuestionDTO) throws IOException {
+        Result result = new Result();
         String message = "";
-        if (isQuestionDTOEmpty(questionDTO)) {
-            message = "Incomplete question information";
+        if (!isValidUrl(variableQuestionDTO.getPictureUrl())) {
+            message = "picture_url is invalid !" + variableQuestionDTO.getPictureUrl();
             log.error(message);
-        } else if (questionDTO.getTitle().length() < 2 || questionDTO.getTitle().length() > 25) {
-            message = "The title should be between 2 and 25 characters! " + questionDTO.getTitle();
-            log.error(message);
-        } else if (questionDTO.getDescription().length() < 20 || questionDTO.getDescription().length() > 200) {
-            message = "description should be between 20 and 100 characters!";
-            log.error(message);
-        } else if (!isValidUrl(questionDTO.getPictureUrl())) {
-            message = "picture_url is invalid !" + questionDTO.getPictureUrl();
-            log.error(message);
+            result.setSuccess(false);
         }
-        if (message.isEmpty()) {
+        else {
             try {
-                questionDTO.setModifier(questionDTO.getUsername());
-                questionMapper.insertSelective(questionDTO);
+                variableQuestionDTO.setModifier(variableQuestionDTO.getModifier());
+                questionMapper.insertSelective(variableQuestionDTO);
                 result.setSuccess(true);
                 message = "Submit question successfully!";
                 log.info(message);
@@ -52,8 +44,6 @@ public class QuestionServiceImpl implements QuestionService {
                 log.error(String.valueOf(e));
                 result.setSuccess(false);
             }
-        } else {
-            result.setSuccess(false);
         }
         result.setMessage(message);
         return result;
@@ -108,24 +98,20 @@ public class QuestionServiceImpl implements QuestionService {
         if (questionDTO == null || questionDTO.getId() == null) {
             message = "Lack parameters!";
             log.error(message + "question: {}", questionDTO);
-            result.setMessage(message);
-            result.setSuccess(false);
+            result.setSimpleResult(false, message);
         } else {
             if (questionMapper.selectQuestionById(questionDTO.getId()) == null) {
                 message = "Delete question failed: No such question, Id=" + questionDTO.getId();
                 log.warn(message);
-                result.setMessage(message);
-                result.setSuccess(false);
+                result.setSimpleResult(false, message);
             } else if (questionMapper.deleteQuestionById(questionDTO.getId())) {
                 message = "Delete question success. Id = " + questionDTO.getId();
                 log.info(message);
-                result.setMessage(message);
-                result.setSuccess(true);
+                result.setSimpleResult(true, message);
             } else {
                 message = "Delete question failed. Id = " + questionDTO.getId();
                 log.info(message);
-                result.setMessage(message);
-                result.setSuccess(false);
+                result.setSimpleResult(false, message);
             }
         }
         return result;
@@ -144,15 +130,15 @@ public class QuestionServiceImpl implements QuestionService {
         }
         QuestionModifyQuery questionModifyQuery = new QuestionModifyQuery();
         BeanUtils.copyProperties(questionDTO, questionModifyQuery);
-        try{
-            if (questionMapper.modifyQuestion(questionModifyQuery)){
+        try {
+            if (questionMapper.modifyQuestion(questionModifyQuery)) {
                 message = "Modify question success.";
             } else {
                 message = "Modify question fail.";
             }
             result.setSimpleResult(true, message);
-            log.info(message+"Id = "+questionDTO.getId());
-        }catch (Exception e){
+            log.info(message + "Id = " + questionDTO.getId());
+        } catch (Exception e) {
             throw new RuntimeException("Modify question Exception.");
         }
         return result;

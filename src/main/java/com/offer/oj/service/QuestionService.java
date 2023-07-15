@@ -14,7 +14,7 @@ public interface QuestionService {
     /**
      * 新增题目
      */
-    Result addQuestion(QuestionDTO questionDTO) throws IOException;
+    Result addQuestion(VariableQuestionDTO variableQuestionDTO) throws IOException;
 
     /**
     * 查找题目

@@ -5,6 +5,7 @@ import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.OjQuestion;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.query.QuestionInnerQuery;
+import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
@@ -26,7 +27,7 @@ public class QuestionMapperImpl implements QuestionMapper {
     private OjQuestionMapper ojQuestionMapper;
 
     @Override
-    public Boolean insertSelective(QuestionDTO question) {
+    public Boolean insertSelective(VariableQuestionDTO question) {
         OjQuestion ojQuestion = new OjQuestion();
         BeanUtils.copyProperties(question, ojQuestion);
         try {
@@ -108,9 +109,13 @@ public class QuestionMapperImpl implements QuestionMapper {
         try {
             OjQuestion ojQuestion = new OjQuestion();
             BeanUtils.copyProperties(question, ojQuestion);
-            ojQuestionMapper.updateByPrimaryKeySelective(ojQuestion);
-            log.info("Update Question Success.");
-            return true;
+            if (ojQuestionMapper.updateByPrimaryKeySelective(ojQuestion) == 1){
+                log.info("Update Question Success.");
+                return true;
+            } else {
+                log.warn("Update Question fail. QuestionId={}", question.getId());
+                return false;
+            }
         } catch (Exception e){
             log.error("Update Question Error.", e);
             return false;

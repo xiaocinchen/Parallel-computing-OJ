@@ -1,7 +1,15 @@
 package com.offer.oj.domain.enums;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 public enum CacheEnum {
-    REGISTER_CACHE("registerCache"), USER_CACHE("userCache"), KAPTCHA_CACHE("kaptchaCache");
+    REGISTER_CACHE("registerCache"),
+    USER_CACHE("userCache"),
+    KAPTCHA_CACHE("kaptchaCache"),
+    LOGIN_CACHE("loginCache"),
+    ;
     private final String value;
 
     private CacheEnum(String value) {
@@ -15,5 +23,9 @@ public enum CacheEnum {
     @Override
     public String toString() {
         return value;
+    }
+
+    public static Set<String> getValues(){
+        return Arrays.stream(CacheEnum.values()).map(CacheEnum::getValue).collect(Collectors.toSet());
     }
 }
