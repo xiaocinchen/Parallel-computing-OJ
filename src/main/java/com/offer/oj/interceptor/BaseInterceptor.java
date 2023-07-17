@@ -25,7 +25,7 @@ public class BaseInterceptor implements HandlerInterceptor {
     private UserService userService;
 
     @Override
-    public boolean preHandle(HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
         Integer userId = this.getUserId(request);
         if (userId != null) {
             try {
