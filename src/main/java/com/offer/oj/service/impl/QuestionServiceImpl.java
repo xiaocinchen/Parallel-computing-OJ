@@ -69,20 +69,17 @@ public class QuestionServiceImpl implements QuestionService {
             result.setData(questionDTO);
             result.setSuccess(true);
         }
-        else {
+        else if (! ObjectUtils.isEmpty(questionMapper.fuzzySelectByTitle(title))) {
             List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
-            if (! ObjectUtils.isEmpty(questionDTOList)) {
-                System.out.println(questionDTOList);
-                Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
-                selectCache.put(title, questionDTOList);
-                result.setSuccess(true);
-                result.setData(questionDTOList);
-            }
-            else {
-                result.setSuccess(false);
-                result.setMessage("No related questions!");
-            }
-
+            System.out.println(questionDTOList);
+            Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
+            selectCache.put(title, questionDTOList);
+            result.setSuccess(true);
+            result.setData(questionDTOList);
+        }
+        else {
+            result.setSuccess(false);
+            result.setMessage("No related questions!");
         }
         return result;
     }
