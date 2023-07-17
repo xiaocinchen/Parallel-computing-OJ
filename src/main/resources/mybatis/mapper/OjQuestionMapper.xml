@@ -158,7 +158,7 @@
   </update>
 
   <!-- 查列表 -->
-  <select id="queryForList" parameterType="QuestionInnerQuery" resultMap="BaseResultMap">
+  <select id="queryForList" parameterType="com.offer.oj.domain.query.QuestionInnerQuery" resultMap="BaseResultMap">
     SELECT
     <include refid="Base_Column_List"/>
     FROM
@@ -169,7 +169,7 @@
   </select>
 
   <!--  查数量-->
-  <select id="queryForCount" parameterType="QuestionInnerQuery" resultType="Integer">
+  <select id="queryForCount" parameterType="com.offer.oj.domain.query.QuestionInnerQuery" resultType="Integer">
     SELECT count(*) FROM oj_question
     WHERE 1=1
     <include refid="dynamicWhere"/>
@@ -212,4 +212,12 @@
            ]]>
     </if>
   </sql>
+
+  <select id="selectAllQuestionByTitle" resultMap="BaseResultMap">
+    select * from oj_question where title like '%${title}%'
+  </select>
+
+  <select id="selectByTitle" resultMap="BaseResultMap">
+    select * from oj_question where title=#{title};
+    </select>
 </mapper>

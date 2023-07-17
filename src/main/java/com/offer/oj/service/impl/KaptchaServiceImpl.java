@@ -3,7 +3,7 @@ import com.alicp.jetcache.Cache;
 import com.google.code.kaptcha.Producer;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.KaptchaDTO;
-import com.offer.oj.domain.dto.UserDTO;
+import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.service.KaptchaService;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
@@ -27,13 +27,11 @@ public class KaptchaServiceImpl implements KaptchaService {
     @Autowired
     private CacheManager cacheManager;
 
-    private Cache<String, UserDTO> kaptchaDTOCache;
-
     @Autowired
     private HttpServletResponse response;
 
     @Override
-    public Result<KaptchaDTO> getKaptchaImage(UserDTO userDTO) throws IOException {
+    public Result<KaptchaDTO> getKaptcha(String username) throws IOException {
         String kaptchaText = producer.createText();
         log.info("******************当前验证码为：{}******************", kaptchaText);
         BufferedImage kaptchaImage = producer.createImage(kaptchaText);
@@ -49,7 +47,10 @@ public class KaptchaServiceImpl implements KaptchaService {
             // 关闭输出流
             out.close();
         }
-        saveKaptchaCode(kaptchaDTO, userDTO);
+        VerificationDTO verificationDTO = new VerificationDTO();
+        verificationDTO.setUsername(username);
+        verificationDTO.setCode(kaptchaText);
+        saveKaptchaCode(kaptchaText, verificationDTO);
         Result<KaptchaDTO> kaptchaDTOResult = new Result<>();
         kaptchaDTOResult.setData(kaptchaDTO);
         kaptchaDTOResult.setSuccess(true);
@@ -57,11 +58,11 @@ public class KaptchaServiceImpl implements KaptchaService {
     }
 
     @Override
-    public void saveKaptchaCode(KaptchaDTO kaptchaDTO, UserDTO userDTO) {
+    public void saveKaptchaCode(String code, VerificationDTO verificationDTO) {
         Result<String> result = new Result<>();
         String message = "";
-        Cache<String, UserDTO> kaptchaCache = cacheManager.getCache(CacheEnum.KAPTCHA_CACHE.getValue());
-        kaptchaCache.put(kaptchaDTO.getCode(), userDTO);
+        Cache<String, VerificationDTO> kaptchaCache = cacheManager.getCache(CacheEnum.KAPTCHA_CACHE.getValue());
+        kaptchaCache.put(code, verificationDTO);
         result.setSuccess(true);
         message = "save kaptcha success!";
         log.info(message);
@@ -71,8 +72,8 @@ public class KaptchaServiceImpl implements KaptchaService {
     public Result checkKaptcha(String code) {
         Result<String> result = new Result<>();
         String message = "";
-        kaptchaDTOCache = cacheManager.getCache(CacheEnum.KAPTCHA_CACHE.getValue());
-        UserDTO kaptcha = kaptchaDTOCache.get(code);
+        Cache<String, VerificationDTO> kaptchaDTOCache = cacheManager.getCache(CacheEnum.KAPTCHA_CACHE.getValue());
+        VerificationDTO kaptcha = kaptchaDTOCache.get(code);
         if (Objects.isNull(kaptcha)) {
             message = "kaptcha error!";
             log.error(message);

@@ -6,17 +6,15 @@ import com.alicp.jetcache.CacheManager;
 import com.offer.oj.dao.Result;
 import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjUserMapper;
-import com.offer.oj.domain.dto.ForgetPasswordDTO;
-import com.offer.oj.domain.dto.LoginDTO;
-import com.offer.oj.domain.dto.UserDTO;
+import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.service.CacheService;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.Encryption;
-import com.offer.oj.util.LoginCacheUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.util.Collection;
+import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -46,6 +44,9 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     private OjUserMapper ojUserMapper;
+
+    @Autowired
+    private CacheService cacheService;
 
     @Autowired
     private CacheManager cacheManager;
@@ -150,7 +151,7 @@ public class UserServiceImpl implements UserService {
             ojUserMapper.insertSelective(ojUser);
             message = "User registration successful.";
             log.info(message + "{}", userDTO.getUsername());
-            userDTOCache.remove(userDTO.getUsername());
+//            userDTOCache.remove(userDTO.getUsername());
         } catch (Exception e) {
             message = "User registration failed.";
             log.error(message + "{}", userDTO.getUsername(), e);
@@ -160,7 +161,6 @@ public class UserServiceImpl implements UserService {
         return result;
     }
 
-    @Override
     public boolean isUserDTOEmpty(UserDTO userDTO) {
         return Objects.isNull(userDTO)
                 || ObjectUtils.isEmpty(userDTO.getUsername())
@@ -190,34 +190,34 @@ public class UserServiceImpl implements UserService {
         // Correct info & Login
         else {
             // SSO
-            Integer userId=userMapper.selectIdByUsername(loginDTO.getUsername());                     // Get UserId
-            String token= UUID.randomUUID().toString();                  // Get Token
-            Collection<Integer> values= LoginCacheUtil.loginUser.values(); // Save Token
-            values.remove(userId);
-            LoginCacheUtil.loginUser.put(token,userId);
-            Cookie cookie=new Cookie("TOKEN",token);                     // Set Cookie
+            Integer userId = userMapper.selectIdByUsername(loginDTO.getUsername());                     // Get UserId
+            String token = UUID.randomUUID().toString();                  // Get Token
+            cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).put(token, userId);// Save Token
+            Cookie cookie = new Cookie("TOKEN", token);                     // Set Cookie
             cookie.setDomain(ip);
             cookie.setPath("/");
             response.addCookie(cookie);
+            System.out.println(cookie.getValue());
             // Return result
-            Result result=new Result();
+            Result result = new Result();
             result.setSuccess(true);
             result.setCode(0);
             result.setMessage("Login successfully!");
             return result;
         }
     }
+
     @Override
     public boolean isLogin(Cookie cookie) {
-        return null!=cookie && LoginCacheUtil.loginUser.containsKey(cookie.getValue());
+        return null != cookie && cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).get(cookie.getValue()) != null;
     }
 
     @Override
     public Result logout(Cookie cookie) {
-        if(null!=cookie){
-            LoginCacheUtil.loginUser.remove(cookie.getValue());
+        if (null != cookie) {
+            cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).remove(cookie.getValue());
         }
-        Result result=new Result();
+        Result result = new Result();
         result.setSuccess(true);
         result.setCode(0);
         result.setMessage("Logout Successfully!");
@@ -228,47 +228,69 @@ public class UserServiceImpl implements UserService {
     @Override
     public Result userInfo(Cookie cookie) {
         Result result;
-        if(null!=cookie){
-            Integer userId=LoginCacheUtil.loginUser.get(cookie.getValue());
-            OjUser user=ojUserMapper.selectByPrimaryKey(userId);
-            result=new Result();
+        if (null != cookie) {
+            Integer userId = (Integer) cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).get(cookie.getValue());
+            OjUser user = ojUserMapper.selectByPrimaryKey(userId);
+            result = new Result();
             result.setSuccess(true);
             result.setCode(0);
             result.setMessage("Get User Info Successfully!");
             result.setData(user.getUsername());
-        }
-        else{
-            result=new Result(false, "Cannot Get User Info!");
+        } else {
+            result = new Result(false, "Cannot Get User Info!");
         }
         return result;
     }
 
     @Override
-    public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
-        Result result=new Result();
+    public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) throws IOException {
+        Result result = new Result();
         String message = "";
-        UserDTO user = userMapper.selectByUsername(forgetPasswordDTO.getUsername());
-        String email = user.getEmail();
         if (Objects.isNull(forgetPasswordDTO.getUsername()) || Objects.isNull(forgetPasswordDTO.getEmail())) {
             message = "Incomplete Information!";
             log.error(message);
             result.setSimpleResult(false, message);
         }
-        else if (Objects.isNull(user)) {
+        if (Objects.isNull(userMapper.selectByUsername(forgetPasswordDTO.getUsername()))){
             message = "Incorrect Username!";
             log.error(message);
             result.setSimpleResult(false, message);
-        } else if (!email.equals(forgetPasswordDTO.getEmail())) {
-            message = "Incorrect Username or Email!";
-            log.error(message);
-            result.setSimpleResult(false, message);
         }
-        else{
-            //发送邮件
-            message = "send email successfully!";
-            log.info(message);
-            result.setSimpleResult(true, message);
+        else {
+            UserDTO user = userMapper.selectByUsername(forgetPasswordDTO.getUsername());
+            String email = user.getEmail();
+            if (!email.equals(forgetPasswordDTO.getEmail())) {
+                message = "Incorrect Username or Email!";
+                log.error(message);
+                result.setSimpleResult(false, message);
+            }
+            else{
+                //发送邮件
+                emailService.sendRegisterVerifyEmail(user);
+                message = "send email successfully!";
+                log.info(message);
+                result.setSimpleResult(true, message);
+            }
         }
         return result;
+    }
+
+    @Override
+    public Boolean verifyRole(UserIdentityDTO userIdentityDTO, String role) {
+        return userIdentityDTO != null && role.equals(userIdentityDTO.getRole());
+    }
+
+    @Override
+    public UserIdentityDTO getUserIdentity(Integer userId) {
+        if (userId == null) {
+            log.info("The user has wrong qualification!");
+            return null;
+        }
+        UserDTO userDTO = userMapper.selectById(userId);
+        if (userDTO == null) {
+            log.info("No such user! userid: {}", userId);
+            return null;
+        }
+        return new UserIdentityDTO(userId, userDTO.getUsername(), userDTO.getRole());
     }
 }

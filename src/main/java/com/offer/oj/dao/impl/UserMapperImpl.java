@@ -20,6 +20,7 @@ public class UserMapperImpl implements UserMapper {
     @Autowired
     private OjUserMapper ojUserMapper;
 
+    @Override
     public UserDTO selectByUsername(String username) {
         UserInnerQuery userInnerQuery = new UserInnerQuery();
         userInnerQuery.setUsername(username);
@@ -27,6 +28,7 @@ public class UserMapperImpl implements UserMapper {
         return userDTOList.isEmpty() ? null : userDTOList.get(0);
     }
 
+    @Override
     public UserDTO selectByEmail(String email) {
         UserInnerQuery userInnerQuery = new UserInnerQuery();
         userInnerQuery.setEmail(email);
@@ -43,6 +45,18 @@ public class UserMapperImpl implements UserMapper {
             return null;
         } else {
             return ojUserList.get(0).getId();
+        }
+    }
+
+    @Override
+    public UserDTO selectById(Integer id) {
+        UserInnerQuery userInnerQuery = new UserInnerQuery();
+        userInnerQuery.setId(id);
+        List<UserDTO> userDTOList = getUserDTO((userInnerQuery));
+        if (CollectionUtils.isEmpty(userDTOList)) {
+            return null;
+        } else {
+            return userDTOList.get(0);
         }
     }
 

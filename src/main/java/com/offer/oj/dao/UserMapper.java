@@ -14,4 +14,8 @@ public interface UserMapper {
     UserDTO selectByEmail(String email);
 
     Integer selectIdByUsername(String username);
+
+    @Cached(name = "userCache", key = "#id", expire = 300, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.BOTH)
+    UserDTO selectById(Integer id);
+
 }

@@ -15,9 +15,10 @@ public class KaptchaController {
     @Autowired
     private KaptchaService kaptchaService;
 
-    @GetMapping("kaptcha-image")
-    public Result getKaptchaImage(@RequestParam UserDTO userDTO) throws IOException {
-        return kaptchaService.getKaptchaImage(userDTO);
+    @PostMapping("kaptcha-image")
+    @ResponseBody
+    public Result getKaptchaImage(@RequestBody String username) throws IOException {
+        return kaptchaService.getKaptcha(username);
     }
 }
 

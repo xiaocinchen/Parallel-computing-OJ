@@ -9,9 +9,9 @@ import com.offer.oj.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @RestController
 @RequestMapping("/v1")
@@ -44,9 +44,9 @@ public class LoginController {
     public Result logout(@CookieValue(required = false, value = "TOKEN") Cookie cookie){
         return userService.logout(cookie);
     }
-    @PostMapping("/forget-passwoed")
+    @PostMapping("/forget-password")
     @ResponseBody
-    public Result forgetPassword(@RequestBody ForgetPasswordDTO forgetPasswordDTO) {
+    public Result forgetPassword(@RequestBody ForgetPasswordDTO forgetPasswordDTO) throws IOException {
         return userService.forgetPassword(forgetPasswordDTO);
     }
 }
