@@ -36,7 +36,7 @@ public class QuestionController {
             message = "Question Info incomplete.";
             result.setSimpleResult(false, message);
         } else {
-            variableQuestionDTO.setModifier((String) request.getAttribute("username"));
+            variableQuestionDTO.setModifier(((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getUsername());
             result = questionService.addQuestion(variableQuestionDTO);
         }
         return result;
@@ -44,7 +44,7 @@ public class QuestionController {
     @DeleteMapping("/question/delete")
     public Result deleteQuestion(HttpServletRequest request, Integer questionId) {
         QuestionDTO questionDTO = new QuestionDTO();
-        questionDTO.setUsername((String) request.getAttribute("username"));
+        questionDTO.setUsername(((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getUsername());
         questionDTO.setId(questionId);
         return questionService.deleteQuestion(questionDTO);
     }
