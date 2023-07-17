@@ -65,13 +65,11 @@ public class QuestionServiceImpl implements QuestionService {
         Cache<String, List<QuestionDTO>> questionDTOCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
         if (!Objects.isNull(questionDTOCache.get(title))){
             List<QuestionDTO> questionDTO = questionDTOCache.get(title);
-            System.out.println(questionDTO);
             result.setData(questionDTO);
             result.setSuccess(true);
         }
         else if (! ObjectUtils.isEmpty(questionMapper.fuzzySelectByTitle(title))) {
             List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
-            System.out.println(questionDTOList);
             Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
             selectCache.put(title, questionDTOList);
             result.setSuccess(true);
