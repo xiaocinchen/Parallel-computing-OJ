@@ -40,18 +40,6 @@ public class QuestionMapperImpl implements QuestionMapper {
     }
 
     @Override
-    public List<QuestionDTO> selectByTitle(String title) {
-        List<OjQuestion> ojQuestionList = ojQuestionMapper.selectByTitle(title);
-        List<QuestionDTO> questionDTOList = new ArrayList<>();
-        for (OjQuestion question : ojQuestionList){
-            QuestionDTO questionDTO = new QuestionDTO();
-            BeanUtils.copyProperties(question, questionDTO);
-            questionDTOList.add(questionDTO);
-        }
-        return questionDTOList;
-    }
-
-    @Override
     public List<QuestionDTO> fuzzySelectByTitle(String title) {
         List<OjQuestion> ojQuestionList = ojQuestionMapper.selectAllQuestionByTitle(title);
         List<QuestionDTO> questionDTOList = new ArrayList<>();

@@ -62,7 +62,6 @@ public class QuestionServiceImpl implements QuestionService {
     @Override
     public Result<List<QuestionDTO>> searchQuestion(String title) {
         Result<List<QuestionDTO>> result = new Result<>();
-        //读取缓存
         Cache<String, List<QuestionDTO>> questionDTOCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
         if (!Objects.isNull(questionDTOCache.get(title))){
             List<QuestionDTO> questionDTO = questionDTOCache.get(title);
@@ -71,32 +70,19 @@ public class QuestionServiceImpl implements QuestionService {
             result.setSuccess(true);
         }
         else {
-            //精准查找
-            List<QuestionDTO> questionDTO = questionMapper.selectByTitle(title);
-            if (! ObjectUtils.isEmpty(questionDTO)){
+            List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
+            if (! ObjectUtils.isEmpty(questionDTOList)) {
+                System.out.println(questionDTOList);
                 Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
-                System.out.println(questionDTO);
-                selectCache.put(title, questionDTO);
+                selectCache.put(title, questionDTOList);
                 result.setSuccess(true);
-                result.setData(questionDTO);
-
+                result.setData(questionDTOList);
             }
-            //模糊查找
             else {
-                List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
-                if (! ObjectUtils.isEmpty(questionDTOList)) {
-                    System.out.println(questionDTOList);
-                    Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
-                    selectCache.put(title, questionDTOList);
-                    result.setSuccess(true);
-                    result.setData(questionDTOList);
-                }
-                else {
-                    result.setSuccess(false);
-                    result.setMessage("No related questions!");
-                }
-
+                result.setSuccess(false);
+                result.setMessage("No related questions!");
             }
+
         }
         return result;
     }
