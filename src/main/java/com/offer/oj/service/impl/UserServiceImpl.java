@@ -24,6 +24,7 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
+import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 import java.util.regex.Pattern;
@@ -242,7 +243,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
+    public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) throws IOException {
         Result result = new Result();
         String message = "";
         if (Objects.isNull(forgetPasswordDTO.getUsername()) || Objects.isNull(forgetPasswordDTO.getEmail())) {
@@ -265,6 +266,7 @@ public class UserServiceImpl implements UserService {
             }
             else{
                 //发送邮件
+                emailService.sendRegisterVerifyEmail(user);
                 message = "send email successfully!";
                 log.info(message);
                 result.setSimpleResult(true, message);

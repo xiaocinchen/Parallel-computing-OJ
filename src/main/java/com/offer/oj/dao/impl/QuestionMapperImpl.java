@@ -40,14 +40,6 @@ public class QuestionMapperImpl implements QuestionMapper {
     }
 
     @Override
-    public List<QuestionDTO> selectByTitle(String title) {
-        QuestionInnerQuery questionInnerQuery = new QuestionInnerQuery();
-        questionInnerQuery.setTitle(title);
-        List<QuestionDTO> questionDTOList = getQuestionDTO(questionInnerQuery);
-        return questionDTOList;
-    }
-
-    @Override
     public List<QuestionDTO> fuzzySelectByTitle(String title) {
         List<OjQuestion> ojQuestionList = ojQuestionMapper.selectAllQuestionByTitle(title);
         List<QuestionDTO> questionDTOList = new ArrayList<>();
@@ -57,19 +49,6 @@ public class QuestionMapperImpl implements QuestionMapper {
             questionDTOList.add(questionDTO);
         }
         return questionDTOList;
-    }
-
-    private List<QuestionDTO> getQuestionDTO(QuestionInnerQuery questionInnerQuery){
-        List<OjQuestion> ojQuestionList = ojQuestionMapper.queryForList(questionInnerQuery);
-        if (CollectionUtils.isEmpty(ojQuestionList)) {
-            return Collections.emptyList();
-        } else {
-            return ojQuestionList.stream().filter(ojQuestion -> !ObjectUtils.isEmpty(ojQuestion)).map(ojQuestion -> {
-                QuestionDTO questionDTO = new QuestionDTO();
-                BeanUtils.copyProperties(ojQuestion, questionDTO);
-                return questionDTO;
-            }).collect(Collectors.toList());
-        }
     }
 
     @Override

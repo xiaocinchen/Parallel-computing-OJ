@@ -10,6 +10,8 @@ import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.io.IOException;
+
 @Slf4j
 @Service
 public class EmailServiceImpl implements EmailService {
@@ -21,11 +23,12 @@ public class EmailServiceImpl implements EmailService {
     private KaptchaService kaptchaService;
 
     @Override
-    public void sendRegisterVerifyEmail(UserDTO userDTO) {
+    public void sendRegisterVerifyEmail(UserDTO userDTO) throws IOException {
         EmailDTO emailDTO = new EmailDTO();
         BeanUtils.copyProperties(userDTO, emailDTO);
-        String content = "Your code is 2017.";
-        emailDTO.setCode("2017");
+        String code = kaptchaService.getKaptcha(userDTO.getUsername()).getData().getCode();
+        String content = "Your code is " + code;
+        emailDTO.setCode(code);
         emailDTO.setHtml(false);
         emailDTO.setContent(content);
         emailDTO.setSubject("This is a registration verification email!");

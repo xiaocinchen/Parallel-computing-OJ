@@ -2,6 +2,7 @@ package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.dto.SelectQuestionDTO;
 import com.offer.oj.domain.dto.UserIdentityDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.enums.RoleEnum;
@@ -15,6 +16,7 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.List;
 
 
 @RestController
@@ -34,16 +36,15 @@ public class QuestionController {
             message = "Question Info incomplete.";
             result.setSimpleResult(false, message);
         } else {
-            variableQuestionDTO.setModifier((String) request.getAttribute("username"));
+            variableQuestionDTO.setModifier(((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getUsername());
             result = questionService.addQuestion(variableQuestionDTO);
         }
         return result;
     }
-
     @DeleteMapping("/question/delete")
     public Result deleteQuestion(HttpServletRequest request, Integer questionId) {
         QuestionDTO questionDTO = new QuestionDTO();
-        questionDTO.setUsername((String) request.getAttribute("username"));
+        questionDTO.setUsername(((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getUsername());
         questionDTO.setId(questionId);
         return questionService.deleteQuestion(questionDTO);
     }
@@ -63,4 +64,12 @@ public class QuestionController {
         return result;
     }
 
+
+    @PostMapping("/question/search")
+    @ResponseBody
+    public Result<List<QuestionDTO>> searchQuestion(@Validated @RequestBody SelectQuestionDTO questionDTO) {
+        String title = questionDTO.getTitle();
+        return questionService.searchQuestion(title);
+    }
 }
+

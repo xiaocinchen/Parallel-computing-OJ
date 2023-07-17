@@ -19,7 +19,7 @@ public interface QuestionService {
     /**
     * 查找题目
     */
-    List<QuestionDTO> selectQuestion(String title);
+    Result<List<QuestionDTO>> searchQuestion(String title);
 
     boolean isQuestionDTOEmpty(QuestionDTO questionDTO);
 
