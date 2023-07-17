@@ -33,8 +33,6 @@ public class QuestionServiceImpl implements QuestionService {
     @Autowired
     private CacheManager cacheManager;
 
-    private Cache<String, List<QuestionDTO>> questionDTOCache;
-
     @Override
     public Result addQuestion(VariableQuestionDTO variableQuestionDTO) throws IOException {
         Result result = new Result();
@@ -65,7 +63,7 @@ public class QuestionServiceImpl implements QuestionService {
     public Result<List<QuestionDTO>> searchQuestion(String title) {
         Result<List<QuestionDTO>> result = new Result<>();
         //读取缓存
-        questionDTOCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
+        Cache<String, List<QuestionDTO>> questionDTOCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
         if (!Objects.isNull(questionDTOCache.get(title))){
             List<QuestionDTO> questionDTO = questionDTOCache.get(title);
             System.out.println(questionDTO);

@@ -27,8 +27,6 @@ public class KaptchaServiceImpl implements KaptchaService {
     @Autowired
     private CacheManager cacheManager;
 
-    private Cache<String, VerificationDTO> kaptchaDTOCache;
-
     @Autowired
     private HttpServletResponse response;
 
@@ -51,7 +49,6 @@ public class KaptchaServiceImpl implements KaptchaService {
         }
         VerificationDTO verificationDTO = new VerificationDTO();
         verificationDTO.setUsername(username);
-        verificationDTO.setType("LOGIN");
         verificationDTO.setCode(kaptchaText);
         saveKaptchaCode(kaptchaText, verificationDTO);
         Result<KaptchaDTO> kaptchaDTOResult = new Result<>();
@@ -75,7 +72,7 @@ public class KaptchaServiceImpl implements KaptchaService {
     public Result checkKaptcha(String code) {
         Result<String> result = new Result<>();
         String message = "";
-        kaptchaDTOCache = cacheManager.getCache(CacheEnum.KAPTCHA_CACHE.getValue());
+        Cache<String, VerificationDTO> kaptchaDTOCache = cacheManager.getCache(CacheEnum.KAPTCHA_CACHE.getValue());
         VerificationDTO kaptcha = kaptchaDTOCache.get(code);
         if (Objects.isNull(kaptcha)) {
             message = "kaptcha error!";
