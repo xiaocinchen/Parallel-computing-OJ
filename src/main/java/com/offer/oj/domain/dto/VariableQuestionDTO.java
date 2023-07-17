@@ -20,7 +20,7 @@ public class VariableQuestionDTO implements Serializable {
     @NotNull(message = INFO_INCOMPLETE_LOG)
     private String title;
 
-    @Size(max = 100,min = 20,message = "The description should be between 20 and 100 characters! ")
+    @Size(max = 1000,min = 20,message = "The description should be between 20 and 100 characters! ")
     @NotNull(message = INFO_INCOMPLETE_LOG)
     private String description;
 
