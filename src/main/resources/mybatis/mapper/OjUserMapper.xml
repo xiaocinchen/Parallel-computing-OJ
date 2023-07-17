@@ -127,7 +127,7 @@
   </update>
 
   <!-- 查列表 -->
-  <select id="queryForList" parameterType="UserInnerQuery" resultMap="BaseResultMap">
+  <select id="queryForList" parameterType="com.offer.oj.domain.query.UserInnerQuery" resultMap="BaseResultMap">
       SELECT
       <include refid="Base_Column_List"/>
       FROM
@@ -138,7 +138,7 @@
   </select>
 
   <!--  查数量-->
-  <select id="queryForCount" parameterType="UserInnerQuery" resultType="Integer">
+  <select id="queryForCount" parameterType="com.offer.oj.domain.query.UserInnerQuery" resultType="Integer">
     SELECT count(*) FROM oj_user
     WHERE 1=1
     <include refid="dynamicWhere"/>
