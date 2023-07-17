@@ -1,9 +1,12 @@
 package com.offer.oj.service.impl;
 
+import com.alicp.jetcache.Cache;
+import com.alicp.jetcache.CacheManager;
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
+import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,6 +29,11 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Autowired
     private QuestionMapper questionMapper;
+
+    @Autowired
+    private CacheManager cacheManager;
+
+    private Cache<String, List<QuestionDTO>> questionDTOCache;
 
     @Override
     public Result addQuestion(VariableQuestionDTO variableQuestionDTO) throws IOException {
@@ -54,17 +62,45 @@ public class QuestionServiceImpl implements QuestionService {
 
 
     @Override
-    public List<QuestionDTO> selectQuestion(String title) {
-        //精准查找
-        List<QuestionDTO> questionDTO = questionMapper.selectByTitle(title);
-        if (! ObjectUtils.isEmpty(questionDTO)){
-            return questionDTO;
+    public Result<List<QuestionDTO>> searchQuestion(String title) {
+        Result<List<QuestionDTO>> result = new Result<>();
+        //读取缓存
+        questionDTOCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
+        if (!Objects.isNull(questionDTOCache.get(title))){
+            List<QuestionDTO> questionDTO = questionDTOCache.get(title);
+            System.out.println(questionDTO);
+            result.setData(questionDTO);
+            result.setSuccess(true);
         }
-        //模糊查找
         else {
-            List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
-            return questionDTOList;
+            //精准查找
+            List<QuestionDTO> questionDTO = questionMapper.selectByTitle(title);
+            if (! ObjectUtils.isEmpty(questionDTO)){
+                Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
+                System.out.println(questionDTO);
+                selectCache.put(title, questionDTO);
+                result.setSuccess(true);
+                result.setData(questionDTO);
+
+            }
+            //模糊查找
+            else {
+                List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
+                if (! ObjectUtils.isEmpty(questionDTOList)) {
+                    System.out.println(questionDTOList);
+                    Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
+                    selectCache.put(title, questionDTOList);
+                    result.setSuccess(true);
+                    result.setData(questionDTOList);
+                }
+                else {
+                    result.setSuccess(false);
+                    result.setMessage("No related questions!");
+                }
+
+            }
         }
+        return result;
     }
 
     @Override

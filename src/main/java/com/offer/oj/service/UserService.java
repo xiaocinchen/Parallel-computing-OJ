@@ -5,6 +5,8 @@ import com.offer.oj.domain.dto.*;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 
+import java.io.IOException;
+
 public interface UserService {
     /**
      * 注册第一步：发验证邮件
@@ -44,7 +46,7 @@ public interface UserService {
     /**
      * forget password
      */
-    Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
+    Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) throws IOException;
 
     Boolean verifyRole(UserIdentityDTO userIdentityDTO, String role);
 

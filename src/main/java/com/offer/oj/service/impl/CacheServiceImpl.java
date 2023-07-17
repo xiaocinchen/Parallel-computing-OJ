@@ -52,6 +52,17 @@ public class CacheServiceImpl implements CacheService {
     }
 
     @PostConstruct
+    public void initSelectQuestionCache() {
+        QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.SELECT_QUESTION_CACHE.getValue())
+                .expire(Duration.ofMinutes(5))
+                .localExpire(Duration.ofSeconds(60))
+                .cacheType(CacheType.BOTH)
+                .syncLocal(true)
+                .build();
+        cacheManager.getOrCreateCache(quickConfig);
+    }
+
+    @PostConstruct
     public void initLoginCache() {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.LOGIN_CACHE.getValue())
                 .expire(Duration.ofDays(1))

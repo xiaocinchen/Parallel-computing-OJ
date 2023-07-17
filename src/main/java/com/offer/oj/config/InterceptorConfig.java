@@ -18,6 +18,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
 
         registry.addInterceptor(authorizationInterceptor())
                 .addPathPatterns("/v1/question/**")
+                .excludePathPatterns("/v1/question/search")
                 .order(2);
     }
 

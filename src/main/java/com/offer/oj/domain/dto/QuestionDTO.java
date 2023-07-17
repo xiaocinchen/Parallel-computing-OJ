@@ -28,7 +28,7 @@ public class QuestionDTO implements Serializable {
     @NotNull
     private String title;
 
-    @Size(max = 100,min = 20,message = "The description should be between 20 and 100 characters! ")
+    @Size(max = 1000,min = 20,message = "The description should be between 20 and 1000 characters! ")
     @NotNull
     private String description;
 
