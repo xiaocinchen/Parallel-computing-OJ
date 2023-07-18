@@ -1,5 +1,6 @@
 package com.offer.oj;
 
+import com.offer.oj.MQ.sender.CodeMQSender;
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
@@ -8,6 +9,7 @@ import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
+import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.domain.query.QuestionInnerQuery;
 import com.offer.oj.service.EmailService;
@@ -15,7 +17,9 @@ import com.offer.oj.service.JetcacheExample;
 import com.offer.oj.service.KaptchaService;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.service.UserService;
-import com.offer.oj.util.Encryption;
+import com.offer.oj.util.DockerUtil;
+import com.offer.oj.util.EncryptionUtil;
+import com.offer.oj.util.TimeUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -46,6 +50,12 @@ class OjApplicationTests {
     @Autowired
     private QuestionMapper questionMapper;
 
+    @Autowired
+    private DockerUtil dockerUtil;
+
+    @Autowired
+    private CodeMQSender codeMQSender;
+
     @Test
     void contextLoads() {
     }
@@ -63,10 +73,10 @@ class OjApplicationTests {
     @Test()
     void testEncryption() {
         String password = "123456";
-        String hash = Encryption.hashPassword("123456");
+        String hash = EncryptionUtil.hashPassword("123456");
         System.out.println(hash);
-        System.out.println(Encryption.checkPassword(password, hash));
-        System.out.println(Encryption.checkPassword("password", hash));
+        System.out.println(EncryptionUtil.checkPassword(password, hash));
+        System.out.println(EncryptionUtil.checkPassword("password", hash));
     }
 
     @Test
@@ -179,5 +189,35 @@ class OjApplicationTests {
         QuestionDTO questionDTO = new QuestionDTO();
         questionDTO.setId(id);
         questionService.deleteQuestion(questionDTO);
+    }
+
+//    @Test
+//    void testDocker() throws IllegalAccessException, InterruptedException, IOException {
+//        SubmitCodeDTO submitCodeDTO = new SubmitCodeDTO();
+//        submitCodeDTO.setFileName("Main");
+//        submitCodeDTO.setAuthorId(1);
+//        submitCodeDTO.setType(CodeTypeEnum.JAVA);
+//        System.out.println(dockerUtil.executeCodeAndGetResult(submitCodeDTO));
+//    }
+
+//    @Test
+//    void testJudgeQuestion(){
+//        SubmitCodeDTO submitCodeDTO = new SubmitCodeDTO();
+//        submitCodeDTO.setFileName("main");
+//        submitCodeDTO.setContent("""
+//                #include <iostream>
+//
+//                int main() {
+//                    std::cout << "Hello, World!" << std::endl;
+//                    return 0;
+//                }
+//                """);
+//        submitCodeDTO.setType(CodeTypeEnum.C_PLUS_PLUS);
+//        codeMQSender.sendCodeForJudgeMQ(submitCodeDTO);
+//    }
+
+    @Test
+    void testTimeUtil(){
+        System.out.println(TimeUtil.getUniqueSequence());
     }
 }

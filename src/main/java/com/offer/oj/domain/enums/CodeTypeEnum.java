@@ -1,5 +1,9 @@
 package com.offer.oj.domain.enums;
 
+import java.util.Arrays;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 /**
  * @Description: 代码语言类型Enum
  * @author xiaocinchen
@@ -11,14 +15,18 @@ public enum CodeTypeEnum {
     PYTHON("py"),
     ;
 
-    CodeTypeEnum(String type) {
-        this.type = type;
+    CodeTypeEnum(String value) {
+        this.value = value;
     }
 
-    public String getType() {
-        return type;
+    public String getValue() {
+        return value;
     }
 
-    private final String type;
+    private final String value;
+
+    public static Set<String> getTypeSet(){
+        return Arrays.stream(CodeTypeEnum.values()).map(CodeTypeEnum::getValue).collect(Collectors.toSet());
+    }
 
 }

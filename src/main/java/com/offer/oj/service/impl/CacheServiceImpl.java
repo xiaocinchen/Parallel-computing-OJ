@@ -21,8 +21,8 @@ public class CacheServiceImpl implements CacheService {
     @PostConstruct
     public void initRegisterCache() {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.REGISTER_CACHE.getValue())
-                .expire(Duration.ofSeconds(100))
-                .localExpire(Duration.ofSeconds(60))
+                .expire(Duration.ofMinutes(30))
+                .localExpire(Duration.ofSeconds(10))
                 .cacheType(CacheType.BOTH) // two level cache
                 .syncLocal(true) // invalidate local cache in all jvm process after update
                 .build();

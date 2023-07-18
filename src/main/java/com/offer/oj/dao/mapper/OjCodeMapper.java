@@ -14,4 +14,6 @@ public interface OjCodeMapper {
     int updateByPrimaryKeySelective(OjCode row);
 
     int updateByPrimaryKey(OjCode row);
+
+    int updateByFileName(OjCode row);
 }

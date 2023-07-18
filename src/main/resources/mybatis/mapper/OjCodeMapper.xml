@@ -3,6 +3,7 @@
 <mapper namespace="com.offer.oj.dao.mapper.OjCodeMapper">
   <resultMap id="BaseResultMap" type="com.offer.oj.domain.OjCode">
     <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="type" jdbcType="CHAR" property="type" />
     <result column="author_id" jdbcType="INTEGER" property="authorId" />
     <result column="status" jdbcType="CHAR" property="status" />
@@ -11,7 +12,7 @@
     <result column="execution_time" jdbcType="INTEGER" property="executionTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, type, author_id, status, result, create_time, execution_time
+    id, file_name, type, author_id, status, result, create_time, execution_time
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -24,18 +25,21 @@
     where id = #{id,jdbcType=INTEGER}
   </delete>
   <insert id="insert" parameterType="com.offer.oj.domain.OjCode">
-    insert into oj_code (id, type, author_id, 
-      status, result, create_time, 
-      execution_time)
-    values (#{id,jdbcType=INTEGER}, #{type,jdbcType=CHAR}, #{authorId,jdbcType=INTEGER}, 
-      #{status,jdbcType=CHAR}, #{result,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, 
-      #{executionTime,jdbcType=INTEGER})
+    insert into oj_code (id, file_name, type, 
+      author_id, status, result, 
+      create_time, execution_time)
+    values (#{id,jdbcType=INTEGER}, #{fileName,jdbcType=VARCHAR}, #{type,jdbcType=CHAR}, 
+      #{authorId,jdbcType=INTEGER}, #{status,jdbcType=CHAR}, #{result,jdbcType=VARCHAR}, 
+      #{createTime,jdbcType=TIMESTAMP}, #{executionTime,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.offer.oj.domain.OjCode">
     insert into oj_code
     <trim prefix="(" suffix=")" suffixOverrides=",">
       <if test="id != null">
         id,
+      </if>
+      <if test="fileName != null">
+        file_name,
       </if>
       <if test="type != null">
         type,
@@ -60,6 +64,9 @@
       <if test="id != null">
         #{id,jdbcType=INTEGER},
       </if>
+      <if test="fileName != null">
+        #{fileName,jdbcType=VARCHAR},
+      </if>
       <if test="type != null">
         #{type,jdbcType=CHAR},
       </if>
@@ -83,6 +90,9 @@
   <update id="updateByPrimaryKeySelective" parameterType="com.offer.oj.domain.OjCode">
     update oj_code
     <set>
+      <if test="fileName != null">
+        file_name = #{fileName,jdbcType=VARCHAR},
+      </if>
       <if test="type != null">
         type = #{type,jdbcType=CHAR},
       </if>
@@ -106,12 +116,25 @@
   </update>
   <update id="updateByPrimaryKey" parameterType="com.offer.oj.domain.OjCode">
     update oj_code
-    set type = #{type,jdbcType=CHAR},
+    set file_name = #{fileName,jdbcType=VARCHAR},
+      type = #{type,jdbcType=CHAR},
       author_id = #{authorId,jdbcType=INTEGER},
       status = #{status,jdbcType=CHAR},
       result = #{result,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
       execution_time = #{executionTime,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByFileName" parameterType="com.offer.oj.domain.OjCode">
+    update oj_code
+    <set>
+      <if test="status != null">
+        status = #{status,jdbcType=CHAR},
+      </if>
+      <if test="result != null">
+        result = #{result,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where fileName = #{fileName,jdbcType=VARCHAR}
   </update>
 </mapper>

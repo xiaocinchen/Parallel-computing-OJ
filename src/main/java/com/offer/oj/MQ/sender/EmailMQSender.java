@@ -6,6 +6,7 @@ import com.offer.oj.config.RabbitMQConfig;
 import com.offer.oj.domain.dto.EmailDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.enums.CacheEnum;
+import com.offer.oj.domain.enums.MQExchangeEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.rabbit.core.RabbitTemplate;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -24,7 +25,7 @@ public class EmailMQSender {
     public void sendRegisterVerifyEmailMQ(EmailDTO emailDTO) {
         Cache<String, UserDTO> usernameCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
         if (usernameCache.get(emailDTO.getUsername()) != null) {
-            rabbitTemplate.convertAndSend(RabbitMQConfig.ITEM_TOPIC_EXCHANGE, "email.verify", emailDTO);
+            rabbitTemplate.convertAndSend(MQExchangeEnum.EMAIL_EXCHANGE.getValue(), "email.verify", emailDTO);
         } else {
             log.error("注册信息不存在或已过期!");
         }

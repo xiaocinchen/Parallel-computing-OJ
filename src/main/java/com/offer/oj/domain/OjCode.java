@@ -6,6 +6,8 @@ import java.util.Date;
 public class OjCode implements Serializable {
     private Integer id;
 
+    private String fileName;
+
     private String type;
 
     private Integer authorId;
@@ -26,6 +28,14 @@ public class OjCode implements Serializable {
 
     public void setId(Integer id) {
         this.id = id;
+    }
+
+    public String getFileName() {
+        return fileName;
+    }
+
+    public void setFileName(String fileName) {
+        this.fileName = fileName == null ? null : fileName.trim();
     }
 
     public String getType() {
@@ -89,6 +99,7 @@ public class OjCode implements Serializable {
         }
         OjCode other = (OjCode) that;
         return (this.getId() == null ? other.getId() == null : this.getId().equals(other.getId()))
+            && (this.getFileName() == null ? other.getFileName() == null : this.getFileName().equals(other.getFileName()))
             && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
             && (this.getAuthorId() == null ? other.getAuthorId() == null : this.getAuthorId().equals(other.getAuthorId()))
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
@@ -102,6 +113,7 @@ public class OjCode implements Serializable {
         final int prime = 31;
         int result = 1;
         result = prime * result + ((getId() == null) ? 0 : getId().hashCode());
+        result = prime * result + ((getFileName() == null) ? 0 : getFileName().hashCode());
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
         result = prime * result + ((getAuthorId() == null) ? 0 : getAuthorId().hashCode());
         result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
@@ -118,6 +130,7 @@ public class OjCode implements Serializable {
         sb.append(" [");
         sb.append("Hash = ").append(hashCode());
         sb.append(", id=").append(id);
+        sb.append(", fileName=").append(fileName);
         sb.append(", type=").append(type);
         sb.append(", authorId=").append(authorId);
         sb.append(", status=").append(status);

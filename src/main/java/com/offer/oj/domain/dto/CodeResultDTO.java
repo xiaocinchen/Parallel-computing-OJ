@@ -12,4 +12,6 @@ public class CodeResultDTO {
     private String status;
 
     private String time;
+
+    private String fileName;
 }

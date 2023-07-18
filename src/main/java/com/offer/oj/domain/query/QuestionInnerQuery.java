@@ -1,11 +1,13 @@
 package com.offer.oj.domain.query;
 
 import lombok.Data;
+import lombok.EqualsAndHashCode;
 
 import java.io.Serializable;
 import java.util.Date;
 
 @Data
+@EqualsAndHashCode(callSuper = true)
 public class QuestionInnerQuery extends BaseInnerQuery implements Serializable {
 
     private Integer id;

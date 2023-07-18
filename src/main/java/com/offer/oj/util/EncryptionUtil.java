@@ -2,7 +2,7 @@ package com.offer.oj.util;
 
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-public class Encryption {
+public class EncryptionUtil {
 
     /**
      * 成本因子
@@ -11,7 +11,7 @@ public class Encryption {
 
     private static final BCryptPasswordEncoder encoder = new BCryptPasswordEncoder(WORKLOAD);
 
-    private Encryption(){}
+    private EncryptionUtil(){}
 
     /**
      * 将密码哈希

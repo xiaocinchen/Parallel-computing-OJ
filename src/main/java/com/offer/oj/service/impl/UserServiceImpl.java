@@ -14,7 +14,7 @@ import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.service.CacheService;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.UserService;
-import com.offer.oj.util.Encryption;
+import com.offer.oj.util.EncryptionUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -144,7 +144,7 @@ public class UserServiceImpl implements UserService {
     public Result register(UserDTO userDTO) {
         Result result = new Result();
         String message = "";
-        userDTO.setPassword(Encryption.hashPassword(userDTO.getPassword()));
+        userDTO.setPassword(EncryptionUtil.hashPassword(userDTO.getPassword()));
         OjUser ojUser = new OjUser();
         BeanUtils.copyProperties(userDTO, ojUser);
         try {
@@ -183,7 +183,7 @@ public class UserServiceImpl implements UserService {
         UserDTO userDTO = userMapper.selectByUsername(loginDTO.getUsername());
         if (null == userDTO) {
             return new Result(false, "Incorrect Username or Password!");
-        } else if (!Encryption.checkPassword(loginDTO.getPassword(), userDTO.getPassword())) {
+        } else if (!EncryptionUtil.checkPassword(loginDTO.getPassword(), userDTO.getPassword())) {
             return new Result(false, "Incorrect Username or Password!");
         }
 

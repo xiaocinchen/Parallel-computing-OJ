@@ -44,7 +44,7 @@ public class EmailMQListener {
     @Value("${spring.mail.username}")
     private String address;
 
-    private final String SENDER = "OJ<"+address+">";
+//    private final String SENDER = "OJ<"+address+">";
 
 
     @RabbitListener(bindings = @QueueBinding(
@@ -54,6 +54,7 @@ public class EmailMQListener {
     @RabbitHandler
     public void listenRegisterVerifyEmail(@Payload EmailDTO emailDTO, @Headers Map<String, Object> headers, Channel channel) throws IOException {
         long deliveryTag = (long) headers.get(AmqpHeaders.DELIVERY_TAG);
+        String SENDER = "OJ<"+address+">";
         SimpleMailMessage message = new SimpleMailMessage();
         VerificationDTO verificationDTO = new VerificationDTO();
         message.setFrom(SENDER);
