@@ -5,12 +5,13 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Null;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
 public class SubmitCodeDTO implements Serializable {
 
-    @NotNull(message = "QuestionId cannot be null")
+    @NotNull(message = "QuestionId cannot be null.")
     private Integer questionId;
 
     @NotNull(message = "Code content cannot be empty.")
@@ -22,8 +23,14 @@ public class SubmitCodeDTO implements Serializable {
     @Null(message = "Why you submit author?")
     private Integer authorId;
 
-    @Null(message = "Why you submit fileName")
+    @Null(message = "Why you submit fileName?")
     private String fileName;
+
+    @Null
+    private Boolean isResult;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
     public void clearContent() {
         this.setContent("");

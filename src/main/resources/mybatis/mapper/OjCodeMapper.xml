@@ -140,4 +140,59 @@
     </set>
     where file_name = #{fileName,jdbcType=VARCHAR}
   </update>
+
+
+  <select id="queryForList" parameterType="com.offer.oj.domain.query.CodeInnerQuery" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Base_Column_List"/>
+    FROM
+    oj_code
+    WHERE 1=1
+    <include refid="dynamicWhere"/>
+    <include refid="pagination"/>
+  </select>
+
+  <!--  查数量-->
+  <select id="queryForCount" parameterType="com.offer.oj.domain.query.CodeInnerQuery" resultType="Integer">
+    SELECT count(*) FROM oj_code
+    WHERE 1=1
+    <include refid="dynamicWhere"/>
+  </select>
+
+  <sql id="dynamicWhere">
+    <if test="fileName != null">
+      AND file_name = #{fileName,jdbcType=VARCHAR},
+    </if>
+    <if test="type != null">
+      AND type = #{type,jdbcType=CHAR},
+    </if>
+    <if test="authorId != null">
+      AND author_id = #{authorId,jdbcType=INTEGER},
+    </if>
+    <if test="status != null">
+      AND status = #{status,jdbcType=CHAR},
+    </if>
+    <if test="result != null">
+      AND result = #{result,jdbcType=VARCHAR},
+    </if>
+    <if test="createTime != null">
+      AND create_time = #{createTime,jdbcType=TIMESTAMP},
+    </if>
+    <if test="executionTime != null">
+      AND execution_time = #{executionTime,jdbcType=INTEGER},
+    </if>
+  </sql>
+
+  <sql id="pagination">
+    <if test="pageSize!=null and startRow!=null">
+      <![CDATA[
+          LIMIT #{startRow} , #{pageSize}
+           ]]>
+    </if>
+  </sql>
+
+
+
+
+
 </mapper>

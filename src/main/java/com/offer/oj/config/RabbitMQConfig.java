@@ -12,52 +12,66 @@ import org.springframework.context.annotation.Configuration;
 
 @Configuration
 public class RabbitMQConfig {
-    //交换机名称
-    //声明交换机
+    /**
+     * Email
+     */
     @Bean("emailExchange")
-    public Exchange emailExchange(){
+    public Exchange emailExchange() {
         return ExchangeBuilder.topicExchange(MQExchangeEnum.EMAIL_EXCHANGE.getValue()).durable(true).build();
     }
 
-    @Bean("codeExchange")
-    public Exchange codeExchange(){
-        return ExchangeBuilder.topicExchange(MQExchangeEnum.CODE_EXCHANGE.getValue()).durable(true).build();
-    }
-
-    //声明队列
     @Bean("emailQueue")
-    public Queue emailQueue(){
+    public Queue emailQueue() {
         return QueueBuilder.durable(MQQueueEnum.EMAIL_QUEUE.getValue()).build();
     }
 
-    @Bean("codeQueue")
-    public Queue codeQueue(){
-        return QueueBuilder.durable(MQQueueEnum.CODE_QUEUE.getValue()).build();
-    }
-
-    //绑定队列和交换机
     @Bean
     public Binding emailQueueExchange(@Qualifier("emailQueue") Queue queue,
-                                      @Qualifier("emailExchange") Exchange exchange){
+                                      @Qualifier("emailExchange") Exchange exchange) {
         return BindingBuilder.bind(queue).to(exchange).with("email.#").noargs();
     }
 
+
+    /**
+     * Code
+     */
+    @Bean("codeExchange")
+    public Exchange codeExchange() {
+        return ExchangeBuilder.topicExchange(MQExchangeEnum.CODE_EXCHANGE.getValue()).durable(true).build();
+    }
+
+    @Bean("codeJudgeQueue")
+    public Queue codeJudgeQueue() {
+        return QueueBuilder.durable(MQQueueEnum.CODE_JUDGE_QUEUE.getValue()).build();
+    }
+
+    @Bean("codeResultQueue")
+    public Queue codeResultQueue() {
+        return QueueBuilder.durable(MQQueueEnum.CODE_RESULT_QUEUE.getValue()).build();
+    }
+
     @Bean
-    public Binding codeQueueExchange(@Qualifier("codeQueue") Queue queue,
-                                     @Qualifier("codeExchange") Exchange exchange){
-        return BindingBuilder.bind(queue).to(exchange).with("code.#").noargs();
+    public Binding codeJudgeQueueExchange(@Qualifier("codeJudgeQueue") Queue queue,
+                                          @Qualifier("codeExchange") Exchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with("code.judge").noargs();
+    }
+
+    @Bean
+    public Binding codeResultQueueExchange(@Qualifier("codeResultQueue") Queue queue,
+                                           @Qualifier("codeExchange") Exchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with("code.result").noargs();
     }
 
 
     @Bean
-    public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory){
+    public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);
         rabbitTemplate.setMessageConverter(jackson2JsonMessageConverter());
         return rabbitTemplate;
     }
 
     @Bean
-    public Jackson2JsonMessageConverter jackson2JsonMessageConverter(){
+    public Jackson2JsonMessageConverter jackson2JsonMessageConverter() {
         return new Jackson2JsonMessageConverter();
     }
 }

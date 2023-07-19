@@ -2,7 +2,8 @@ package com.offer.oj.domain.enums;
 
 public enum MQQueueEnum {
     EMAIL_QUEUE("email_queue"),
-    CODE_QUEUE("code_queue"),
+    CODE_JUDGE_QUEUE("code_judge_queue"),
+    CODE_RESULT_QUEUE("code_result_queue"),
     ;
 
     private final String value;

@@ -44,6 +44,12 @@ public class DockerUtil {
     @Value("${docker.host.bind.target.path}")
     private String configBindTargetPath;
 
+    @Value("${docker.host.bind.source.result.path}")
+    private String configBindSourceResultPath;
+
+    @Value("${docker.host.bind.target.result.path}")
+    private String configBindTargetResultPath;
+
     @Value("${docker.host.bind.source.port}")
     private Integer configBindSourcePort;
 
@@ -111,7 +117,12 @@ public class DockerUtil {
         hostConfig.withPortBindings(new PortBinding(Ports.Binding.bindPort(configBindSourcePort), ExposedPort.tcp(configBindTargetPort)));
         //内存配额 单位为Byte
         hostConfig.withMemory(Memory);
-        String fileWholePath = configBindTargetPath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator();
+        String fileWholePath;
+        if (submitCodeDTO.getIsResult()) {
+            fileWholePath = configBindTargetResultPath + SeparatorEnum.SLASH.getSeparator();
+        } else {
+            fileWholePath = configBindTargetPath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator();
+        }
         String fileWholeName = fileWholePath + submitCodeDTO.getFileName();
         String fileWholeNameWithType = fileWholeName + SeparatorEnum.DOT.getSeparator() + submitCodeDTO.getType().getValue();
         switch (submitCodeDTO.getType()) {
@@ -135,7 +146,9 @@ public class DockerUtil {
             case C_PLUS_PLUS -> {
                 return client.createContainerCmd("codenvy/cpp_gcc:latest")
                         .withUser("root")
-                        .withCmd("bash", "-c", "g++ -o " + fileWholePath + "program " + fileWholeNameWithType + "&&" + fileWholePath + "program >" + fileWholeName + ".out")
+                        .withCmd("bash", "-c", "g++ -o " + fileWholePath + "program " + fileWholeNameWithType
+                                + "&&" + fileWholePath + "program >" + fileWholeName + ".out"
+                        )
                         .withHostConfig(hostConfig)
                         .exec();
             }
@@ -205,20 +218,20 @@ public class DockerUtil {
                 } else {
                     // 函数执行出错
                     codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-                    codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getStatus());
+                    codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
                 }
             } catch (Exception e) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 codeResult.setCode(-1);
                 codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-                codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getStatus());
+                codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
                 codeResult.setTime(CodeResultEnum.TIME_LIMIT_EXCEEDED.getLimit());
                 log.error("Docker Client Exception: Time out");
                 e.printStackTrace();
             }
         } catch (Exception e) {
             codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-            codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getStatus());
+            codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
             log.error("Docker Client Exception: Unknown");
             e.printStackTrace();
         } finally {
@@ -227,13 +240,16 @@ public class DockerUtil {
             if (codeResult.getStatus().equals(CodeStatusEnum.SUCCESS.getStatus())) {
                 String fileWholePath = configBindSourcePath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator();
                 String fileWholeName = fileWholePath + submitCodeDTO.getFileName();
-                String resultName = configBindSourcePath + "result/" + submitCodeDTO.getQuestionId() + ".txt";
+                String resultName = configBindSourceResultPath + submitCodeDTO.getQuestionId() + ".txt";
 
-
-                if (JudgeUtil.compareFiles(fileWholeName + ".out", resultName)) {
-                    codeResult.setResult(CodeResultEnum.ACCEPT.getStatus());
+                if (submitCodeDTO.getIsResult()) {
+                    codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
                 } else {
-                    codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getStatus());
+                    if (JudgeUtil.compareFiles(fileWholeName + ".out", resultName)) {
+                        codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
+                    } else {
+                        codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
+                    }
                 }
             }
         }

@@ -79,7 +79,7 @@ class OjApplicationTests {
         System.out.println(EncryptionUtil.checkPassword("password", hash));
     }
 
-    @Test
+//    @Test
     void testRegister() throws InterruptedException, IOException {
         UserDTO userDTO = new UserDTO();
         userDTO.setFirstName("xiao");

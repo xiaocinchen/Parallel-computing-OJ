@@ -24,21 +24,28 @@ public class CodeServiceImpl implements CodeService {
     private CodeMQSender codeMQSender;
 
     @Override
-    public Result submitCode(SubmitCodeDTO submitCodeDTO){
+    public Result submitCode(SubmitCodeDTO submitCodeDTO) {
         Result result = new Result<>();
         String message = "";
         CodeInnerQuery codeInnerQuery = new CodeInnerQuery();
-        submitCodeDTO.setFileName(
-                submitCodeDTO.getQuestionId()
-                        +SeparatorEnum.UNDERLINE.getSeparator()
-                        +submitCodeDTO.getAuthorId()
-                        +SeparatorEnum.UNDERLINE.getSeparator()
-                        +TimeUtil.getUniqueSequence());
+        if (submitCodeDTO.getIsResult()) {
+            submitCodeDTO.setFileName(
+                    submitCodeDTO.getQuestionId()
+                            + SeparatorEnum.UNDERLINE.getSeparator()
+                            + submitCodeDTO.getType().getValue());
+            codeMapper.selectAndDeleteCodeByName(submitCodeDTO.getFileName());
+        } else {
+            submitCodeDTO.setFileName(
+                    submitCodeDTO.getQuestionId()
+                            + SeparatorEnum.UNDERLINE.getSeparator()
+                            + submitCodeDTO.getAuthorId()
+                            + SeparatorEnum.UNDERLINE.getSeparator()
+                            + TimeUtil.getUniqueSequence());
+        }
         BeanUtils.copyProperties(submitCodeDTO, codeInnerQuery);
         codeInnerQuery.setType(submitCodeDTO.getType().getValue());
         codeInnerQuery.setStatus(CodeStatusEnum.PENDING.getStatus());
-
-        if (codeMapper.submitCode(codeInnerQuery)){
+        if (codeMapper.submitCode(codeInnerQuery)) {
             ThreadPoolUtil.sendMQThreadPool.execute(() -> codeMQSender.sendCodeForJudgeMQ(submitCodeDTO));
             message = "Submit success.";
             result.setSuccess(true);

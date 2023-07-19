@@ -21,6 +21,14 @@ public class CodeController {
     @PostMapping("/submit")
     public Result codeSubmit(@Validated @RequestBody SubmitCodeDTO submitCodeDTO, HttpServletRequest request) {
         submitCodeDTO.setAuthorId(((UserIdentityDTO)request.getAttribute("UserIdentityDTO")).getUserId());
+        submitCodeDTO.setIsResult(false);
+        return codeService.submitCode(submitCodeDTO);
+    }
+
+    @PostMapping("/propose")
+    public Result codePropose(@Validated @RequestBody SubmitCodeDTO submitCodeDTO, HttpServletRequest request) {
+        submitCodeDTO.setAuthorId(((UserIdentityDTO)request.getAttribute("UserIdentityDTO")).getUserId());
+        submitCodeDTO.setIsResult(true);
         return codeService.submitCode(submitCodeDTO);
     }
 }

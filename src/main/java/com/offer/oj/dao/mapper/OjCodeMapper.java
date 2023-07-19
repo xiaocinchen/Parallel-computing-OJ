@@ -1,6 +1,9 @@
 package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.OjCode;
+import com.offer.oj.domain.query.CodeInnerQuery;
+
+import java.util.List;
 
 public interface OjCodeMapper {
     int deleteByPrimaryKey(Integer id);
@@ -16,4 +19,6 @@ public interface OjCodeMapper {
     int updateByPrimaryKey(OjCode row);
 
     int updateByFileName(OjCode row);
+
+    List<OjCode> queryForList(CodeInnerQuery codeInnerQuery);
 }

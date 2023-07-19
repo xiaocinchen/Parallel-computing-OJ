@@ -19,24 +19,24 @@ public enum CodeResultEnum {
     COMPILE_ERROR("Compile Error", 6),
     ;
 
-    private final String status;
+    private final String Result;
     private final Integer code;
 
     private Integer limit = 3000;
 
-    private CodeResultEnum(String status, Integer code) {
-        this.status = status;
+    private CodeResultEnum(String Result, Integer code) {
+        this.Result = Result;
         this.code = code;
     }
 
-    private CodeResultEnum(String status, Integer code, Integer limit) {
-        this.status = status;
+    private CodeResultEnum(String Result, Integer code, Integer limit) {
+        this.Result = Result;
         this.code = code;
         this.limit = limit;
     }
 
-    public String getStatus() {
-        return status;
+    public String getResult() {
+        return Result;
     }
 
     public Integer getCode() {
