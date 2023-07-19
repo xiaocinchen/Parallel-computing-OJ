@@ -49,7 +49,9 @@ public class CodeMQListener {
             CodeResultDTO codeResultDTO = dockerUtil.executeCodeAndGetResult(submitCodeDTO);
             CodeInnerQuery query = new CodeInnerQuery();
             query.setFileName(codeResultDTO.getFileName());
-            query.setResult(codeResultDTO.getStatus());
+            query.setResult(codeResultDTO.getResult());
+            query.setStatus(codeResultDTO.getStatus());
+            query.setExecutionTime(codeResultDTO.getTime());
             codeMapper.updateCodeByFileName(query);
         } catch (Throwable e) {
             throw new ListenerExecutionFailedException("Judge Code Listener Exception.", e);

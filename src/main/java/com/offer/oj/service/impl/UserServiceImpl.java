@@ -11,6 +11,7 @@ import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.domain.enums.GenderEnum;
 import com.offer.oj.service.CacheService;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.UserService;
@@ -62,50 +63,31 @@ public class UserServiceImpl implements UserService {
     public Result<String> registerSendEmail(UserDTO userDTO) {
         Result<String> result = new Result<>();
         String message = "";
-        if (isUserDTOEmpty(userDTO)) {
-            message = "Incomplete user information";
-            log.error(message);
-        } else if (userDTO.getUsername().length() > 20 || userDTO.getUsername().length() < 6) {
-            message = "The username should be between 6 and 20 characters! " + userDTO.getUsername();
-            log.error(message);
-        } else if (!Pattern.compile(EMAIL_REGEX).matcher(userDTO.getEmail()).matches()) {
-            message = "Email format error! " + userDTO.getEmail();
-            log.error(message);
-        } else if (userDTO.getPassword().length() > 20 || userDTO.getPassword().length() < 8 || !userDTO.getPassword().matches("[a-zA-Z0-9]+")) {
-            message = "Password should be composed of 8 to 20 characters of numbers or English!";
-            log.error(message);
-        } else if (userDTO.getFirstName().length() > 12) {
-            message = "FirstName cannot exceed 12 characters! " + userDTO.getFirstName();
-            log.error(message);
-        } else if (userDTO.getLastName().length() > 12) {
-            message = "LastName cannot exceed 12 characters! " + userDTO.getLastName();
-            log.error(message);
-        } else if (Stream.of("male", "female", "secret").noneMatch(userDTO.getGender()::equals)) {
+        if (!GenderEnum.getGenderSet().contains(userDTO.getGender())) {
             message = "Unknown gender! " + userDTO.getGender();
-            log.error(message);
+            result.setSimpleResult(false, message, -1);
+            log.warn(message);
         } else if (userMapper.selectByUsername(userDTO.getUsername()) != null) {
             message = "Username already exists! " + userDTO.getUsername();
-            log.error(message);
+            result.setSimpleResult(false, message, -2);
+            log.warn(message);
         } else if (userMapper.selectByEmail(userDTO.getEmail()) != null) {
             message = "Email already exists! " + userDTO.getEmail();
-            log.error(message);
-        }
-        if (message.isEmpty()) {
+            result.setSimpleResult(false, message, -3);
+            log.warn(message);
+        } else {
             try {
                 Cache<String, UserDTO> usernameCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
                 usernameCache.put(userDTO.getUsername(), userDTO);
-                result.setSuccess(true);
                 message = "Verify email!";
                 emailService.sendRegisterVerifyEmail(userDTO);
                 log.info(message);
+                result.setSimpleResult(true, message, 0);
             } catch (Exception e) {
                 log.error(String.valueOf(e));
-                result.setSuccess(false);
+                result.setSimpleResult(false, e.getMessage(), -4);
             }
-        } else {
-            result.setSuccess(false);
         }
-        result.setMessage(message);
         return result;
     }
 
@@ -113,28 +95,25 @@ public class UserServiceImpl implements UserService {
     public Result registerVerifyEmail(VerificationDTO verification) {
         Result result = new Result();
         String message = "";
-        if (Objects.isNull(verification) || ObjectUtils.isEmpty(verification.getUsername()) || ObjectUtils.isEmpty(verification.getCode()) || ObjectUtils.isEmpty(verification.getType())) {
-            message = "Missing verification code information.";
-            log.error(message);
-        } else if (verification.getType().equals(EmailTypeEnum.REGISTER.getValue())) {
+        if (verification.getType().equals(EmailTypeEnum.REGISTER.getValue())) {
             log.info("Start verifying email.");
             userDTOCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
             UserDTO userDTO = userDTOCache.get(verification.getUsername());
             if (Objects.isNull(userDTO)) {
                 message = "Registration information does not exist or has expired!";
                 log.error(message);
-                result.setSimpleResult(false, message);
+                result.setSimpleResult(false, message, -1);
                 return result;
             }
             verificationDTOCache = cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
-            if (!Objects.isNull(verificationDTOCache.get(userDTO.getUsername())) && !Objects.isNull(verificationDTOCache.get(userDTO.getUsername()).getCode()) && verificationDTOCache.get(userDTO.getUsername()).getCode().equals(verification.getCode())) {
+            if (!Objects.isNull(verificationDTOCache.get(userDTO.getUsername())) && verificationDTOCache.get(userDTO.getUsername()).getCode().equals(verification.getCode())) {
                 message = "Email verification successful!";
                 log.info(message);
                 result = register(userDTO);
                 verificationDTOCache.remove(userDTO.getUsername());
             } else {
                 message = "Verification code error or expired, email verification failed!";
-                result.setSimpleResult(false, message);
+                result.setSimpleResult(false, message, -2);
                 log.error(message + "{}", verificationDTOCache.get(userDTO.getUsername()));
             }
         }
@@ -151,24 +130,14 @@ public class UserServiceImpl implements UserService {
             ojUserMapper.insertSelective(ojUser);
             message = "User registration successful.";
             log.info(message + "{}", userDTO.getUsername());
-//            userDTOCache.remove(userDTO.getUsername());
+            userDTOCache.remove(userDTO.getUsername());
         } catch (Exception e) {
             message = "User registration failed.";
             log.error(message + "{}", userDTO.getUsername(), e);
             throw new RuntimeException("User table insertion exception.");
         }
-        result.setSimpleResult(true, message);
+        result.setSimpleResult(true, message, 0);
         return result;
-    }
-
-    public boolean isUserDTOEmpty(UserDTO userDTO) {
-        return Objects.isNull(userDTO)
-                || ObjectUtils.isEmpty(userDTO.getUsername())
-                || ObjectUtils.isEmpty(userDTO.getPassword())
-                || ObjectUtils.isEmpty(userDTO.getFirstName())
-                || ObjectUtils.isEmpty(userDTO.getLastName())
-                || ObjectUtils.isEmpty(userDTO.getEmail())
-                || ObjectUtils.isEmpty(userDTO.getGender());
     }
 
     @Override
@@ -246,30 +215,23 @@ public class UserServiceImpl implements UserService {
     public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) throws IOException {
         Result result = new Result();
         String message = "";
-        if (Objects.isNull(forgetPasswordDTO.getUsername()) || Objects.isNull(forgetPasswordDTO.getEmail())) {
-            message = "Incomplete Information!";
-            log.error(message);
-            result.setSimpleResult(false, message);
-        }
-        if (Objects.isNull(userMapper.selectByUsername(forgetPasswordDTO.getUsername()))){
+        UserDTO user;
+        if (Objects.isNull(user = userMapper.selectByUsername(forgetPasswordDTO.getUsername()))) {
             message = "Incorrect Username!";
-            log.error(message);
-            result.setSimpleResult(false, message);
-        }
-        else {
-            UserDTO user = userMapper.selectByUsername(forgetPasswordDTO.getUsername());
+            log.warn(message);
+            result.setSimpleResult(false, message, -1);
+        } else {
             String email = user.getEmail();
             if (!email.equals(forgetPasswordDTO.getEmail())) {
                 message = "Incorrect Username or Email!";
-                log.error(message);
-                result.setSimpleResult(false, message);
-            }
-            else{
+                log.warn(message);
+                result.setSimpleResult(false, message, -2);
+            } else {
                 //发送邮件
                 emailService.sendRegisterVerifyEmail(user);
-                message = "send email successfully!";
+                message = "send email successfully!"+user.getEmail();
                 log.info(message);
-                result.setSimpleResult(true, message);
+                result.setSimpleResult(true, 0);
             }
         }
         return result;

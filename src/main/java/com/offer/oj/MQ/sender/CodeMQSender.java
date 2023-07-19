@@ -22,7 +22,7 @@ public class CodeMQSender {
 
     public void sendCodeForJudgeMQ(SubmitCodeDTO submitCodeDTO) {
         try {
-            FileWriter writer = new FileWriter(BASIC_PATH + submitCodeDTO.getFileName() + SeparatorEnum.DOT.getSeparator() + submitCodeDTO.getType().getValue());
+            FileWriter writer = new FileWriter(BASIC_PATH + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator() + submitCodeDTO.getFileName() + SeparatorEnum.DOT.getSeparator() + submitCodeDTO.getType().getValue());
             writer.write("");
             writer.write(submitCodeDTO.getContent());
             writer.flush();

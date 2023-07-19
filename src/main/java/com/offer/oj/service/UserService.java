@@ -19,11 +19,6 @@ public interface UserService {
     Result registerVerifyEmail(VerificationDTO verification);
 
     /**
-     * 判断UserDTO是否为空
-     */
-    boolean isUserDTOEmpty(UserDTO userDTO);
-
-    /**
      * login
      */
     Result login(LoginDTO loginDTO, HttpServletResponse response);

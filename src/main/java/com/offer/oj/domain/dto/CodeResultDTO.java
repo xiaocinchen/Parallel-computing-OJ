@@ -11,7 +11,7 @@ public class CodeResultDTO {
 
     private String status;
 
-    private String time;
+    private Integer time;
 
     private String fileName;
 }

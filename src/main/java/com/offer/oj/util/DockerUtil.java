@@ -11,13 +11,12 @@ import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.offer.oj.domain.dto.CodeResultDTO;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
+import com.offer.oj.domain.enums.CodeResultEnum;
 import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
-import org.springframework.util.ObjectUtils;
-import org.springframework.util.StringUtils;
 
 import java.io.*;
 import java.time.Duration;
@@ -136,7 +135,7 @@ public class DockerUtil {
             case C_PLUS_PLUS -> {
                 return client.createContainerCmd("codenvy/cpp_gcc:latest")
                         .withUser("root")
-                        .withCmd("bash", "-c", "g++ -o " + fileWholePath + "program " + fileWholeNameWithType + "&&" + fileWholePath + "program >" + fileWholeName + " .out")
+                        .withCmd("bash", "-c", "g++ -o " + fileWholePath + "program " + fileWholeNameWithType + "&&" + fileWholePath + "program >" + fileWholeName + ".out")
                         .withHostConfig(hostConfig)
                         .exec();
             }
@@ -155,7 +154,7 @@ public class DockerUtil {
             throw new IllegalAccessException("Create containers exception" + e.getMessage());
         }
         String containerId = createContainerResponse.getId();
-        StringBuilder result = new StringBuilder();
+        StringBuilder logs = new StringBuilder();
         WaitContainerResultCallback waitCallback = new WaitContainerResultCallback();
         CountDownLatch latch = new CountDownLatch(1);
 
@@ -167,7 +166,7 @@ public class DockerUtil {
 
             @Override
             public void onNext(Frame item) {
-                result.append(item.toString().replace("STDOUT:", ""));
+                logs.append(item.toString().replace("STDOUT:", ""));
             }
 
             @Override
@@ -178,6 +177,7 @@ public class DockerUtil {
             @Override
             public void onComplete() {
                 latch.countDown();
+                log.info(String.valueOf(logs));
             }
 
             @Override
@@ -196,39 +196,44 @@ public class DockerUtil {
             dockerClient.waitContainerCmd(containerId).exec(waitCallback);
             try {
                 Integer exitCode = waitCallback.awaitStatusCode(3L, TimeUnit.SECONDS);
+                codeResult.setCode(exitCode);
                 if (exitCode == 0) {
                     // 函数执行成功
                     long endTime = System.currentTimeMillis();
-                    codeResult.setCode(0);
-                    codeResult.setTime(endTime - startTime + "ms");
+                    codeResult.setTime((int) (endTime - startTime));
+                    codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
                 } else {
                     // 函数执行出错
-                    codeResult.setCode(exitCode);
-                    codeResult.setStatus(CodeStatusEnum.COMPILE_ERROR.getStatus());
+                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                    codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getStatus());
                 }
             } catch (Exception e) {
                 dockerClient.stopContainerCmd(containerId).exec();
                 codeResult.setCode(-1);
-                codeResult.setStatus(CodeStatusEnum.TIME_LIMIT_EXCEEDED.getStatus());
-                codeResult.setTime(CodeStatusEnum.TIME_LIMIT_EXCEEDED.getLimit());
+                codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getStatus());
+                codeResult.setTime(CodeResultEnum.TIME_LIMIT_EXCEEDED.getLimit());
                 log.error("Docker Client Exception: Time out");
                 e.printStackTrace();
             }
         } catch (Exception e) {
-            codeResult.setStatus(CodeStatusEnum.RUNTIME_ERROR.getStatus());
+            codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+            codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getStatus());
             log.error("Docker Client Exception: Unknown");
             e.printStackTrace();
         } finally {
             latch.await();
             dockerClient.removeContainerCmd(containerId).exec();
-            if (ObjectUtils.isEmpty(codeResult.getStatus())) {
-                String fileWholePath = configBindTargetPath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator();
+            if (codeResult.getStatus().equals(CodeStatusEnum.SUCCESS.getStatus())) {
+                String fileWholePath = configBindSourcePath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator();
                 String fileWholeName = fileWholePath + submitCodeDTO.getFileName();
-                String resultName = configBindTargetPath + "result/" + submitCodeDTO.getQuestionId() + ".txt";
+                String resultName = configBindSourcePath + "result/" + submitCodeDTO.getQuestionId() + ".txt";
+
+
                 if (JudgeUtil.compareFiles(fileWholeName + ".out", resultName)) {
-                    codeResult.setStatus(CodeStatusEnum.ACCEPT.getStatus());
+                    codeResult.setResult(CodeResultEnum.ACCEPT.getStatus());
                 } else {
-                    codeResult.setStatus(CodeStatusEnum.WRONG_ANSWER.getStatus());
+                    codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getStatus());
                 }
             }
         }

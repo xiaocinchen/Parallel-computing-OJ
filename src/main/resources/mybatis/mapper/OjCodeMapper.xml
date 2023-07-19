@@ -134,7 +134,10 @@
       <if test="result != null">
         result = #{result,jdbcType=VARCHAR},
       </if>
+      <if test="executionTime != null">
+        execution_time = #{executionTime,jdbcType=INTEGER},
+      </if>
     </set>
-    where fileName = #{fileName,jdbcType=VARCHAR}
+    where file_name = #{fileName,jdbcType=VARCHAR}
   </update>
 </mapper>

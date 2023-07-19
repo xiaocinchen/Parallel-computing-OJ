@@ -34,6 +34,8 @@ public class CodeMapperImpl implements CodeMapper {
     public boolean updateCodeByFileName(CodeInnerQuery codeInnerQuery) {
         OjCode ojCode = new OjCode();
         ojCode.setResult(codeInnerQuery.getResult());
+        ojCode.setStatus(codeInnerQuery.getStatus());
+        ojCode.setExecutionTime(codeInnerQuery.getExecutionTime());
         ojCode.setFileName(codeInnerQuery.getFileName());
         try{
             ojCodeMapper.updateByFileName(ojCode);

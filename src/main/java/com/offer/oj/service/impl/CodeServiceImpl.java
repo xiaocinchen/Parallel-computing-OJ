@@ -4,6 +4,7 @@ import com.offer.oj.MQ.sender.CodeMQSender;
 import com.offer.oj.dao.CodeMapper;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
+import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
 import com.offer.oj.domain.query.CodeInnerQuery;
 import com.offer.oj.service.CodeService;
@@ -35,6 +36,7 @@ public class CodeServiceImpl implements CodeService {
                         +TimeUtil.getUniqueSequence());
         BeanUtils.copyProperties(submitCodeDTO, codeInnerQuery);
         codeInnerQuery.setType(submitCodeDTO.getType().getValue());
+        codeInnerQuery.setStatus(CodeStatusEnum.PENDING.getStatus());
 
         if (codeMapper.submitCode(codeInnerQuery)){
             ThreadPoolUtil.sendMQThreadPool.execute(() -> codeMQSender.sendCodeForJudgeMQ(submitCodeDTO));
