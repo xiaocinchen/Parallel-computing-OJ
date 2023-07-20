@@ -9,7 +9,8 @@ public enum CacheEnum {
     USER_CACHE("userCache"),
     KAPTCHA_CACHE("kaptchaCache"),
     LOGIN_CACHE("loginCache"),
-    SELECT_QUESTION_CACHE("selectQuestionCache")
+    SELECT_QUESTION_CACHE("selectQuestionCache"),
+    STAGE_CODE_CACHE("stage_code_cache"),
     ;
     private final String value;
 

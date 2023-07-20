@@ -29,6 +29,12 @@ public class Result<T> implements Serializable {
         this.message = message;
     }
 
+    public Result(boolean success, String message, Integer code) {
+        this.success = success;
+        this.message = message;
+        this.code = code;
+    }
+
     public void setSimpleResult(boolean success, String message){
         this.success = success;
         this.message = message;

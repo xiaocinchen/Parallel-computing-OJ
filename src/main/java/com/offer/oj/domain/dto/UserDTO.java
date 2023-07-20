@@ -3,6 +3,7 @@ package com.offer.oj.domain.dto;
 import jakarta.validation.constraints.*;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
@@ -35,5 +36,8 @@ public class UserDTO implements Serializable {
 
     @Null
     private String role;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 
 }

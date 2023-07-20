@@ -65,9 +65,20 @@ public class CacheServiceImpl implements CacheService {
     @PostConstruct
     public void initLoginCache() {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.LOGIN_CACHE.getValue())
-                .expire(Duration.ofDays(1))
+//                .expire(Duration.ofDays(1))
                 .localExpire(Duration.ofHours(12))
                 .cacheType(CacheType.LOCAL)
+                .syncLocal(true)
+                .build();
+        cacheManager.getOrCreateCache(quickConfig);
+    }
+
+    @PostConstruct
+    public void initStageCodeCache() {
+        QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.STAGE_CODE_CACHE.getValue())
+                .expire(Duration.ofDays(30))
+                .localExpire(Duration.ofHours(12))
+                .cacheType(CacheType.BOTH)
                 .syncLocal(true)
                 .build();
         cacheManager.getOrCreateCache(quickConfig);

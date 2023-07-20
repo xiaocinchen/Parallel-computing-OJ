@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
@@ -31,4 +32,7 @@ public class VariableQuestionDTO implements Serializable {
     private String pictureUrl;
 
     private String category;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 }

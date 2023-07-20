@@ -1,6 +1,7 @@
 package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
+import com.offer.oj.domain.dto.CodeStageDTO;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
 import com.offer.oj.domain.dto.UserIdentityDTO;
 import com.offer.oj.service.CodeService;
@@ -30,5 +31,17 @@ public class CodeController {
         submitCodeDTO.setAuthorId(((UserIdentityDTO)request.getAttribute("UserIdentityDTO")).getUserId());
         submitCodeDTO.setIsResult(true);
         return codeService.submitCode(submitCodeDTO);
+    }
+
+    @PostMapping("/stage/submit")
+    public Result codeStageSubmit(@Validated @RequestBody CodeStageDTO codeStageDTO, HttpServletRequest request){
+        codeStageDTO.setAuthorId(((UserIdentityDTO)request.getAttribute("UserIdentityDTO")).getUserId());
+        return codeService.stageCodeSubmit(codeStageDTO);
+    }
+
+    @GetMapping("/stage/get")
+    public Result<CodeStageDTO> codeStageGet(@Validated @RequestParam CodeStageDTO codeStageDTO, HttpServletRequest request){
+        codeStageDTO.setAuthorId(((UserIdentityDTO)request.getAttribute("UserIdentityDTO")).getUserId());
+        return codeService.stageCodeGet(codeStageDTO);
     }
 }

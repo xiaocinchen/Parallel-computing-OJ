@@ -2,6 +2,7 @@ package com.offer.oj.domain.dto;
 
 import lombok.Data;
 
+import java.io.Serial;
 import java.io.Serializable;
 
 @Data
@@ -23,4 +24,7 @@ public class EmailDTO implements Serializable {
     private String code;
 
     private boolean isHtml;
+
+    @Serial
+    private static final long serialVersionUID = 1L;
 }
