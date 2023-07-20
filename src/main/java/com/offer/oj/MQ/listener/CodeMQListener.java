@@ -12,7 +12,6 @@ import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.amqp.rabbit.support.ListenerExecutionFailedException;
 import org.springframework.amqp.support.AmqpHeaders;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
 import org.springframework.stereotype.Service;
@@ -27,13 +26,8 @@ public class CodeMQListener {
     @Autowired
     private DockerUtil dockerUtil;
 
-    @Value("${code.source.path}")
-    private String BASIC_PATH;
-
     @Autowired
     private CodeMapper codeMapper;
-
-    private final String RESULT_FILE_NAME = "result.txt";
 
     @RabbitListener(bindings = @QueueBinding(
             value = @Queue(value = "code_judge_queue", durable = "true", autoDelete = "false"),
@@ -49,25 +43,6 @@ public class CodeMQListener {
             query.setResult(codeResultDTO.getResult());
             query.setStatus(codeResultDTO.getStatus());
             query.setExecutionTime(codeResultDTO.getTime());
-            codeMapper.updateCodeByFileName(query);
-        } catch (Throwable e) {
-            throw new ListenerExecutionFailedException("Judge Code Listener Exception.", e);
-        }
-        channel.basicAck(deliveryTag, false);
-    }
-
-    @RabbitListener(bindings = @QueueBinding(
-            value = @Queue(value = "code_judge_queue", durable = "true", autoDelete = "false"),
-            exchange = @Exchange(value = "code_exchange", type = ExchangeTypes.TOPIC),
-            key = "code.judge"), ackMode = "MANUAL")
-    @RabbitHandler
-    public void listenResultCode(@Payload SubmitCodeDTO submitCodeDTO, @Headers Map<String, Object> headers, Channel channel) throws IOException {
-        long deliveryTag = (long) headers.get(AmqpHeaders.DELIVERY_TAG);
-        try {
-            CodeResultDTO codeResultDTO = dockerUtil.executeCodeAndGetResult(submitCodeDTO);
-            CodeInnerQuery query = new CodeInnerQuery();
-            query.setFileName(codeResultDTO.getFileName());
-            query.setResult(codeResultDTO.getStatus());
             codeMapper.updateCodeByFileName(query);
         } catch (Throwable e) {
             throw new ListenerExecutionFailedException("Judge Code Listener Exception.", e);
