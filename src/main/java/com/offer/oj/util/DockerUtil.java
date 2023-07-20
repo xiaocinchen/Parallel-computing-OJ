@@ -240,7 +240,7 @@ public class DockerUtil {
             if (codeResult.getStatus().equals(CodeStatusEnum.SUCCESS.getStatus())) {
                 String fileWholePath = configBindSourcePath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator();
                 String fileWholeName = fileWholePath + submitCodeDTO.getFileName();
-                String resultName = configBindSourceResultPath + submitCodeDTO.getQuestionId() + ".txt";
+                String resultName = configBindSourceResultPath + submitCodeDTO.getQuestionId() + SeparatorEnum.UNDERLINE.getSeparator() + submitCodeDTO.getType().getValue() + ".out";
 
                 if (submitCodeDTO.getIsResult()) {
                     codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
