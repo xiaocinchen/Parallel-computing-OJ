@@ -161,25 +161,25 @@
 
   <sql id="dynamicWhere">
     <if test="fileName != null">
-      AND file_name = #{fileName,jdbcType=VARCHAR},
+      AND file_name = #{fileName,jdbcType=VARCHAR}
     </if>
     <if test="type != null">
-      AND type = #{type,jdbcType=CHAR},
+      AND type = #{type,jdbcType=CHAR}
     </if>
     <if test="authorId != null">
-      AND author_id = #{authorId,jdbcType=INTEGER},
+      AND author_id = #{authorId,jdbcType=INTEGER}
     </if>
     <if test="status != null">
-      AND status = #{status,jdbcType=CHAR},
+      AND status = #{status,jdbcType=CHAR}
     </if>
     <if test="result != null">
-      AND result = #{result,jdbcType=VARCHAR},
+      AND result = #{result,jdbcType=VARCHAR}
     </if>
     <if test="createTime != null">
-      AND create_time = #{createTime,jdbcType=TIMESTAMP},
+      AND create_time = #{createTime,jdbcType=TIMESTAMP}
     </if>
     <if test="executionTime != null">
-      AND execution_time = #{executionTime,jdbcType=INTEGER},
+      AND execution_time = #{executionTime,jdbcType=INTEGER}
     </if>
   </sql>
 

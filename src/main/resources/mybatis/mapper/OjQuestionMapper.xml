@@ -177,31 +177,31 @@
 
   <sql id="dynamicWhere">
     <if test="id != null">
-      AND id = #{id},
+      AND id = #{id}
     </if>
     <if test="createTime != null">
-      AND create_time = #{create_time},
+      AND create_time = #{create_time}
     </if>
     <if test="modifyTime != null">
-      AND modify_time = #{modify_time},
+      AND modify_time = #{modify_time}
     </if>
     <if test="title != null">
-      AND title = #{title},
+      AND title = #{title}
     </if>
     <if test="modifier != null">
-      AND modifier = #{modifier},
+      AND modifier = #{modifier}
     </if>
     <if test="status != null">
-      AND status = #{status},
+      AND status = #{status}
     </if>
     <if test="pictureUrl != null">
-      AND picture_url = #{picture_url},
+      AND picture_url = #{picture_url}
     </if>
     <if test="category != null">
-      AND category = #{category},
+      AND category = #{category}
     </if>
     <if test="description != null">
-      AND description = #{description},
+      AND description = #{description}
     </if>
   </sql>
 
