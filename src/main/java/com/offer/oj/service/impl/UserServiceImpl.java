@@ -85,7 +85,7 @@ public class UserServiceImpl implements UserService {
                 result.setSimpleResult(true, message, 0);
             } catch (Exception e) {
                 log.error(String.valueOf(e));
-                result.setSimpleResult(false, e.getMessage(), -4);
+                result.setSimpleResult(false, "Unknown Exception", -4);
             }
         }
         return result;

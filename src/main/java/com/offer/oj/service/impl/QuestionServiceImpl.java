@@ -116,20 +116,20 @@ public class QuestionServiceImpl implements QuestionService {
         if (questionDTO == null || questionDTO.getId() == null) {
             message = "Lack parameters!";
             log.error(message + "question: {}", questionDTO);
-            result.setSimpleResult(false, message);
+            result.setSimpleResult(false, message, -1);
         } else {
             if (questionMapper.selectQuestionById(questionDTO.getId()) == null) {
                 message = "Delete question failed: No such question, Id=" + questionDTO.getId();
                 log.warn(message);
-                result.setSimpleResult(false, message);
+                result.setSimpleResult(false, message, -2);
             } else if (questionMapper.deleteQuestionById(questionDTO.getId())) {
                 message = "Delete question success. Id = " + questionDTO.getId();
                 log.info(message);
-                result.setSimpleResult(true, message);
+                result.setSimpleResult(true, message, 0);
             } else {
                 message = "Delete question failed. Id = " + questionDTO.getId();
                 log.info(message);
-                result.setSimpleResult(false, message);
+                result.setSimpleResult(false, message, -3);
             }
         }
         return result;
