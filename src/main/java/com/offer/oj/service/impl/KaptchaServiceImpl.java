@@ -1,12 +1,14 @@
 package com.offer.oj.service.impl;
+
 import com.alicp.jetcache.Cache;
 import com.google.code.kaptcha.Producer;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.KaptchaDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.service.KaptchaService;
+
 import java.awt.image.BufferedImage;
-import java.io.IOException;
+import java.awt.image.ImagingOpException;
 import java.util.Objects;
 
 import jakarta.servlet.ServletOutputStream;
@@ -31,21 +33,22 @@ public class KaptchaServiceImpl implements KaptchaService {
     private HttpServletResponse response;
 
     @Override
-    public Result<KaptchaDTO> getKaptcha(String username) throws IOException {
+    public Result<KaptchaDTO> getKaptcha(String username) {
         String kaptchaText = producer.createText();
         log.info("******************当前验证码为：{}******************", kaptchaText);
         BufferedImage kaptchaImage = producer.createImage(kaptchaText);
         KaptchaDTO kaptchaDTO = new KaptchaDTO(kaptchaText, kaptchaImage);
         response.setContentType("image/jpeg");
-        ServletOutputStream out = response.getOutputStream();
-        // 向页面输出验证码s
-        ImageIO.write(kaptchaImage, "jpg", out);
         try {
+            ServletOutputStream out = response.getOutputStream();
+            // 向页面输出验证码s
+            ImageIO.write(kaptchaImage, "jpg", out);
             // 清空缓存区
             out.flush();
-        } finally {
             // 关闭输出流
             out.close();
+        } catch (Exception e) {
+            throw new ImagingOpException("Output Image Exception.");
         }
         VerificationDTO verificationDTO = new VerificationDTO();
         verificationDTO.setUsername(username);

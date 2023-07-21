@@ -5,6 +5,6 @@ import com.offer.oj.domain.dto.UserDTO;
 import java.io.IOException;
 
 public interface EmailService {
-    void sendRegisterVerifyEmail(UserDTO userDTO) throws IOException;
+    void sendRegisterVerifyEmail(UserDTO userDTO);
 
 }

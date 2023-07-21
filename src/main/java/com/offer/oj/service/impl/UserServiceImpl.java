@@ -16,6 +16,7 @@ import com.offer.oj.service.CacheService;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.EncryptionUtil;
+import com.offer.oj.util.ThreadPoolUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import lombok.extern.slf4j.Slf4j;
@@ -28,8 +29,6 @@ import org.springframework.util.ObjectUtils;
 import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
-import java.util.regex.Pattern;
-import java.util.stream.Stream;
 
 @Slf4j
 @Service
@@ -80,7 +79,7 @@ public class UserServiceImpl implements UserService {
                 Cache<String, UserDTO> usernameCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
                 usernameCache.put(userDTO.getUsername(), userDTO);
                 message = "Verify email!";
-                emailService.sendRegisterVerifyEmail(userDTO);
+                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendRegisterVerifyEmail(userDTO));
                 log.info(message);
                 result.setSimpleResult(true, message, 0);
             } catch (Exception e) {
@@ -229,7 +228,7 @@ public class UserServiceImpl implements UserService {
             } else {
                 //发送邮件
                 emailService.sendRegisterVerifyEmail(user);
-                message = "send email successfully!"+user.getEmail();
+                message = "send email successfully!" + user.getEmail();
                 log.info(message);
                 result.setSimpleResult(true, 0);
             }

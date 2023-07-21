@@ -23,7 +23,7 @@ public class EmailServiceImpl implements EmailService {
     private KaptchaService kaptchaService;
 
     @Override
-    public void sendRegisterVerifyEmail(UserDTO userDTO) throws IOException {
+    public void sendRegisterVerifyEmail(UserDTO userDTO) {
         EmailDTO emailDTO = new EmailDTO();
         BeanUtils.copyProperties(userDTO, emailDTO);
         String code = kaptchaService.getKaptcha(userDTO.getUsername()).getData().getCode();

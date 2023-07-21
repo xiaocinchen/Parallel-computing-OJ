@@ -17,7 +17,7 @@ public class KaptchaController {
 
     @PostMapping("kaptcha-image")
     @ResponseBody
-    public Result getKaptchaImage(@RequestBody String username) throws IOException {
+    public Result getKaptchaImage(@RequestBody String username) {
         return kaptchaService.getKaptcha(username);
     }
 }
