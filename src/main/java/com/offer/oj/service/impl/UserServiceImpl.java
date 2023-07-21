@@ -112,7 +112,7 @@ public class UserServiceImpl implements UserService {
             emailDTO.setCode(kaptcha.getCode());
             ThreadPoolUtil.sendMQThreadPool.execute(()->emailService.sendRegisterVerifyEmail(emailDTO));
             cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(username + SeparatorEnum.UNDERLINE.getSeparator() + EmailTypeEnum.REGISTER.getValue(), kaptcha.getCode());
-            result.setSimpleResult(true, "Resend OK", 0);
+            result.setSimpleResult(true, "Resend OK.", 0);
         }
         return result;
     }
@@ -126,7 +126,7 @@ public class UserServiceImpl implements UserService {
             UserDTO userDTO = (UserDTO) cacheService.getCache(CacheEnum.USER_CACHE.getValue()).get(verification.getUsername());
             String code = (String) cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).get(verification.getVerificationKey());
             if (ObjectUtils.isEmpty(userDTO) || ObjectUtils.isEmpty(code)) {
-                message = "Verification code has expired";
+                message = "Verification code has expired.";
                 log.error(message);
                 result.setSimpleResult(false, message, -1);
                 return result;
@@ -140,7 +140,7 @@ public class UserServiceImpl implements UserService {
                 cacheService.getCache(CacheEnum.REGISTER_CACHE.getValue()).remove(userDTO.getUsername());
             }
         } else {
-            result.setSimpleResult(false, "Verify type error", -3);
+            result.setSimpleResult(false, "Verify type error.", -3);
         }
         return result;
     }
