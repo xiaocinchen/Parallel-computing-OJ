@@ -9,6 +9,7 @@ import org.springframework.web.bind.annotation.*;
 import java.io.IOException;
 
 @Slf4j
+@CrossOrigin
 @RestController
 @RequestMapping("kaptcha")
 public class KaptchaController {

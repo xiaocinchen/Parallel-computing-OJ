@@ -79,7 +79,8 @@ public class UserServiceImpl implements UserService {
                 Cache<String, UserDTO> usernameCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
                 usernameCache.put(userDTO.getUsername(), userDTO);
                 message = "Verify email!";
-                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendRegisterVerifyEmail(userDTO));
+//                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendRegisterVerifyEmail(userDTO));
+                emailService.sendRegisterVerifyEmail(userDTO);
                 log.info(message);
                 result.setSimpleResult(true, message, 0);
             } catch (Exception e) {

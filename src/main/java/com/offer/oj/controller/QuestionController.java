@@ -21,6 +21,7 @@ import java.util.List;
 
 @RestController
 @Slf4j
+@CrossOrigin
 @RequestMapping("/v1")
 public class QuestionController {
     @Autowired
