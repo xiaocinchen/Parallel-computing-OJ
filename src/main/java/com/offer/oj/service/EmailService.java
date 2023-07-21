@@ -1,12 +1,9 @@
 package com.offer.oj.service;
 
-import com.offer.oj.domain.dto.UserDTO;
-
-import java.io.IOException;
+import com.offer.oj.domain.dto.EmailDTO;
 
 public interface EmailService {
-
-    void sendRegisterVerifyEmail(UserDTO userDTO);
+    void sendVerifyEmail(EmailDTO emailDTO);
 
     void sendModifyPasswordEmail(UserDTO userDTO);
 

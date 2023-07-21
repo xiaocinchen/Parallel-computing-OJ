@@ -21,8 +21,8 @@ public class CacheServiceImpl implements CacheService {
     @PostConstruct
     public void initRegisterCache() {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.REGISTER_CACHE.getValue())
-                .expire(Duration.ofMinutes(30))
-                .localExpire(Duration.ofSeconds(10))
+                .expire(Duration.ofMinutes(5))
+                .localExpire(Duration.ofSeconds(60))
                 .cacheType(CacheType.BOTH) // two level cache
                 .syncLocal(true) // invalidate local cache in all jvm process after update
                 .build();
@@ -32,7 +32,7 @@ public class CacheServiceImpl implements CacheService {
     @PostConstruct
     public void initUserCache() {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.USER_CACHE.getValue())
-                .expire(Duration.ofMinutes(30))
+                .expire(Duration.ofMinutes(5))
                 .localExpire(Duration.ofSeconds(60))
                 .cacheType(CacheType.BOTH)
                 .syncLocal(true)
@@ -54,8 +54,8 @@ public class CacheServiceImpl implements CacheService {
     @PostConstruct
     public void initSelectQuestionCache() {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.SELECT_QUESTION_CACHE.getValue())
-                .expire(Duration.ofMinutes(5))
-                .localExpire(Duration.ofSeconds(60))
+                .expire(Duration.ofMinutes(120))
+                .localExpire(Duration.ofSeconds(120))
                 .cacheType(CacheType.BOTH)
                 .syncLocal(true)
                 .build();

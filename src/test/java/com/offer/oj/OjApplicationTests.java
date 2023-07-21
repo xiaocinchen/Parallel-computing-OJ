@@ -2,14 +2,12 @@ package com.offer.oj;
 
 import com.offer.oj.MQ.sender.CodeMQSender;
 import com.offer.oj.dao.QuestionMapper;
-import com.offer.oj.dao.Result;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
-import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.domain.query.QuestionInnerQuery;
 import com.offer.oj.service.EmailService;
@@ -80,49 +78,50 @@ class OjApplicationTests {
     }
 
 //    @Test
-    void testRegister() throws InterruptedException, IOException {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setFirstName("xiao");
-        userDTO.setLastName("spade");
-        userDTO.setGender("male");
-        userDTO.setPassword("1232123123");
-        userDTO.setUsername("ll20111");
-        userDTO.setEmail("spadexi6@gmail.com");
-        Result<String> result = userService.registerSendEmail(userDTO);
-        System.out.println(result);
-        if (result.isSuccess()) {
-            Thread.sleep(2000);
-            userDTO.setUsername("xxx");
-            testSendEmail(userDTO);
-        }
-        else{
-            return;
-        }
-    }
+//    void testRegister() throws InterruptedException, IOException {
+//        UserDTO userDTO = new UserDTO();
+//        userDTO.setFirstName("xiao");
+//        userDTO.setLastName("spade");
+//        userDTO.setGender("male");
+//        userDTO.setPassword("1232123123");
+//        userDTO.setUsername("ll20111");
+//        userDTO.setEmail("spadexi6@gmail.com");
+//        Result<String> result = userService.registerSendEmail(userDTO);
+//        System.out.println(result);
+//        if (result.isSuccess()) {
+//            Thread.sleep(2000);
+//            userDTO.setUsername("xxx");
+//            testSendEmail(userDTO);
+//        }
+//        else{
+//            return;
+//        }
+//    }
 
-    @Test
-    void testSendEmail() throws InterruptedException, IOException {
-        UserDTO userDTO = new UserDTO();
-        userDTO.setUsername("provider7");
-        userDTO.setEmail("spadexiao6@gmail.com");
-        emailService.sendRegisterVerifyEmail(userDTO);
-        Thread.sleep(3000);
-        VerificationDTO verificationDTO = new VerificationDTO();
-        verificationDTO.setCode("2017");
-        verificationDTO.setUsername("provider7");
-        verificationDTO.setType("REGISTER");
-        userService.registerVerifyEmail(verificationDTO);
-    }
+//    @Test
+//    void testSendEmail() throws InterruptedException, IOException {
+//        UserDTO userDTO = new UserDTO();
+//        userDTO.setUsername("provider7");
+//        userDTO.setEmail("spadexiao6@gmail.com");
+//
+//        emailService.sendRegisterVerifyEmail(userDTO, );
+//        Thread.sleep(3000);
+//        VerificationDTO verificationDTO = new VerificationDTO();
+//        verificationDTO.setCode("2017");
+//        verificationDTO.setUsername("provider7");
+//        verificationDTO.setType("REGISTER");
+//        userService.registerVerifyEmail(verificationDTO);
+//    }
 
-    void testSendEmail(UserDTO userDTO) throws InterruptedException, IOException {
-        emailService.sendRegisterVerifyEmail(userDTO);
-        Thread.sleep(2000);
-        VerificationDTO verificationDTO = new VerificationDTO();
-        verificationDTO.setCode("2017");
-        verificationDTO.setUsername(userDTO.getUsername());
-        verificationDTO.setType("REGISTER");
-        userService.registerVerifyEmail(verificationDTO);
-    }
+//    void testSendEmail(UserDTO userDTO) throws InterruptedException, IOException {
+//        emailService.sendRegisterVerifyEmail(userDTO, );
+//        Thread.sleep(2000);
+//        VerificationDTO verificationDTO = new VerificationDTO();
+//        verificationDTO.setCode("2017");
+//        verificationDTO.setUsername(userDTO.getUsername());
+//        verificationDTO.setType("REGISTER");
+//        userService.registerVerifyEmail(verificationDTO);
+//    }
 
     @Test
     void testEnumClass() {

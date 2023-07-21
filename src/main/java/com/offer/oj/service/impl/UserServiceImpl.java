@@ -9,14 +9,13 @@ import com.offer.oj.dao.mapper.OjUserMapper;
 import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.VerificationDTO;
-import com.offer.oj.domain.enums.CacheEnum;
-import com.offer.oj.domain.enums.EmailTypeEnum;
-import com.offer.oj.domain.enums.GenderEnum;
+import com.offer.oj.domain.enums.*;
 import com.offer.oj.service.CacheService;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.KaptchaService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.EncryptionUtil;
+import com.offer.oj.util.KaptchaUtil;
 import com.offer.oj.util.ThreadPoolUtil;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -27,7 +26,6 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.util.ObjectUtils;
 
-import java.io.IOException;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -63,7 +61,7 @@ public class UserServiceImpl implements UserService {
     private KaptchaService kaptchaService;
 
     @Override
-    public Result<String> registerSendEmail(UserDTO userDTO) {
+    public Result<String> registerSendEmail(UserDTO userDTO, HttpServletResponse response) {
         Result<String> result = new Result<>();
         String message = "";
         if (!GenderEnum.getGenderSet().contains(userDTO.getGender())) {
@@ -80,17 +78,48 @@ public class UserServiceImpl implements UserService {
             log.warn(message);
         } else {
             try {
-                Cache<String, UserDTO> usernameCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
-                usernameCache.put(userDTO.getUsername(), userDTO);
+                String tempLicence = UUID.randomUUID().toString();
+                cacheService.getCache(CacheEnum.REGISTER_CACHE.getValue()).put(userDTO.getUsername(), tempLicence);
+                cacheService.getCache(CacheEnum.USER_CACHE.getValue()).put(userDTO.getUsername(), userDTO);
                 message = "Verify email!";
-//                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendRegisterVerifyEmail(userDTO));
-                emailService.sendRegisterVerifyEmail(userDTO);
+                KaptchaDTO kaptchaDTO = KaptchaUtil.getKaptcha();
+                EmailDTO emailDTO = new EmailDTO();
+                BeanUtils.copyProperties(userDTO, emailDTO);
+                emailDTO.setCode(kaptchaDTO.getCode());
+                emailDTO.setSubject("This is a registration verification email!");
+                emailDTO.setType(EmailTypeEnum.REGISTER);
+                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendVerifyEmail(emailDTO));
+                cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(userDTO.getUsername() + SeparatorEnum.UNDERLINE.getSeparator() + EmailTypeEnum.REGISTER.getValue(), kaptchaDTO.getCode());
+                Cookie cookie = new Cookie(CookieEnum.TEMP_LICENCE.getValue(), tempLicence);                     // Set Cookie
+                cookie.setDomain(ip);
+                cookie.setPath("/");
+                response.addCookie(cookie);
                 log.info(message);
                 result.setSimpleResult(true, message, 0);
             } catch (Exception e) {
-                log.error(String.valueOf(e));
-                result.setSimpleResult(false, "Unknown Exception", -4);
+                throw new RuntimeException(e);
             }
+        }
+        return result;
+    }
+
+    @Override
+    public Result resendVerifyEmail(String username, String tempLicence) {
+        Result result = new Result();
+        String licence = (String) cacheService.getCache(CacheEnum.REGISTER_CACHE.getValue()).get(username);
+        if (ObjectUtils.isEmpty(licence)) {
+            result.setSimpleResult(false, "User info has expired.", -1);
+        } else if (!licence.equals(tempLicence)) {
+            result.setSimpleResult(false, "Temp licence error.", -2);
+        } else {
+            EmailDTO emailDTO = new EmailDTO();
+            BeanUtils.copyProperties(cacheService.getCache(CacheEnum.USER_CACHE.getValue()).get(username), emailDTO);
+            KaptchaDTO kaptcha = KaptchaUtil.getKaptcha();
+            emailDTO.setCode(kaptcha.getCode());
+            emailDTO.setType(EmailTypeEnum.REGISTER);
+            ThreadPoolUtil.sendMQThreadPool.execute(()->emailService.sendVerifyEmail(emailDTO));
+            cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(username + SeparatorEnum.UNDERLINE.getSeparator() + EmailTypeEnum.REGISTER.getValue(), kaptcha.getCode());
+            result.setSimpleResult(true, "Resend OK.", 0);
         }
         return result;
     }
@@ -101,48 +130,28 @@ public class UserServiceImpl implements UserService {
         String message = "";
         if (verification.getType().equals(EmailTypeEnum.REGISTER.getValue())) {
             log.info("Start verifying email.");
-            userDTOCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
-            UserDTO userDTO = userDTOCache.get(verification.getUsername());
-            if (Objects.isNull(userDTO)) {
-                message = "Registration information does not exist or has expired!";
+            UserDTO userDTO = (UserDTO) cacheService.getCache(CacheEnum.USER_CACHE.getValue()).get(verification.getUsername());
+            String code = (String) cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).get(verification.getVerificationKey());
+            if (ObjectUtils.isEmpty(userDTO) || ObjectUtils.isEmpty(code)) {
+                message = "Verification code has expired.";
                 log.error(message);
                 result.setSimpleResult(false, message, -1);
                 return result;
-            }
-            verificationDTOCache = cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
-            if (!Objects.isNull(verificationDTOCache.get(userDTO.getUsername())) && verificationDTOCache.get(userDTO.getUsername()).getCode().equals(verification.getCode())) {
-                message = "Email verification successful!";
-                log.info(message);
-                result = register(userDTO);
-                verificationDTOCache.remove(userDTO.getUsername());
-            } else {
-                message = "Verification code error or expired, email verification failed!";
+            } else if (!code.equals(verification.getCode())) {
+                message = "Verification code error.";
                 result.setSimpleResult(false, message, -2);
                 log.error(message + "{}", verificationDTOCache.get(userDTO.getUsername()));
+            } else {
+                result = register(userDTO);
+                cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).remove(verification.getVerificationKey());
+                cacheService.getCache(CacheEnum.REGISTER_CACHE.getValue()).remove(userDTO.getUsername());
             }
+        } else {
+            result.setSimpleResult(false, "Verify type error.", -3);
         }
         return result;
     }
 
-    public Result register(UserDTO userDTO) {
-        Result result = new Result();
-        String message = "";
-        userDTO.setPassword(EncryptionUtil.hashPassword(userDTO.getPassword()));
-        OjUser ojUser = new OjUser();
-        BeanUtils.copyProperties(userDTO, ojUser);
-        try {
-            ojUserMapper.insertSelective(ojUser);
-            message = "User registration successful.";
-            log.info(message + "{}", userDTO.getUsername());
-            userDTOCache.remove(userDTO.getUsername());
-        } catch (Exception e) {
-            message = "User registration failed.";
-            log.error(message + "{}", userDTO.getUsername(), e);
-            throw new RuntimeException("User table insertion exception.");
-        }
-        result.setSimpleResult(true, message, 0);
-        return result;
-    }
 
     @Override
     public Result login(LoginDTO loginDTO, HttpServletResponse response) {
@@ -166,11 +175,10 @@ public class UserServiceImpl implements UserService {
             Integer userId = userMapper.selectIdByUsername(loginDTO.getUsername());                     // Get UserId
             String token = UUID.randomUUID().toString();                  // Get Token
             cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).put(token, userId);// Save Token
-            Cookie cookie = new Cookie("TOKEN", token);                     // Set Cookie
+            Cookie cookie = new Cookie(CookieEnum.TOKEN.getValue(), token);                     // Set Cookie
             cookie.setDomain(ip);
             cookie.setPath("/");
             response.addCookie(cookie);
-            System.out.println(cookie.getValue());
             // Return result
             Result result = new Result();
             result.setSimpleResult(true, "Login successfully!", 0);
@@ -230,7 +238,11 @@ public class UserServiceImpl implements UserService {
                 result.setSimpleResult(false, message, -2);
             } else {
                 //发送邮件
-                emailService.sendModifyPasswordEmail(user);
+                EmailDTO emailDTO = new EmailDTO();
+                BeanUtils.copyProperties(user, emailDTO);
+                KaptchaDTO kaptcha = KaptchaUtil.getKaptcha();
+                emailDTO.setCode(kaptcha.getCode());
+                emailService.sendVerifyEmail(emailDTO);
                 message = "send email successfully!" + user.getEmail();
                 log.info(message);
                 result.setSimpleResult(true, message, 0);
@@ -281,6 +293,28 @@ public class UserServiceImpl implements UserService {
             log.error("Please enter the correct verification code!");
             result.setSimpleResult(false,-2);
         }
+        return result;
+    }
+
+
+    /***** private method *****/
+    private Result register(UserDTO userDTO) {
+        Result result = new Result();
+        String message = "";
+        userDTO.setPassword(EncryptionUtil.hashPassword(userDTO.getPassword()));
+        OjUser ojUser = new OjUser();
+        BeanUtils.copyProperties(userDTO, ojUser);
+        try {
+            ojUserMapper.insertSelective(ojUser);
+            message = "User registration successful.";
+            log.info(message + "{}", userDTO.getUsername());
+            cacheService.getCache(CacheEnum.USER_CACHE.getValue()).remove(userDTO.getUsername());
+        } catch (Exception e) {
+            message = "User registration failed.";
+            log.error(message + "{}", userDTO.getUsername(), e);
+            throw new RuntimeException("User table insertion exception.");
+        }
+        result.setSimpleResult(true, message, 0);
         return result;
     }
 }

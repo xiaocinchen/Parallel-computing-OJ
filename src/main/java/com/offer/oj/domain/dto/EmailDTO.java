@@ -1,5 +1,6 @@
 package com.offer.oj.domain.dto;
 
+import com.offer.oj.domain.enums.EmailTypeEnum;
 import lombok.Data;
 
 import java.io.Serial;
@@ -24,6 +25,8 @@ public class EmailDTO implements Serializable {
     private String code;
 
     private boolean isHtml;
+
+    private EmailTypeEnum type;
 
     @Serial
     private static final long serialVersionUID = 1L;

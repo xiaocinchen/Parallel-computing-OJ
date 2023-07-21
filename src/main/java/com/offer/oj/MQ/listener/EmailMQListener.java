@@ -7,6 +7,7 @@ import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.service.CacheService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.ExchangeTypes;
@@ -31,9 +32,7 @@ public class EmailMQListener {
     private JavaMailSender mailSender;
 
     @Autowired
-    private CacheManager cacheManager;
-
-    private Cache<String, VerificationDTO> verificationDTOCache;
+    private CacheService cacheService;
 
     private Cache<String, UserDTO> userDTOCache;
 
@@ -61,16 +60,12 @@ public class EmailMQListener {
             mailSender.send(message);
             verificationDTO.setUsername(emailDTO.getUsername());
             verificationDTO.setCode(emailDTO.getCode());
-            verificationDTO.setType(EmailTypeEnum.REGISTER.getValue());
-            verificationDTOCache = cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
-            verificationDTOCache.put(verificationDTO.getUsername(), verificationDTO);
+            verificationDTO.setType(emailDTO.getType().getValue());
+            cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(verificationDTO.getVerificationKey(), verificationDTO.getCode());
             log.info("邮件已发送 {}", emailDTO.getUsername());
         } catch (Exception e) {
             log.error("邮件发送失败{}: ", String.valueOf(e));
-            userDTOCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
-            userDTOCache.remove(emailDTO.getUsername());
-//            channel.basicNack(deliveryTag, false, true);
-//            throw new RuntimeException("邮件发送失败");
+//            cacheService.getCache(CacheEnum.USER_CACHE.getValue()).remove(emailDTO.getUsername());
         }
         try {
             channel.basicAck(deliveryTag, false);
