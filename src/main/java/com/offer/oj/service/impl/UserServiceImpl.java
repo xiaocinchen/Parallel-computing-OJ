@@ -82,7 +82,9 @@ public class UserServiceImpl implements UserService {
                 EmailDTO emailDTO = new EmailDTO();
                 BeanUtils.copyProperties(userDTO, emailDTO);
                 emailDTO.setCode(kaptchaDTO.getCode());
-                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendRegisterVerifyEmail(emailDTO));
+                emailDTO.setSubject("This is a registration verification email!");
+                emailDTO.setType(EmailTypeEnum.REGISTER);
+                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendVerifyEmail(emailDTO));
                 cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(userDTO.getUsername() + SeparatorEnum.UNDERLINE.getSeparator() + EmailTypeEnum.REGISTER.getValue(), kaptchaDTO.getCode());
                 Cookie cookie = new Cookie(CookieEnum.TEMP_LICENCE.getValue(), tempLicence);                     // Set Cookie
                 cookie.setDomain(ip);
@@ -110,7 +112,8 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(cacheService.getCache(CacheEnum.USER_CACHE.getValue()).get(username), emailDTO);
             KaptchaDTO kaptcha = KaptchaUtil.getKaptcha();
             emailDTO.setCode(kaptcha.getCode());
-            ThreadPoolUtil.sendMQThreadPool.execute(()->emailService.sendRegisterVerifyEmail(emailDTO));
+            emailDTO.setType(EmailTypeEnum.REGISTER);
+            ThreadPoolUtil.sendMQThreadPool.execute(()->emailService.sendVerifyEmail(emailDTO));
             cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(username + SeparatorEnum.UNDERLINE.getSeparator() + EmailTypeEnum.REGISTER.getValue(), kaptcha.getCode());
             result.setSimpleResult(true, "Resend OK.", 0);
         }
@@ -235,7 +238,7 @@ public class UserServiceImpl implements UserService {
                 BeanUtils.copyProperties(user, emailDTO);
                 KaptchaDTO kaptcha = KaptchaUtil.getKaptcha();
                 emailDTO.setCode(kaptcha.getCode());
-                emailService.sendRegisterVerifyEmail(emailDTO);
+                emailService.sendVerifyEmail(emailDTO);
                 message = "send email successfully!" + user.getEmail();
                 log.info(message);
                 result.setSimpleResult(true, 0);

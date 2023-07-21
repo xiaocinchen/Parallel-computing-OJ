@@ -22,18 +22,12 @@ public class EmailServiceImpl implements EmailService {
     @Autowired
     private EmailMQSender emailMQSender;
 
-    @Autowired
-    private KaptchaService kaptchaService;
-
     @Override
-    public void sendRegisterVerifyEmail(EmailDTO emailDTO) {
-        Optional.ofNullable(emailDTO).orElseThrow(()->new RuntimeException("UserDto is null"));
+    public void sendVerifyEmail(EmailDTO emailDTO) {
+        Optional.ofNullable(emailDTO).orElseThrow(()->new RuntimeException("EmailDto is null"));
         String content = "Your code is " + emailDTO.getCode();
-        emailDTO.setCode(emailDTO.getCode());
         emailDTO.setHtml(false);
         emailDTO.setContent(content);
-        emailDTO.setSubject("This is a registration verification email!");
-        emailDTO.setType(EmailTypeEnum.REGISTER);
         emailMQSender.sendRegisterVerifyEmailMQ(emailDTO);
     }
 }
