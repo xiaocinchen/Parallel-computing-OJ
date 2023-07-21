@@ -22,7 +22,6 @@ public class KaptchaController {
 
     @PostMapping("kaptcha/check")
     public Result checkKaptcha(@RequestBody String code){
-
         return kaptchaService.checkKaptcha(code);
     }
 }

@@ -242,7 +242,8 @@ public class UserServiceImpl implements UserService {
                 BeanUtils.copyProperties(user, emailDTO);
                 KaptchaDTO kaptcha = KaptchaUtil.getKaptcha();
                 emailDTO.setCode(kaptcha.getCode());
-                emailService.sendVerifyEmail(emailDTO);
+                emailDTO.setType(EmailTypeEnum.CHANGE_PASSWORD);
+                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendVerifyEmail(emailDTO));
                 message = "send email successfully!" + user.getEmail();
                 log.info(message);
                 result.setSimpleResult(true, message, 0);

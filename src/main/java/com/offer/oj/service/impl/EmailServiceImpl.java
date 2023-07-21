@@ -30,18 +30,4 @@ public class EmailServiceImpl implements EmailService {
         emailDTO.setContent(content);
         emailMQSender.sendRegisterVerifyEmailMQ(emailDTO);
     }
-
-    @Override
-    public void sendModifyPasswordEmail(UserDTO userDTO) {
-        EmailDTO emailDTO = new EmailDTO();
-        BeanUtils.copyProperties(userDTO, emailDTO);
-        String code = kaptchaService.getKaptcha().getData().getCode();
-        String content = "Your code is " + code;
-        System.out.println(content);
-        emailDTO.setCode(code);
-        emailDTO.setHtml(false);
-        emailDTO.setContent(content);
-        emailDTO.setSubject("This is a modify password email!");
-        emailMQSender.sendRegisterVerifyEmailMQ(emailDTO);
-    }
 }
