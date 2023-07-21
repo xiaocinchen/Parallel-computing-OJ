@@ -41,7 +41,7 @@ public interface UserService {
     /**
      * forget password
      */
-    Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) throws IOException;
+    Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO);
 
     Boolean verifyRole(UserIdentityDTO userIdentityDTO, String role);
 

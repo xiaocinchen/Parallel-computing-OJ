@@ -17,6 +17,8 @@ public enum CodeResultEnum {
     OUTPUT_LIMIT_EXCEEDED("Output Limit Exceeded", 5),
 
     COMPILE_ERROR("Compile Error", 6),
+
+    RUNNING("Running", 7);
     ;
 
     private final String Result;

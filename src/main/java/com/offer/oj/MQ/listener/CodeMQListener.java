@@ -34,7 +34,7 @@ public class CodeMQListener {
             exchange = @Exchange(value = "code_exchange", type = ExchangeTypes.TOPIC),
             key = "code.judge"), ackMode = "MANUAL")
     @RabbitHandler
-    public void listenJudgeCode(@Payload SubmitCodeDTO submitCodeDTO, @Headers Map<String, Object> headers, Channel channel) throws IOException {
+    public void listenJudgeCode(@Payload SubmitCodeDTO submitCodeDTO, @Headers Map<String, Object> headers, Channel channel) {
         long deliveryTag = (long) headers.get(AmqpHeaders.DELIVERY_TAG);
         try {
             CodeResultDTO codeResultDTO = dockerUtil.executeCodeAndGetResult(submitCodeDTO);
@@ -47,6 +47,10 @@ public class CodeMQListener {
         } catch (Throwable e) {
             throw new ListenerExecutionFailedException("Judge Code Listener Exception.", e);
         }
-        channel.basicAck(deliveryTag, false);
+        try {
+            channel.basicAck(deliveryTag, false);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

@@ -14,11 +14,11 @@ public interface QuestionService {
     /**
      * 新增题目
      */
-    Result addQuestion(VariableQuestionDTO variableQuestionDTO) throws IOException;
+    Result addQuestion(VariableQuestionDTO variableQuestionDTO);
 
     /**
-    * 查找题目
-    */
+     * 查找题目
+     */
     Result<List<QuestionDTO>> searchQuestion(String title);
 
     boolean isQuestionDTOEmpty(QuestionDTO questionDTO);

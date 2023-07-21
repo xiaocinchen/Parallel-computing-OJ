@@ -28,7 +28,7 @@ public class LoginController {
     }
 
     @PostMapping("/login")
-    public Result login(@RequestBody LoginDTO loginDTO, HttpServletResponse response){
+    public Result login(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
         return userService.login(loginDTO, response);
     }
 
@@ -38,11 +38,12 @@ public class LoginController {
     }
 
     @GetMapping("/logout")
-    public Result logout(@CookieValue(required = false, value = "TOKEN") Cookie cookie){
+    public Result logout(@CookieValue(required = false, value = "TOKEN") Cookie cookie) {
         return userService.logout(cookie);
     }
+
     @PostMapping("/password/forget")
-    public Result forgetPassword(@RequestBody @Validated ForgetPasswordDTO forgetPasswordDTO) throws IOException {
+    public Result forgetPassword(@RequestBody @Validated ForgetPasswordDTO forgetPasswordDTO) {
         return userService.forgetPassword(forgetPasswordDTO);
     }
 }

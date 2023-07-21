@@ -168,9 +168,7 @@ public class UserServiceImpl implements UserService {
             System.out.println(cookie.getValue());
             // Return result
             Result result = new Result();
-            result.setSuccess(true);
-            result.setCode(0);
-            result.setMessage("Login successfully!");
+            result.setSimpleResult(true, "Login successfully!", 0);
             return result;
         }
     }
@@ -211,7 +209,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) throws IOException {
+    public Result forgetPassword(ForgetPasswordDTO forgetPasswordDTO) {
         Result result = new Result();
         String message = "";
         UserDTO user;

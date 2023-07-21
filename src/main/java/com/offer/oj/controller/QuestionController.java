@@ -28,7 +28,7 @@ public class QuestionController {
 
     @PostMapping("/question/add")
     @ResponseBody
-    public Result addQuestion(HttpServletRequest request, @Validated @RequestBody VariableQuestionDTO variableQuestionDTO, BindingResult bindingResult) throws IOException {
+    public Result addQuestion(HttpServletRequest request, @Validated @RequestBody VariableQuestionDTO variableQuestionDTO, BindingResult bindingResult) {
         Result result = new Result();
         String message = "";
         if (bindingResult.hasErrors()) {
@@ -41,6 +41,7 @@ public class QuestionController {
         }
         return result;
     }
+
     @DeleteMapping("/question/delete")
     public Result deleteQuestion(HttpServletRequest request, Integer questionId) {
         QuestionDTO questionDTO = new QuestionDTO();

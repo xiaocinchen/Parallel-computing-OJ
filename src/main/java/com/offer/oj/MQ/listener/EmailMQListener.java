@@ -22,6 +22,7 @@ import org.springframework.stereotype.Service;
 
 import java.io.IOException;
 import java.util.Map;
+
 @Slf4j
 @Service
 public class EmailMQListener {
@@ -47,9 +48,9 @@ public class EmailMQListener {
             exchange = @Exchange(value = "email_exchange", type = ExchangeTypes.TOPIC),
             key = "email.#"), ackMode = "MANUAL")
     @RabbitHandler
-    public void listenRegisterVerifyEmail(@Payload EmailDTO emailDTO, @Headers Map<String, Object> headers, Channel channel) throws IOException {
+    public void listenRegisterVerifyEmail(@Payload EmailDTO emailDTO, @Headers Map<String, Object> headers, Channel channel) {
         long deliveryTag = (long) headers.get(AmqpHeaders.DELIVERY_TAG);
-        String SENDER = "OJ<"+address+">";
+        String SENDER = "OJ<" + address + ">";
         SimpleMailMessage message = new SimpleMailMessage();
         VerificationDTO verificationDTO = new VerificationDTO();
         message.setFrom(SENDER);
@@ -61,9 +62,9 @@ public class EmailMQListener {
             verificationDTO.setUsername(emailDTO.getUsername());
             verificationDTO.setCode(emailDTO.getCode());
             verificationDTO.setType(EmailTypeEnum.REGISTER.getValue());
-            verificationDTOCache= cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
+            verificationDTOCache = cacheManager.getCache(CacheEnum.REGISTER_CACHE.getValue());
             verificationDTOCache.put(verificationDTO.getUsername(), verificationDTO);
-            log.info("邮件已发送 {}",emailDTO.getUsername());
+            log.info("邮件已发送 {}", emailDTO.getUsername());
         } catch (Exception e) {
             log.error("邮件发送失败{}: ", String.valueOf(e));
             userDTOCache = cacheManager.getCache(CacheEnum.USER_CACHE.getValue());
@@ -71,6 +72,10 @@ public class EmailMQListener {
 //            channel.basicNack(deliveryTag, false, true);
 //            throw new RuntimeException("邮件发送失败");
         }
-        channel.basicAck(deliveryTag, false);
+        try {
+            channel.basicAck(deliveryTag, false);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

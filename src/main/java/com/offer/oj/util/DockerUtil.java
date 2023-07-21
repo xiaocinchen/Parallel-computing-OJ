@@ -108,7 +108,7 @@ public class DockerUtil {
         }
     }
 
-    private CreateContainerResponse createContainers(SubmitCodeDTO submitCodeDTO) throws IllegalAccessException {
+    private CreateContainerResponse createContainers(SubmitCodeDTO submitCodeDTO) {
         DockerClient client = getDockerClientInstance();
         HostConfig hostConfig = HostConfig.newHostConfig().withRestartPolicy(RestartPolicy.noRestart());
         //绑定挂载数据卷和配置文件
@@ -152,20 +152,15 @@ public class DockerUtil {
                         .withHostConfig(hostConfig)
                         .exec();
             }
-            default -> throw new IllegalAccessException("Unexpected code type:" + submitCodeDTO.getType().getValue());
+            default -> throw new RuntimeException("Unexpected code type:" + submitCodeDTO.getType().getValue());
         }
     }
 
 
-    public CodeResultDTO executeCodeAndGetResult(SubmitCodeDTO submitCodeDTO) throws IllegalAccessException, InterruptedException, IOException {
+    public CodeResultDTO executeCodeAndGetResult(SubmitCodeDTO submitCodeDTO) {
         CodeResultDTO codeResult = new CodeResultDTO();
         codeResult.setFileName(submitCodeDTO.getFileName());
-        CreateContainerResponse createContainerResponse;
-        try {
-            createContainerResponse = createContainers(submitCodeDTO);
-        } catch (Exception e) {
-            throw new IllegalAccessException("Create containers exception" + e.getMessage());
-        }
+        CreateContainerResponse createContainerResponse  = createContainers(submitCodeDTO);
         String containerId = createContainerResponse.getId();
         StringBuilder logs = new StringBuilder();
         WaitContainerResultCallback waitCallback = new WaitContainerResultCallback();
@@ -184,7 +179,7 @@ public class DockerUtil {
 
             @Override
             public void onError(Throwable throwable) {
-                System.out.println("error" + throwable.toString());
+                log.error(throwable.toString());
             }
 
             @Override
@@ -235,7 +230,11 @@ public class DockerUtil {
             log.error("Docker Client Exception: Unknown");
             e.printStackTrace();
         } finally {
-            latch.await();
+            try {
+                latch.await();
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
             dockerClient.removeContainerCmd(containerId).exec();
             if (codeResult.getStatus().equals(CodeStatusEnum.SUCCESS.getStatus())) {
                 String fileWholePath = configBindSourcePath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator();
@@ -245,10 +244,15 @@ public class DockerUtil {
                 if (submitCodeDTO.getIsResult()) {
                     codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
                 } else {
-                    if (JudgeUtil.compareFiles(fileWholeName + ".out", resultName)) {
-                        codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
-                    } else {
-                        codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
+                    try {
+                        if (JudgeUtil.compareFiles(fileWholeName + ".out", resultName)) {
+                            codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
+                        } else {
+                            codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
+                        }
+                    } catch (Exception e){
+                        e.printStackTrace();
+                        codeResult.setResult(CodeResultEnum.RUNNING.getResult());
                     }
                 }
             }

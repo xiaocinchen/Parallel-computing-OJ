@@ -44,11 +44,16 @@ public class CodeMQSender {
 
 
     /***** private method *****/
-    private void writeFile(String codeFileName, String codeContent) throws IOException {
-        FileWriter writer = new FileWriter(codeFileName);
-        writer.write("");
-        writer.write(codeContent);
-        writer.flush();
-        writer.close();
+    private void writeFile(String codeFileName, String codeContent) {
+        FileWriter writer;
+        try {
+            writer = new FileWriter(codeFileName);
+            writer.write("");
+            writer.write(codeContent);
+            writer.flush();
+            writer.close();
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }

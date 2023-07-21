@@ -34,7 +34,7 @@ public class QuestionServiceImpl implements QuestionService {
     private CacheManager cacheManager;
 
     @Override
-    public Result addQuestion(VariableQuestionDTO variableQuestionDTO) throws IOException {
+    public Result addQuestion(VariableQuestionDTO variableQuestionDTO) {
         Result result = new Result();
         String message = "";
         if (!isValidUrl(variableQuestionDTO.getPictureUrl())) {
