@@ -1,16 +1,16 @@
 package com.offer.oj.service;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.KaptchaDTO;
-import com.offer.oj.domain.dto.VerificationDTO;
 
 import java.io.IOException;
 
 public interface KaptchaService {
 
-    Result<KaptchaDTO> getKaptcha(String username);
+    Result<KaptchaDTO> getKaptcha();
 
-    void saveKaptchaCode(String code, VerificationDTO verificationDTO);
+    void getKaptchaImage() throws IOException;
+
+    void saveKaptchaCode(String code);
 
     Result checkKaptcha(String code);
-
 }

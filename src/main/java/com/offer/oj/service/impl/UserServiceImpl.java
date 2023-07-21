@@ -14,6 +14,7 @@ import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.domain.enums.GenderEnum;
 import com.offer.oj.service.CacheService;
 import com.offer.oj.service.EmailService;
+import com.offer.oj.service.KaptchaService;
 import com.offer.oj.service.UserService;
 import com.offer.oj.util.EncryptionUtil;
 import com.offer.oj.util.ThreadPoolUtil;
@@ -57,6 +58,9 @@ public class UserServiceImpl implements UserService {
 
     @Value("${server.ip}")
     private String ip;
+
+    @Autowired
+    private KaptchaService kaptchaService;
 
     @Override
     public Result<String> registerSendEmail(UserDTO userDTO) {
@@ -226,10 +230,10 @@ public class UserServiceImpl implements UserService {
                 result.setSimpleResult(false, message, -2);
             } else {
                 //发送邮件
-                emailService.sendRegisterVerifyEmail(user);
+                emailService.sendModifyPasswordEmail(user);
                 message = "send email successfully!" + user.getEmail();
                 log.info(message);
-                result.setSimpleResult(true, 0);
+                result.setSimpleResult(true, message, 0);
             }
         }
         return result;
@@ -252,5 +256,31 @@ public class UserServiceImpl implements UserService {
             return null;
         }
         return new UserIdentityDTO(userId, userDTO.getUsername(), userDTO.getRole());
+    }
+
+    @Override
+    public Result modifyPassword(ModifyPasswordDTO modifyPasswordDTO) {
+        Result result = new Result();
+        if(kaptchaService.checkKaptcha(modifyPasswordDTO.getKaptchaCode()).getCode().equals(0)){
+            UserDTO userDTO = userMapper.selectByUsername(modifyPasswordDTO.getUsername());
+            if (ObjectUtils.isEmpty(userDTO)){
+                result.setMessage("Incorrect Username!");
+                result.setSimpleResult(false,-1);
+            } else if (modifyPasswordDTO.getPassword().equals(userDTO.getPassword())){
+                result.setMessage("Make sure the password is different from the original one!");
+                result.setSimpleResult(false,-1);
+            }
+            else {
+                userDTO.setPassword(EncryptionUtil.hashPassword(modifyPasswordDTO.getPassword()));
+                userMapper.updateUserInfo(userDTO);
+                result.setSimpleResult(true, 0);
+                result.setMessage("Modify password successfully!");
+            }
+        }
+        else {
+            log.error("Please enter the correct verification code!");
+            result.setSimpleResult(false,-2);
+        }
+        return result;
     }
 }

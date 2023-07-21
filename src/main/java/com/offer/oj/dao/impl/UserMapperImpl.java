@@ -60,6 +60,13 @@ public class UserMapperImpl implements UserMapper {
         }
     }
 
+    @Override
+    public void updateUserInfo(UserDTO userDTO) {
+        OjUser ojUser = new OjUser();
+        BeanUtils.copyProperties(userDTO, ojUser);
+        ojUserMapper.updateByPrimaryKey(ojUser);
+    }
+
     private List<UserDTO> getUserDTO(UserInnerQuery userInnerQuery) {
         List<OjUser> ojUserList = ojUserMapper.queryForList(userInnerQuery);
         if (CollectionUtils.isEmpty(ojUserList)) {

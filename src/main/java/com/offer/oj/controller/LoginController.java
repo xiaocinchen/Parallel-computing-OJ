@@ -1,10 +1,7 @@
 package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
-import com.offer.oj.domain.dto.ForgetPasswordDTO;
-import com.offer.oj.domain.dto.LoginDTO;
-import com.offer.oj.domain.dto.UserDTO;
-import com.offer.oj.domain.dto.VerificationDTO;
+import com.offer.oj.domain.dto.*;
 import com.offer.oj.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -46,5 +43,11 @@ public class LoginController {
     @PostMapping("/password/forget")
     public Result forgetPassword(@RequestBody @Validated ForgetPasswordDTO forgetPasswordDTO) {
         return userService.forgetPassword(forgetPasswordDTO);
+    }
+
+
+    @PostMapping("/password/modify")
+    public Result modifyPassword(@RequestBody @Validated ModifyPasswordDTO modifyPasswordDTO){
+        return userService.modifyPassword(modifyPasswordDTO);
     }
 }

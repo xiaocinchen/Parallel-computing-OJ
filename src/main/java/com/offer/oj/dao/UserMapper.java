@@ -18,4 +18,7 @@ public interface UserMapper {
     @Cached(name = "userCache", key = "#id", expire = 300, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.BOTH)
     UserDTO selectById(Integer id);
 
+    @Cached(name = "userCache", key = "#id", expire = 300, timeUnit = TimeUnit.SECONDS, cacheType = CacheType.BOTH)
+    void updateUserInfo(UserDTO userDTO);
+
 }

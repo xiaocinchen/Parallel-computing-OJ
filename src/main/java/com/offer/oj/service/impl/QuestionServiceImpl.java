@@ -41,12 +41,14 @@ public class QuestionServiceImpl implements QuestionService {
             message = "picture_url is invalid !" + variableQuestionDTO.getPictureUrl();
             log.error(message);
             result.setSuccess(false);
+            result.setCode(-1);
         }
         else {
             try {
                 variableQuestionDTO.setModifier(variableQuestionDTO.getModifier());
                 questionMapper.insertSelective(variableQuestionDTO);
                 result.setSuccess(true);
+                result.setCode(0);
                 message = "Submit question successfully!";
                 log.info(message);
             } catch (Exception e) {
@@ -67,16 +69,19 @@ public class QuestionServiceImpl implements QuestionService {
             List<QuestionDTO> questionDTO = questionDTOCache.get(title);
             result.setData(questionDTO);
             result.setSuccess(true);
+            result.setCode(0);
         }
         else if (! ObjectUtils.isEmpty(questionMapper.fuzzySelectByTitle(title))) {
             List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
             Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
             selectCache.put(title, questionDTOList);
             result.setSuccess(true);
+            result.setCode(0);
             result.setData(questionDTOList);
         }
         else {
             result.setSuccess(false);
+            result.setCode(-1);
             result.setMessage("No related questions!");
         }
         return result;

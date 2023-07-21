@@ -133,7 +133,7 @@ class OjApplicationTests {
     @Test
     void testKaptcha() throws IOException {
         String username = "MAJ";
-        String code = kaptchaService.getKaptcha(username).getData().getCode();
+        String code = kaptchaService.getKaptcha().getData().getCode();
         kaptchaService.checkKaptcha(code);
     }
     @Test
@@ -219,5 +219,14 @@ class OjApplicationTests {
     @Test
     void testTimeUtil(){
         System.out.println(TimeUtil.getUniqueSequence());
+    }
+
+    @Test
+    void testModifyPassword(){
+        ModifyPasswordDTO modifyPasswordDTO = new ModifyPasswordDTO();
+        modifyPasswordDTO.setUsername("dave");
+        modifyPasswordDTO.setPassword("123456");
+        modifyPasswordDTO.setKaptchaCode("5000");
+        userService.modifyPassword(modifyPasswordDTO);
     }
 }

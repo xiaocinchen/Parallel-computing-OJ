@@ -46,4 +46,6 @@ public interface UserService {
     Boolean verifyRole(UserIdentityDTO userIdentityDTO, String role);
 
     UserIdentityDTO getUserIdentity(Integer userId);
+
+    Result modifyPassword(ModifyPasswordDTO modifyPasswordDTO);
 }
