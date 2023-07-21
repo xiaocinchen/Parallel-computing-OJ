@@ -28,7 +28,7 @@ public class LoginController {
     @GetMapping("/register/resend")
     public Result studentEmailResend(@CookieValue(value = "TEMP_LICENCE") Cookie cookie, @RequestParam String username){
         if (cookie == null){
-            return new Result(false, "Cookie is null", -3);
+            return new Result(false, "Cookie miss.", -3);
         }
         return userService.resendVerifyEmail(username, cookie.getValue());
     }

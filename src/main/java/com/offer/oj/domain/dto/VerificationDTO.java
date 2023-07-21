@@ -1,5 +1,6 @@
 package com.offer.oj.domain.dto;
 
+import com.offer.oj.domain.enums.KaptchaEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
 import jakarta.validation.constraints.NotNull;
 import lombok.Data;
@@ -17,12 +18,13 @@ public class VerificationDTO implements Serializable {
     private String code;
 
     @NotNull
-    private String type;
+    private KaptchaEnum type;
 
     @Serial
     private static final long serialVersionUID = 1L;
 
     public String getVerificationKey() {
-        return this.username + SeparatorEnum.UNDERLINE.getSeparator() + this.type;
+        return this.username + SeparatorEnum.UNDERLINE.getSeparator() + this.type.getType();
     }
+
 }

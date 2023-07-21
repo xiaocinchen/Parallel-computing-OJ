@@ -14,7 +14,7 @@ import org.springframework.web.bind.annotation.*;
 @Slf4j
 @CrossOrigin
 @RestController
-@RequestMapping("/v1/code/")
+@RequestMapping("/v1/code")
 public class CodeController {
 
     @Autowired

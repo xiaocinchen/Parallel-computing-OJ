@@ -129,12 +129,12 @@ class OjApplicationTests {
         System.out.println(a.equals(EmailTypeEnum.REGISTER.getValue()));
     }
 
-    @Test
-    void testKaptcha() throws IOException {
-        String username = "MAJ";
-        String code = kaptchaService.getKaptcha().getData().getCode();
-        kaptchaService.checkKaptcha(code);
-    }
+//    @Test
+//    void testKaptcha() throws IOException {
+//        String username = "MAJ";
+//        String code = kaptchaService.getKaptcha().getData().getCode();
+//        kaptchaService.checkKaptcha(code);
+//    }
     @Test
     void testForgetPassword() throws IOException {
         ForgetPasswordDTO user = new ForgetPasswordDTO();

@@ -126,6 +126,15 @@
     where id = #{id,jdbcType=INTEGER}
   </update>
 
+  <update id="updateByUsername" parameterType="com.offer.oj.domain.OjUser">
+    update oj_user
+    set first_name = #{firstName,jdbcType=VARCHAR},
+        last_name = #{lastName,jdbcType=VARCHAR},
+        gender = #{gender,jdbcType=CHAR},
+        password = #{password,jdbcType=VARCHAR}
+    where username = #{username,jdbcType=VARCHAR}
+  </update>
+
   <!-- 查列表 -->
   <select id="queryForList" parameterType="com.offer.oj.domain.query.UserInnerQuery" resultMap="BaseResultMap">
       SELECT

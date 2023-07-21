@@ -1,6 +1,7 @@
 package com.offer.oj.domain.dto;
 
 import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.domain.enums.SeparatorEnum;
 import lombok.Data;
 
 import java.io.Serial;
@@ -30,4 +31,8 @@ public class EmailDTO implements Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public String getEmailTypeKey(){
+        return this.username + SeparatorEnum.UNDERLINE.getSeparator() + this.type.getValue();
+    }
 }

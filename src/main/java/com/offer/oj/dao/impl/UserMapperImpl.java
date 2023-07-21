@@ -4,13 +4,16 @@ import com.offer.oj.dao.UserMapper;
 import com.offer.oj.dao.mapper.OjUserMapper;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.UserDTO;
+import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.query.UserInnerQuery;
+import com.offer.oj.service.CacheService;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.sql.SQLException;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -19,6 +22,9 @@ import java.util.stream.Collectors;
 public class UserMapperImpl implements UserMapper {
     @Autowired
     private OjUserMapper ojUserMapper;
+
+    @Autowired
+    private CacheService cacheService;
 
     @Override
     public UserDTO selectByUsername(String username) {
@@ -64,7 +70,13 @@ public class UserMapperImpl implements UserMapper {
     public void updateUserInfo(UserDTO userDTO) {
         OjUser ojUser = new OjUser();
         BeanUtils.copyProperties(userDTO, ojUser);
-        ojUserMapper.updateByPrimaryKey(ojUser);
+        try {
+            ojUserMapper.updateByUsername(ojUser);
+            cacheService.getCache(CacheEnum.USER_CACHE.getValue()).remove(userDTO.getUsername());
+            cacheService.getCache(CacheEnum.USER_CACHE.getValue()).remove(userDTO.getEmail());
+        } catch (Exception e) {
+            throw new RuntimeException(e);
+        }
     }
 
     private List<UserDTO> getUserDTO(UserInnerQuery userInnerQuery) {

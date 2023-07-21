@@ -21,6 +21,8 @@ public interface OjUserMapper {
 
     int updateByPrimaryKey(OjUser row);
 
+    int updateByUsername(OjUser row);
+
     List<OjUser> queryForList(UserInnerQuery userInnerQuery);
 
     Integer queryForCount(UserInnerQuery userInnerQuery);

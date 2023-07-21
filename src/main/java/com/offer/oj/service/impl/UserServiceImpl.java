@@ -86,11 +86,9 @@ public class UserServiceImpl implements UserService {
                 EmailDTO emailDTO = new EmailDTO();
                 BeanUtils.copyProperties(userDTO, emailDTO);
                 emailDTO.setCode(kaptchaDTO.getCode());
-                emailDTO.setSubject("This is a registration verification email!");
-                emailDTO.setType(EmailTypeEnum.REGISTER);
                 ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendVerifyEmail(emailDTO));
-                cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(userDTO.getUsername() + SeparatorEnum.UNDERLINE.getSeparator() + EmailTypeEnum.REGISTER.getValue(), kaptchaDTO.getCode());
-                Cookie cookie = new Cookie(CookieEnum.TEMP_LICENCE.getValue(), tempLicence);                     // Set Cookie
+                cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(userDTO.getUsername() + SeparatorEnum.UNDERLINE.getSeparator() + KaptchaEnum.REGISTER.getType(), kaptchaDTO.getCode());
+                Cookie cookie = new Cookie(CookieEnum.TEMP_LICENCE.getName(), tempLicence);                     // Set Cookie
                 cookie.setDomain(ip);
                 cookie.setPath("/");
                 response.addCookie(cookie);
@@ -116,9 +114,8 @@ public class UserServiceImpl implements UserService {
             BeanUtils.copyProperties(cacheService.getCache(CacheEnum.USER_CACHE.getValue()).get(username), emailDTO);
             KaptchaDTO kaptcha = KaptchaUtil.getKaptcha();
             emailDTO.setCode(kaptcha.getCode());
-            emailDTO.setType(EmailTypeEnum.REGISTER);
-            ThreadPoolUtil.sendMQThreadPool.execute(()->emailService.sendVerifyEmail(emailDTO));
-            cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(username + SeparatorEnum.UNDERLINE.getSeparator() + EmailTypeEnum.REGISTER.getValue(), kaptcha.getCode());
+            ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendVerifyEmail(emailDTO));
+            cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(username + SeparatorEnum.UNDERLINE.getSeparator() + KaptchaEnum.REGISTER.getType(), kaptcha.getCode());
             result.setSimpleResult(true, "Resend OK.", 0);
         }
         return result;
@@ -128,7 +125,7 @@ public class UserServiceImpl implements UserService {
     public Result registerVerifyEmail(VerificationDTO verification) {
         Result result = new Result();
         String message = "";
-        if (verification.getType().equals(EmailTypeEnum.REGISTER.getValue())) {
+        if (verification.getType().equals(KaptchaEnum.REGISTER)) {
             log.info("Start verifying email.");
             UserDTO userDTO = (UserDTO) cacheService.getCache(CacheEnum.USER_CACHE.getValue()).get(verification.getUsername());
             String code = (String) cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).get(verification.getVerificationKey());
@@ -175,7 +172,7 @@ public class UserServiceImpl implements UserService {
             Integer userId = userMapper.selectIdByUsername(loginDTO.getUsername());                     // Get UserId
             String token = UUID.randomUUID().toString();                  // Get Token
             cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).put(token, userId);// Save Token
-            Cookie cookie = new Cookie(CookieEnum.TOKEN.getValue(), token);                     // Set Cookie
+            Cookie cookie = new Cookie(CookieEnum.TOKEN.getName(), token);                     // Set Cookie
             cookie.setDomain(ip);
             cookie.setPath("/");
             response.addCookie(cookie);
@@ -243,7 +240,7 @@ public class UserServiceImpl implements UserService {
                 KaptchaDTO kaptcha = KaptchaUtil.getKaptcha();
                 emailDTO.setCode(kaptcha.getCode());
                 emailDTO.setType(EmailTypeEnum.CHANGE_PASSWORD);
-                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendVerifyEmail(emailDTO));
+                ThreadPoolUtil.sendMQThreadPool.execute(() -> emailService.sendForgetVerifyEmail(emailDTO));
                 message = "send email successfully!" + user.getEmail();
                 log.info(message);
                 result.setSimpleResult(true, message, 0);
@@ -274,25 +271,19 @@ public class UserServiceImpl implements UserService {
     @Override
     public Result modifyPassword(ModifyPasswordDTO modifyPasswordDTO) {
         Result result = new Result();
-        if(kaptchaService.checkKaptcha(modifyPasswordDTO.getKaptchaCode()).getCode().equals(0)){
+        if (modifyPasswordDTO.getKaptchaCode().equals(cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).get(modifyPasswordDTO.getUsername() + SeparatorEnum.UNDERLINE.getSeparator() + KaptchaEnum.FORGET_PASSWORD.getType()))) {
             UserDTO userDTO = userMapper.selectByUsername(modifyPasswordDTO.getUsername());
-            if (ObjectUtils.isEmpty(userDTO)){
-                result.setMessage("Incorrect Username!");
-                result.setSimpleResult(false,-1);
-            } else if (modifyPasswordDTO.getPassword().equals(userDTO.getPassword())){
-                result.setMessage("Make sure the password is different from the original one!");
-                result.setSimpleResult(false,-1);
-            }
-            else {
+            if (ObjectUtils.isEmpty(userDTO)) {
+                result.setSimpleResult(false, "Incorrect Username!", -1);
+            } else if (EncryptionUtil.checkPassword(modifyPasswordDTO.getPassword(), userDTO.getPassword())) {
+                result.setSimpleResult(false, "Make sure the password is different from the original one!", -2);
+            } else {
                 userDTO.setPassword(EncryptionUtil.hashPassword(modifyPasswordDTO.getPassword()));
                 userMapper.updateUserInfo(userDTO);
-                result.setSimpleResult(true, 0);
-                result.setMessage("Modify password successfully!");
+                result.setSimpleResult(true, "Modify password successfully!", 0);
             }
-        }
-        else {
-            log.error("Please enter the correct verification code!");
-            result.setSimpleResult(false,-2);
+        } else {
+            result.setSimpleResult(false, "Please enter the correct verification code!", -3);
         }
         return result;
     }

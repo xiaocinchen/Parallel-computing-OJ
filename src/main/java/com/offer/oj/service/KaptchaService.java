@@ -1,16 +1,14 @@
 package com.offer.oj.service;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.KaptchaDTO;
+import jakarta.servlet.http.HttpServletResponse;
 
+import java.awt.image.BufferedImage;
 import java.io.IOException;
 
 public interface KaptchaService {
 
-    Result<KaptchaDTO> getKaptcha();
+    BufferedImage getKaptchaImage(HttpServletResponse response);
 
-    void getKaptchaImage() throws IOException;
-
-    void saveKaptchaCode(String code);
-
-    Result checkKaptcha(String code);
+    Result checkKaptcha(String kaptchaToken, String code);
 }

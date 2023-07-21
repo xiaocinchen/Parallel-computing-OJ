@@ -3,22 +3,23 @@ package com.offer.oj.domain.enums;
 public enum CookieEnum {
     TOKEN("TOKEN"),
     TEMP_LICENCE("TEMP_LICENCE"),
+    KAPTCHA("kaptcha"),
     ;
 
-    private final String value;
+    private final String name;
 
-    CookieEnum(String value){
-        this.value = value;
+    CookieEnum(String name){
+        this.name = name;
     }
 
-    public String getValue() {
-        return value;
+    public String getName() {
+        return name;
     }
 
     @Override
     public String toString() {
         return "CookieEnum{" +
-                "value='" + value + '\'' +
+                "name='" + name + '\'' +
                 '}';
     }
 }

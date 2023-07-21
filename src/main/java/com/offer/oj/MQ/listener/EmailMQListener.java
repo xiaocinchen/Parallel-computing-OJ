@@ -7,6 +7,7 @@ import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VerificationDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.domain.enums.KaptchaEnum;
 import com.offer.oj.service.CacheService;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
@@ -60,7 +61,11 @@ public class EmailMQListener {
             mailSender.send(message);
             verificationDTO.setUsername(emailDTO.getUsername());
             verificationDTO.setCode(emailDTO.getCode());
-            verificationDTO.setType(emailDTO.getType().getValue());
+            if (emailDTO.getType().equals(EmailTypeEnum.REGISTER)) {
+                verificationDTO.setType(KaptchaEnum.REGISTER);
+            } else if (emailDTO.getType().equals(EmailTypeEnum.CHANGE_PASSWORD)){
+                verificationDTO.setType(KaptchaEnum.FORGET_PASSWORD);
+            }
             cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).put(verificationDTO.getVerificationKey(), verificationDTO.getCode());
             log.info("邮件已发送 {}", emailDTO.getUsername());
         } catch (Exception e) {
