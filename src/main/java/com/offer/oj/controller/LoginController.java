@@ -23,9 +23,17 @@ public class LoginController {
     private UserService userService;
 
     @PostMapping("/register/send")
-    public Result studentRegister(@RequestBody @Validated UserDTO userDTO) {
+    public Result studentRegister(@RequestBody @Validated UserDTO userDTO, HttpServletResponse response) {
         userDTO.setRole("student");
-        return userService.registerSendEmail(userDTO);
+        return userService.registerSendEmail(userDTO, response);
+    }
+
+    @GetMapping("/register/resend")
+    public Result studentEmailResend(@CookieValue(value = "TEMP_LICENCE") Cookie cookie, @RequestParam String username){
+        if (cookie == null){
+            return new Result(false, "Cookie is null", -3);
+        }
+        return userService.resendVerifyEmail(username, cookie.getValue());
     }
 
     @PostMapping("/login")

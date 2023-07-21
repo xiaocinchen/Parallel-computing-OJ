@@ -11,7 +11,9 @@ public interface UserService {
     /**
      * 注册第一步：发验证邮件
      */
-    Result<String> registerSendEmail(UserDTO user);
+    Result<String> registerSendEmail(UserDTO user, HttpServletResponse response);
+
+    Result resendVerifyEmail(String username, String tempLicence);
 
     /**
      * 注册第二步：验证邮件
