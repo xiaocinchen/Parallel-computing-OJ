@@ -5,9 +5,7 @@ import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.SelectQuestionDTO;
 import com.offer.oj.domain.dto.UserIdentityDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
-import com.offer.oj.domain.enums.RoleEnum;
 import com.offer.oj.service.QuestionService;
-import com.offer.oj.service.UserService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,7 +13,6 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.io.IOException;
 import java.util.List;
 
 

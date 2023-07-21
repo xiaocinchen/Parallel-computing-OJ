@@ -47,12 +47,6 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private CacheService cacheService;
 
-    @Autowired
-    private CacheManager cacheManager;
-
-    private Cache<String, VerificationDTO> verificationDTOCache;
-
-    private Cache<String, UserDTO> userDTOCache;
 
     @Value("${server.ip}")
     private String ip;
@@ -137,7 +131,7 @@ public class UserServiceImpl implements UserService {
             } else if (!code.equals(verification.getCode())) {
                 message = "Verification code error.";
                 result.setSimpleResult(false, message, -2);
-                log.error(message + "{}", verificationDTOCache.get(userDTO.getUsername()));
+                log.error(message + "{}", verification.getUsername());
             } else {
                 result = register(userDTO);
                 cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).remove(verification.getVerificationKey());
