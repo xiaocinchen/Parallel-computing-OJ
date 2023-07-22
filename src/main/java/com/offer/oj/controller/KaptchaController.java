@@ -18,7 +18,6 @@ import java.awt.image.ImagingOpException;
 import java.io.IOException;
 
 @Slf4j
-@CrossOrigin
 @RestController
 @RequestMapping("/v1")
 public class KaptchaController {
