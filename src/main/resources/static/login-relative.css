@@ -1,0 +1,105 @@
+*{
+    box-sizing: border-box;
+}
+
+
+/* Alert */
+.alert-div{
+    height: 40px;
+    width:700px;
+    margin:20px auto;
+}
+
+.alert{
+    height:40px;
+    line-height: 40px;
+    padding:0 16px;
+    margin-bottom: 0;
+}
+
+
+/* Title */
+.title{
+    text-align: center;
+    font-weight: lighter;
+    margin: 20px 0;
+    user-select: none;
+}
+
+
+/* Steps */
+.steps{
+    width:450px;
+    margin:auto;
+    display: flex;
+    flex-direction: row;
+}
+
+.step{
+    flex:1 1 150px;
+    text-align: center;
+    user-select: none;
+    color: #ccc;
+}
+
+.step-done{
+    color: #268AFF;
+}
+
+.steps-line {
+    width:450px;
+    height: 2px;
+    margin:0 auto 20px;
+    background: #ccc;
+    position: relative;
+}
+
+.steps-indicator {
+    background: #268AFF;
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 150px;
+    transition-duration: 200ms;
+    transition-property: width;
+}
+
+
+/* Form */
+.form-div{
+    width: 450px;
+    margin:auto;
+    padding:0 20px;
+    border:1px #ccc solid;
+    border-radius: 15px;
+}
+
+.login-item-input{
+    border: 0px;
+    border-radius: 0;
+    border-bottom: 1px #ccc solid;
+    font-size: 20px;
+    --bs-success-rgb:0,0,0,0;
+    --bs-danger-rgb:0,0,0,0;
+}
+
+.login-item-input:focus{
+    -webkit-box-shadow:none;
+    box-shadow:none;
+    border-color:#000;
+}
+
+.next-btn{
+    display: flex;
+    justify-content: end;
+}
+
+.finish-content{
+    text-align: center;
+    font-size: 18px;
+    line-height: 30px;
+}
+
+.finish-btn{
+    width:100%
+}
