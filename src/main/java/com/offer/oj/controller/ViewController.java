@@ -38,4 +38,9 @@ public class ViewController {
     public String register(){
         return "register";
     }
+
+    @GetMapping("/forget-password")
+    public String forgetPassword(){
+        return "forget-password";
+    }
 }

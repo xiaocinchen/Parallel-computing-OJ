@@ -1,0 +1,37 @@
+/* Login Form */
+#login-kaptcha-div{
+    display:flex;
+    justify-content:center;
+}
+
+.form-div button{
+    width:100%;
+    color:#fff;
+    font-size: 20px;
+    font-weight: bold;
+    line-height: 36px;
+    background-color: #64DB8F;
+    border-radius: 10px;
+    border: 0px;
+}
+
+.form-div button:hover{
+    color:#fff;
+    background-color: #98E8BC;
+}
+
+
+/* Links */
+#links{
+    width:420px;
+    margin:auto;
+    display: flex;
+    justify-content: space-between;
+}
+
+#links a{
+    display:inline-block;
+    font-size: 14px;
+    color:#00f;
+    user-select: none;
+}

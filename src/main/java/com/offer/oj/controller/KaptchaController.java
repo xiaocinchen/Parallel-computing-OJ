@@ -18,6 +18,7 @@ import java.awt.image.ImagingOpException;
 import java.io.IOException;
 
 @Slf4j
+@CrossOrigin
 @RestController
 @CrossOrigin
 @RequestMapping("/v1")
