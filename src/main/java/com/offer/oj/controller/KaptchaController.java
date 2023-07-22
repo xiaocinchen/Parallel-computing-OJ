@@ -20,7 +20,6 @@ import java.io.IOException;
 @Slf4j
 @CrossOrigin
 @RestController
-@CrossOrigin
 @RequestMapping("/v1")
 public class KaptchaController {
 
