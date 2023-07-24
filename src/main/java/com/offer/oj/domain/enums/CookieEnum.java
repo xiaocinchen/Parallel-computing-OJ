@@ -3,7 +3,7 @@ package com.offer.oj.domain.enums;
 public enum CookieEnum {
     TOKEN("TOKEN"),
     TEMP_LICENCE("TEMP_LICENCE"),
-    KAPTCHA("kaptcha"),
+    KAPTCHA("KAPTCHA"),
     ;
 
     private final String name;

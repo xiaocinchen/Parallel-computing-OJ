@@ -51,9 +51,6 @@ public class UserServiceImpl implements UserService {
     @Value("${server.ip}")
     private String ip;
 
-    @Autowired
-    private KaptchaService kaptchaService;
-
     @Override
     public Result<String> registerSendEmail(UserDTO userDTO, HttpServletResponse response) {
         Result<String> result = new Result<>();
@@ -147,20 +144,10 @@ public class UserServiceImpl implements UserService {
     @Override
     public Result login(LoginDTO loginDTO, HttpServletResponse response) {
 
-        // Incomplete input
-        if (null == loginDTO.getUsername() || null == loginDTO.getPassword()) {
-            return new Result(false, "Incomplete Login Information!");
-        }
-
-        // Incorrect info
         UserDTO userDTO = userMapper.selectByUsername(loginDTO.getUsername());
-        if (null == userDTO) {
-            return new Result(false, "Incorrect Username or Password!");
-        } else if (!EncryptionUtil.checkPassword(loginDTO.getPassword(), userDTO.getPassword())) {
-            return new Result(false, "Incorrect Username or Password!");
+        if (ObjectUtils.isEmpty(userDTO) || !EncryptionUtil.checkPassword(loginDTO.getPassword(), userDTO.getPassword())) {
+            return new Result(false, "Incorrect Username or Password!", -4);
         }
-
-        // Correct info & Login
         else {
             // SSO
             Integer userId = userMapper.selectIdByUsername(loginDTO.getUsername());                     // Get UserId
@@ -171,9 +158,7 @@ public class UserServiceImpl implements UserService {
             cookie.setPath("/");
             response.addCookie(cookie);
             // Return result
-            Result result = new Result();
-            result.setSimpleResult(true, "Login successfully!", 0);
-            return result;
+            return new Result(true, "Login successfully!", 0);
         }
     }
 

@@ -2,10 +2,12 @@ package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.*;
+import com.offer.oj.service.KaptchaService;
 import com.offer.oj.service.UserService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
@@ -19,6 +21,9 @@ public class LoginController {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private KaptchaService kaptchaService;
+
     @PostMapping("/register/send")
     public Result studentRegister(@RequestBody @Validated UserDTO userDTO, HttpServletResponse response) {
         userDTO.setRole("student");
@@ -26,15 +31,22 @@ public class LoginController {
     }
 
     @GetMapping("/register/resend")
-    public Result studentEmailResend(@CookieValue(value = "TEMP_LICENCE") Cookie cookie, @RequestParam String username){
-        if (cookie == null){
+    public Result studentEmailResend(@CookieValue(value = "TEMP_LICENCE") Cookie cookie, @RequestParam String username) {
+        if (cookie == null) {
             return new Result(false, "Cookie miss.", -3);
         }
         return userService.resendVerifyEmail(username, cookie.getValue());
     }
 
     @PostMapping("/login")
-    public Result login(@RequestBody LoginDTO loginDTO, HttpServletResponse response) {
+    public Result login(@CookieValue(value = "KAPTCHA") Cookie cookie, @RequestBody @Validated LoginDTO loginDTO, HttpServletResponse response) {
+        if (ObjectUtils.isEmpty(cookie)) {
+            return new Result(false, "Cookie miss.", -1);
+        }
+        Result codeResult = kaptchaService.checkKaptcha(cookie.getValue(), loginDTO.getCode());
+        if (codeResult.getCode() != 0){
+            return codeResult;
+        }
         return userService.login(loginDTO, response);
     }
 
@@ -55,7 +67,7 @@ public class LoginController {
 
 
     @PostMapping("/password/modify")
-    public Result modifyPassword(@RequestBody @Validated ModifyPasswordDTO modifyPasswordDTO){
+    public Result modifyPassword(@RequestBody @Validated ModifyPasswordDTO modifyPasswordDTO) {
         return userService.modifyPassword(modifyPasswordDTO);
     }
 }

@@ -49,9 +49,9 @@ public class KaptchaServiceImpl implements KaptchaService {
     public Result checkKaptcha(String kaptchaToken, String code) {
         String cacheCode = (String) cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).get(kaptchaToken);
         if (ObjectUtils.isEmpty(cacheCode)){
-            return new Result(false, "Code expired.", -3);
+            return new Result(false, "Code expired.", -2);
         } else if(!cacheCode.equals(code)){
-            return new Result(false, "Code wrong.", -4);
+            return new Result(false, "Code wrong.", -3);
         } else{
             return new Result(true, "Check success!", 0);
         }
