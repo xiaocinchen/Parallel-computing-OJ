@@ -84,9 +84,17 @@ public class CacheServiceImpl implements CacheService {
         cacheManager.getOrCreateCache(quickConfig);
     }
 
+    private QuickConfig getDefaultQuickConfig(String cacheEnum) {
+        return QuickConfig.newBuilder(cacheEnum)
+                .localExpire(Duration.ofMinutes(30))
+                .cacheType(CacheType.LOCAL)
+                .syncLocal(true)
+                .build();
+    }
+
 
     @Override
-    public Cache<Object, Object> getCache(String cacheEnum){
-        return CacheEnum.getValues().contains(cacheEnum) ? cacheManager.getCache(cacheEnum) : null;
+    public Cache<Object, Object> getCache(String cacheEnum) {
+        return CacheEnum.getValues().contains(cacheEnum) ? cacheManager.getOrCreateCache(getDefaultQuickConfig(cacheEnum)) : null;
     }
 }

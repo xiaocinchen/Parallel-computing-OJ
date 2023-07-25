@@ -162,6 +162,7 @@ class OjApplicationTests {
                 "数字1-9在每一行只能出现一次。数字1-9在每一列只能出现一次。数字1-9在每一个以粗实线分隔的3x3宫内只能出现一次。（请参考示例图）数独部分空格内已填入了数字，空白格用'.'表示。" );
         question.setPictureUrl("https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2021/04/12/250px-sudoku-by-l2g-20050714svg.png");
         questionService.addQuestion(question);
+        questionService.addQuestion(question);
     }
     @Test
     void testSelectQuestion(){

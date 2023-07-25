@@ -10,7 +10,7 @@ public enum CacheEnum {
     KAPTCHA_CACHE("kaptchaCache"),
     LOGIN_CACHE("loginCache"),
     SELECT_QUESTION_CACHE("selectQuestionCache"),
-    STAGE_CODE_CACHE("stage_code_cache"),
+    STAGE_CODE_CACHE("stageCodeCache"),
     ;
     private final String value;
 

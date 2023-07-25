@@ -1,5 +1,6 @@
 package com.offer.oj.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.CacheManager;
 import com.offer.oj.dao.QuestionMapper;
@@ -9,11 +10,13 @@ import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
+import com.offer.oj.util.LockUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
 import java.io.IOException;
@@ -33,8 +36,18 @@ public class QuestionServiceImpl implements QuestionService {
     @Autowired
     private CacheManager cacheManager;
 
+    @Autowired
+    private LockUtil lockUtil;
+
+    private static final String QUESTION_ADD_LOCK = "QUESTION_ADD_LOCK";
+
     @Override
     public Result addQuestion(VariableQuestionDTO variableQuestionDTO) {
+        String md5 = DigestUtils.md5DigestAsHex(JSON.toJSONString(variableQuestionDTO).getBytes());
+        String lockKey = QUESTION_ADD_LOCK + md5;
+        if (lockUtil.isLocked(lockKey, 10L)){
+            throw new RuntimeException("Please do not resubmit");
+        }
         Result result = new Result();
         String message = "";
         if (!isValidUrl(variableQuestionDTO.getPictureUrl())) {
@@ -42,8 +55,7 @@ public class QuestionServiceImpl implements QuestionService {
             log.error(message);
             result.setSuccess(false);
             result.setCode(-1);
-        }
-        else {
+        } else {
             try {
                 variableQuestionDTO.setModifier(variableQuestionDTO.getModifier());
                 questionMapper.insertSelective(variableQuestionDTO);
@@ -65,21 +77,19 @@ public class QuestionServiceImpl implements QuestionService {
     public Result<List<QuestionDTO>> searchQuestion(String title) {
         Result<List<QuestionDTO>> result = new Result<>();
         Cache<String, List<QuestionDTO>> questionDTOCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
-        if (!Objects.isNull(questionDTOCache.get(title))){
+        if (!Objects.isNull(questionDTOCache.get(title))) {
             List<QuestionDTO> questionDTO = questionDTOCache.get(title);
             result.setData(questionDTO);
             result.setSuccess(true);
             result.setCode(0);
-        }
-        else if (! ObjectUtils.isEmpty(questionMapper.fuzzySelectByTitle(title))) {
+        } else if (!ObjectUtils.isEmpty(questionMapper.fuzzySelectByTitle(title))) {
             List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
             Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
             selectCache.put(title, questionDTOList);
             result.setSuccess(true);
             result.setCode(0);
             result.setData(questionDTOList);
-        }
-        else {
+        } else {
             result.setSuccess(false);
             result.setCode(-1);
             result.setMessage("No related questions!");
@@ -96,7 +106,7 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public boolean isValidUrl(String url){
+    public boolean isValidUrl(String url) {
         URI uri = null;
         try {
             uri = new URI(url);
