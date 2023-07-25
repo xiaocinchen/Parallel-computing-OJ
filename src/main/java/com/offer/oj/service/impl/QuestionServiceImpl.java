@@ -23,6 +23,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
+import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -160,6 +161,7 @@ public class QuestionServiceImpl implements QuestionService {
                 message = "Modify question fail.";
                 result.setSimpleResult(false, message, -2);
             }
+            result.setSimpleResult(true, message);
             log.info(message + "Id = " + questionDTO.getId());
         } catch (Exception e) {
             throw new RuntimeException("Modify question Exception.");
