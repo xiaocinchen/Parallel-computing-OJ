@@ -15,6 +15,7 @@ public class VariableQuestionDTO implements Serializable {
 
     //ID cant be changed, just for search.
     @DecimalMin(value = "0",message = "The question id should be positive! ")
+    @NotNull(message = INFO_INCOMPLETE_LOG)
     private Integer id;
 
     @Size(max = 25,min = 2,message = "The title should be between 2 and 25 characters! ")
@@ -25,6 +26,7 @@ public class VariableQuestionDTO implements Serializable {
     @NotNull(message = INFO_INCOMPLETE_LOG)
     private String description;
 
+    @NotNull(message = INFO_INCOMPLETE_LOG)
     private String modifier;
 
     private boolean status;

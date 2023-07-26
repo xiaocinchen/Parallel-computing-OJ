@@ -4,9 +4,11 @@ import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.OjQuestion;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.query.QuestionInnerQuery;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.query.QuestionModifyQuery;
+import com.offer.oj.service.CacheService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -25,6 +27,9 @@ import java.util.stream.Collectors;
 public class QuestionMapperImpl implements QuestionMapper {
     @Autowired
     private OjQuestionMapper ojQuestionMapper;
+
+    @Autowired
+    private CacheService cacheService;
 
     @Override
     public Boolean insertSelective(VariableQuestionDTO question) {

@@ -155,7 +155,7 @@ public class QuestionServiceImpl implements QuestionService {
     public Result modifyQuestion(VariableQuestionDTO questionDTO) {
         String message = "";
         Result result = new Result();
-        if (questionDTO == null || questionDTO.getId() == null) {
+        if (questionDTO == null) {
             message = "Lack parameters!";
             log.error(message + "question: {}", questionDTO);
             result.setSimpleResult(false, message);
