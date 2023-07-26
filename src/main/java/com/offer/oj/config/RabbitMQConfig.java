@@ -63,6 +63,37 @@ public class RabbitMQConfig {
     }
 
 
+    /**
+     * Question
+     */
+    @Bean("questionExchange")
+    public Exchange questionExchange() {
+        return ExchangeBuilder.topicExchange(MQExchangeEnum.QUESTION_EXCHANGE.getValue()).durable(true).build();
+    }
+
+    @Bean("questionFuzzyIdUpdateQueue")
+    public Queue questionFuzzyIdUpdateQueue() {
+        return QueueBuilder.durable(MQQueueEnum.QUESTION_FUZZY_ID_UPDATE_QUEUE.getValue()).build();
+    }
+
+    @Bean("questionFuzzyCacheUpdateQueue")
+    public Queue questionFuzzyCacheUpdateQueue() {
+        return QueueBuilder.durable(MQQueueEnum.QUESTION_FUZZY_CACHE_UPDATE_QUEUE.getValue()).build();
+    }
+
+    @Bean
+    public Binding questionFuzzyIdQueueExchange(@Qualifier("questionFuzzyIdUpdateQueue") Queue queue,
+                                                @Qualifier("questionExchange") Exchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with("question.fuzzy.id").noargs();
+    }
+
+    @Bean
+    public Binding questionFuzzyCacheQueueExchange(@Qualifier("questionFuzzyCacheUpdateQueue") Queue queue,
+                                                   @Qualifier("questionExchange") Exchange exchange) {
+        return BindingBuilder.bind(queue).to(exchange).with("question.fuzzy.cache").noargs();
+    }
+
+
     @Bean
     public RabbitTemplate rabbitTemplate(CachingConnectionFactory connectionFactory) {
         RabbitTemplate rabbitTemplate = new RabbitTemplate(connectionFactory);

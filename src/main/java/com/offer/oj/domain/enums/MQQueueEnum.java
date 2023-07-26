@@ -4,6 +4,8 @@ public enum MQQueueEnum {
     EMAIL_QUEUE("email_queue"),
     CODE_JUDGE_QUEUE("code_judge_queue"),
     CODE_RESULT_QUEUE("code_result_queue"),
+    QUESTION_FUZZY_ID_UPDATE_QUEUE("question_fuzzy_id_update_queue"),
+    QUESTION_FUZZY_CACHE_UPDATE_QUEUE("question_fuzzy_cache_update_queue"),
     ;
 
     private final String value;

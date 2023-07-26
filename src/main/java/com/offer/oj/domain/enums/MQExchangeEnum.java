@@ -3,6 +3,7 @@ package com.offer.oj.domain.enums;
 public enum MQExchangeEnum {
     EMAIL_EXCHANGE("email_exchange"),
     CODE_EXCHANGE("code_exchange"),
+    QUESTION_EXCHANGE("question_exchange"),
     ;
 
     private final String value;

@@ -3,6 +3,7 @@ package com.offer.oj.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.CacheManager;
+import com.offer.oj.MQ.sender.QuestionMQSender;
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.QuestionDTO;
@@ -11,6 +12,7 @@ import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.util.LockUtil;
+import com.offer.oj.util.ThreadPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.List;
@@ -39,13 +40,16 @@ public class QuestionServiceImpl implements QuestionService {
     @Autowired
     private LockUtil lockUtil;
 
+    @Autowired
+    private QuestionMQSender questionMQSender;
+
     private static final String QUESTION_ADD_LOCK = "QUESTION_ADD_LOCK";
 
     @Override
     public Result addQuestion(VariableQuestionDTO variableQuestionDTO) {
         String md5 = DigestUtils.md5DigestAsHex(JSON.toJSONString(variableQuestionDTO).getBytes());
         String lockKey = QUESTION_ADD_LOCK + md5;
-        if (lockUtil.isLocked(lockKey, 10L)){
+        if (lockUtil.isLocked(lockKey, 10L)) {
             throw new RuntimeException("Please do not resubmit");
         }
         Result result = new Result();
@@ -77,9 +81,16 @@ public class QuestionServiceImpl implements QuestionService {
     public Result<List<QuestionDTO>> searchQuestion(String title) {
         Result<List<QuestionDTO>> result = new Result<>();
         Cache<String, List<QuestionDTO>> questionDTOCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
-        if (!Objects.isNull(questionDTOCache.get(title))) {
-            List<QuestionDTO> questionDTO = questionDTOCache.get(title);
-            result.setData(questionDTO);
+        if (Objects.nonNull(questionDTOCache.get(title))) {
+            List<QuestionDTO> questionDTOList = questionDTOCache.get(title);
+
+            ThreadPoolUtil.sendMQThreadPool.execute(() -> {
+                questionDTOList.stream()
+                        .parallel().map(QuestionDTO::getId)
+                        .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, title));
+            });
+
+            result.setData(questionDTOList);
             result.setSuccess(true);
             result.setCode(0);
         } else if (!ObjectUtils.isEmpty(questionMapper.fuzzySelectByTitle(title))) {
@@ -158,7 +169,7 @@ public class QuestionServiceImpl implements QuestionService {
         if (questionDTO == null) {
             message = "Lack parameters!";
             log.error(message + "question: {}", questionDTO);
-            result.setSimpleResult(false, message);
+            result.setSimpleResult(false, message, -1);
             return result;
         }
         QuestionModifyQuery questionModifyQuery = new QuestionModifyQuery();
@@ -166,10 +177,12 @@ public class QuestionServiceImpl implements QuestionService {
         try {
             if (questionMapper.modifyQuestion(questionModifyQuery)) {
                 message = "Modify question success.";
+                result.setSimpleResult(true, message, 0);
+                ThreadPoolUtil.sendMQThreadPool.execute(() -> questionMQSender.sendQuestionModifyMQ(questionModifyQuery.getId()));
             } else {
                 message = "Modify question fail.";
+                result.setSimpleResult(false, message, -2);
             }
-            result.setSimpleResult(true, message);
             log.info(message + "Id = " + questionDTO.getId());
         } catch (Exception e) {
             throw new RuntimeException("Modify question Exception.");

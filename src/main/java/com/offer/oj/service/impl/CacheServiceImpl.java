@@ -54,8 +54,8 @@ public class CacheServiceImpl implements CacheService {
     @PostConstruct
     public void initSelectQuestionCache() {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.SELECT_QUESTION_CACHE.getValue())
-                .expire(Duration.ofMinutes(120))
-                .localExpire(Duration.ofSeconds(120))
+                .expire(Duration.ofDays(15))
+                .localExpire(Duration.ofDays(10))
                 .cacheType(CacheType.BOTH)
                 .syncLocal(true)
                 .build();
@@ -78,6 +78,17 @@ public class CacheServiceImpl implements CacheService {
         QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.STAGE_CODE_CACHE.getValue())
                 .expire(Duration.ofDays(30))
                 .localExpire(Duration.ofHours(12))
+                .cacheType(CacheType.BOTH)
+                .syncLocal(true)
+                .build();
+        cacheManager.getOrCreateCache(quickConfig);
+    }
+
+    @PostConstruct
+    public void initQuestionFuzzyCache(){
+        QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.QUESTION_ID_FUZZY_KEY_CACHE.getValue())
+                .expire(Duration.ofDays(15))
+                .localExpire(Duration.ofDays(10))
                 .cacheType(CacheType.BOTH)
                 .syncLocal(true)
                 .build();
