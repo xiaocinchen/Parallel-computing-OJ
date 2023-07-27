@@ -8,7 +8,7 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Data
-public class FrequencySet<T> implements Iterable<T>, Serializable{
+public class FrequencySet<T> implements Iterable<T>, Serializable {
     private final Map<T, Integer> elementCount;
     private final TreeSet<T> sortedElements;
 
@@ -27,6 +27,16 @@ public class FrequencySet<T> implements Iterable<T>, Serializable{
         elementCount.remove(element);
         sortedElements.remove(element);
     }
+
+    public void clear() {
+        elementCount.clear();
+        sortedElements.clear();
+    }
+
+    public boolean isEmpty() {
+        return sortedElements.isEmpty();
+    }
+
 
     public T getMostFrequent() {
         return sortedElements.first();
@@ -65,7 +75,7 @@ public class FrequencySet<T> implements Iterable<T>, Serializable{
     @Serial
     private static final long serialVersionUID = 1L;
 
-    private class SerializableComparator implements Comparator<Object>, Serializable{
+    private class SerializableComparator implements Comparator<Object>, Serializable {
         @Override
         public int compare(Object e1, Object e2) {
             int count1 = elementCount.get(e1);
