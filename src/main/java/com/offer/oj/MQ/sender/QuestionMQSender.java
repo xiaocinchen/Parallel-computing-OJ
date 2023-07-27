@@ -17,7 +17,7 @@ public class QuestionMQSender {
     private RabbitTemplate rabbitTemplate;
 
     public void sendQuestionFuzzySearchMQ(Integer id, String key) {
-        rabbitTemplate.convertAndSend(MQExchangeEnum.QUESTION_EXCHANGE.getValue(), "question.fuzzy.id", new QuestionSynDTO(id, CacheEnum.SELECT_QUESTION_CACHE.getValue() + key));
+        rabbitTemplate.convertAndSend(MQExchangeEnum.QUESTION_EXCHANGE.getValue(), "question.fuzzy.id", new QuestionSynDTO(id, key));
     }
 
     public void sendQuestionModifyMQ(Integer id) {

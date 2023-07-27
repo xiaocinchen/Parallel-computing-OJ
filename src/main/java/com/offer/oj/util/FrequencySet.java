@@ -8,21 +8,13 @@ import java.util.*;
 import java.util.stream.Stream;
 
 @Data
-public class FrequencySet<T> implements Iterable<T>, Serializable {
+public class FrequencySet<T> implements Iterable<T>, Serializable{
     private final Map<T, Integer> elementCount;
     private final TreeSet<T> sortedElements;
 
     public FrequencySet() {
         elementCount = new HashMap<>();
-        sortedElements = new TreeSet<>((e1, e2) -> {
-            int count1 = elementCount.get(e1);
-            int count2 = elementCount.get(e2);
-            if (count1 != count2) {
-                return Integer.compare(count2, count1); // 降序排列
-            } else {
-                return e1.toString().compareTo(e2.toString()); // 访问次数相同时按照元素值的字典序排列
-            }
-        });
+        sortedElements = new TreeSet<>(new SerializableComparator());
     }
 
     public void add(T element) {
@@ -72,5 +64,18 @@ public class FrequencySet<T> implements Iterable<T>, Serializable {
 
     @Serial
     private static final long serialVersionUID = 1L;
+
+    private class SerializableComparator implements Comparator<Object>, Serializable{
+        @Override
+        public int compare(Object e1, Object e2) {
+            int count1 = elementCount.get(e1);
+            int count2 = elementCount.get(e2);
+            if (count1 != count2) {
+                return Integer.compare(count2, count1); // 降序排列
+            } else {
+                return e1.toString().compareTo(e2.toString()); // 访问次数相同时按照元素值的字典序排列
+            }
+        }
+    }
 
 }

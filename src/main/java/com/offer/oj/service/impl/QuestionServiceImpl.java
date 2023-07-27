@@ -81,20 +81,14 @@ public class QuestionServiceImpl implements QuestionService {
     public Result<List<QuestionDTO>> searchQuestion(String title) {
         Result<List<QuestionDTO>> result = new Result<>();
         Cache<String, List<QuestionDTO>> questionDTOCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
+        List<QuestionDTO> questionDTOList;
         if (Objects.nonNull(questionDTOCache.get(title))) {
-            List<QuestionDTO> questionDTOList = questionDTOCache.get(title);
-
-            ThreadPoolUtil.sendMQThreadPool.execute(() -> {
-                questionDTOList.stream()
-                        .parallel().map(QuestionDTO::getId)
-                        .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, title));
-            });
-
+            questionDTOList = questionDTOCache.get(title);
             result.setData(questionDTOList);
             result.setSuccess(true);
             result.setCode(0);
         } else if (!ObjectUtils.isEmpty(questionMapper.fuzzySelectByTitle(title))) {
-            List<QuestionDTO> questionDTOList = questionMapper.fuzzySelectByTitle(title);
+            questionDTOList = questionMapper.fuzzySelectByTitle(title);
             Cache<String, List<QuestionDTO>> selectCache = cacheManager.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue());
             selectCache.put(title, questionDTOList);
             result.setSuccess(true);
@@ -104,7 +98,13 @@ public class QuestionServiceImpl implements QuestionService {
             result.setSuccess(false);
             result.setCode(-1);
             result.setMessage("No related questions!");
+            return result;
         }
+        ThreadPoolUtil.sendMQThreadPool.execute(() -> {
+            questionDTOList.stream()
+                    .parallel().map(QuestionDTO::getId)
+                    .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, title));
+        });
         return result;
     }
 
@@ -152,6 +152,7 @@ public class QuestionServiceImpl implements QuestionService {
                 message = "Delete question success. Id = " + questionDTO.getId();
                 log.info(message);
                 result.setSimpleResult(true, message, 0);
+                ThreadPoolUtil.sendMQThreadPool.execute(() -> questionMQSender.sendQuestionModifyMQ(questionDTO.getId()));
             } else {
                 message = "Delete question failed. Id = " + questionDTO.getId();
                 log.info(message);

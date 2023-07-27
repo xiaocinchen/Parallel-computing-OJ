@@ -38,15 +38,14 @@ public class QuestionMQListener {
         Integer id = questionSynDTO.getId();
         String cacheKey = questionSynDTO.getCacheKey();
         Cache<Integer, FrequencySet<String>> cache = cacheManager.getCache(CacheEnum.QUESTION_ID_FUZZY_KEY_CACHE.getValue());
-        cacheService.getCache(CacheEnum.QUESTION_ID_FUZZY_KEY_CACHE.getValue()).put("123","123");
-        if (cache.get(id) == null) {
-            cache.put(id, FrequencySet.of(cacheKey));
-        } else {
-            FrequencySet<String> frequencySet = cache.get(id);
-            frequencySet.add(cacheKey);
-            cache.put(id, frequencySet);
-        }
-//        cache.computeIfAbsent(id, key -> FrequencySet.of(cacheKey)).add(cacheKey);
+//        if (cache.get(id) == null) {
+//            cache.put(id, FrequencySet.of(cacheKey));
+//        } else {
+//            FrequencySet<String> frequencySet = cache.get(id);
+//            frequencySet.add(cacheKey);
+//            cache.put(id, frequencySet);
+//        }
+        cache.computeIfAbsent(id, key -> FrequencySet.of(cacheKey)).add(cacheKey);
         try {
             channel.basicAck(deliveryTag, false);
         } catch (IOException e) {
@@ -64,7 +63,10 @@ public class QuestionMQListener {
         long deliveryTag = (long) headers.get(AmqpHeaders.DELIVERY_TAG);
         Cache<Integer, FrequencySet<String>> cache = cacheManager.getCache(CacheEnum.QUESTION_ID_FUZZY_KEY_CACHE.getValue());
         FrequencySet<String> frequencySet = cache.get(id);
-        frequencySet.parallelStream().forEach(key -> cacheService.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue()).remove(key));
+        if (frequencySet != null) {
+            frequencySet.parallelStream().forEach(key -> cacheService.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue()).remove(key));
+            cache.remove(id);
+        }
         try {
             channel.basicAck(deliveryTag, false);
         } catch (IOException e) {

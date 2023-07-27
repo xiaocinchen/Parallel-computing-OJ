@@ -177,11 +177,11 @@ class OjApplicationTests {
     @Test
     void testModifyQuestion(){
         VariableQuestionDTO questionDTO = new VariableQuestionDTO();
-        questionDTO.setId(10);
+        questionDTO.setId(13);
         questionDTO.setModifier("php");
         questionDTO.setDescription("给定一个整数数组 nums和一个整数目标值 target，请你在该数组中找出 和为目标值 target 的那两个整数，并返回它们的数组下标。\" +\n" +
                 "                \"你可以假设每种输入只");
-        questionDTO.setTitle("liangshuzhihe");
+        questionDTO.setTitle("两数之和");
         questionService.modifyQuestion(questionDTO);
     }
 
@@ -198,7 +198,7 @@ class OjApplicationTests {
 
     @Test
     void deleteQuestion(){
-        int id = 9;
+        int id = 7;
         QuestionDTO questionDTO = new QuestionDTO();
         questionDTO.setId(id);
         questionService.deleteQuestion(questionDTO);
