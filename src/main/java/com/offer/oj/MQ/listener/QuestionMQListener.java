@@ -38,13 +38,6 @@ public class QuestionMQListener {
         Integer id = questionSynDTO.getId();
         String cacheKey = questionSynDTO.getCacheKey();
         Cache<Integer, FrequencySet<String>> cache = cacheManager.getCache(CacheEnum.QUESTION_ID_FUZZY_KEY_CACHE.getValue());
-//        if (cache.get(id) == null) {
-//            cache.put(id, FrequencySet.of(cacheKey));
-//        } else {
-//            FrequencySet<String> frequencySet = cache.get(id);
-//            frequencySet.add(cacheKey);
-//            cache.put(id, frequencySet);
-//        }
         cache.computeIfAbsent(id, key -> FrequencySet.of(cacheKey)).add(cacheKey);
         try {
             channel.basicAck(deliveryTag, false);
