@@ -1,5 +1,6 @@
 package com.offer.oj.domain;
 
+
 import java.io.Serializable;
 import java.util.Date;
 
@@ -25,6 +26,7 @@ public class OjQuestion implements Serializable {
     private Integer memoryLimit;
 
     private String description;
+
 
     private static final long serialVersionUID = 1L;
 

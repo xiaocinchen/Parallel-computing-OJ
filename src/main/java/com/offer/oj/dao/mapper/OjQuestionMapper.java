@@ -24,6 +24,7 @@ public interface OjQuestionMapper {
     List<OjQuestion> queryForList(QuestionInnerQuery questionInnerQuery);
 
     Integer queryForCount(QuestionInnerQuery questionInnerQuery);
+
     List<OjQuestion> selectAllQuestionByTitle(@Param("title") String title);
 
     List<OjQuestion> selectByTitle(@Param("title") String title);

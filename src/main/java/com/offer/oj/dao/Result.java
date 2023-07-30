@@ -51,4 +51,10 @@ public class Result<T> implements Serializable {
         this.code = code;
     }
 
+    public void setSimpleResult(boolean success, String message, Integer code, T data) {
+        this.success = success;
+        this.message = message;
+        this.code = code;
+        this.data = data;
+    }
 }

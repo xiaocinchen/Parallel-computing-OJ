@@ -4,6 +4,7 @@ import lombok.Data;
 
 @Data
 public class GroupQuestionDTO {
+    private Integer id;
 
     private Integer groupId;
 

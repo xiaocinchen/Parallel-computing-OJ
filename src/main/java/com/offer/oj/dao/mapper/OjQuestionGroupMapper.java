@@ -1,6 +1,10 @@
 package com.offer.oj.dao.mapper;
 
+import com.offer.oj.domain.OjQuestion;
 import com.offer.oj.domain.OjQuestionGroup;
+import org.apache.ibatis.annotations.Param;
+
+import java.util.List;
 
 public interface OjQuestionGroupMapper {
     int deleteByPrimaryKey(Integer id);
@@ -14,4 +18,8 @@ public interface OjQuestionGroupMapper {
     int updateByPrimaryKeySelective(OjQuestionGroup row);
 
     int updateByPrimaryKey(OjQuestionGroup row);
+
+    OjQuestionGroup selectIdByGroupName(@Param("group_name") String groupName);
+
+    List<OjQuestionGroup> selectAllQuestionByTitle(@Param("group_name") String groupName);
 }

@@ -114,4 +114,11 @@
       status = #{status,jdbcType=BIT}
     where id = #{id,jdbcType=INTEGER}
   </update>
+  <select id="selectIdByGroupName" resultMap="BaseResultMap">
+    select * from oj_question_group where group_name=#{group_name};
+  </select>
+
+  <select id="selectAllQuestionByTitle" resultMap="BaseResultMap">
+    select * from oj_question_group where group_name like '%${group_name}%'
+    </select>
 </mapper>
