@@ -1,5 +1,4 @@
 package com.offer.oj.domain;
-
 import java.io.Serializable;
 
 public class OjGroupQuestionBridge implements Serializable {

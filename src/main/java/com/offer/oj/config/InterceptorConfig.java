@@ -18,6 +18,7 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/v1/kaptcha/**")
                 .excludePathPatterns("/v1/password/**")
                 .excludePathPatterns("/v1/question/search")
+                .excludePathPatterns("/v1/group/add")
                 .order(1);
 
         registry.addInterceptor(authorizationInterceptor())

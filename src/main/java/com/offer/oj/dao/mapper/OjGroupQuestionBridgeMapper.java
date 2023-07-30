@@ -1,6 +1,7 @@
 package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.OjGroupQuestionBridge;
+import org.apache.ibatis.annotations.Param;
 
 public interface OjGroupQuestionBridgeMapper {
     int deleteByPrimaryKey(Integer id);
@@ -14,4 +15,6 @@ public interface OjGroupQuestionBridgeMapper {
     int updateByPrimaryKeySelective(OjGroupQuestionBridge row);
 
     int updateByPrimaryKey(OjGroupQuestionBridge row);
+
+    OjGroupQuestionBridge selectByGroupQuestionId(@Param("questionGroupId")Integer groupId, @Param("questionId") Integer questionId);
 }

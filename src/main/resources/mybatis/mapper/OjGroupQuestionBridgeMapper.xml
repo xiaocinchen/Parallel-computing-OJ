@@ -68,4 +68,8 @@
       question_id = #{questionId,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
+
+  <select id="selectByGroupQuestionId" resultMap="BaseResultMap">title=#{title}
+    select from oj_group_question_bridge where group_id=#{questionGroupId} and question_id=#{questionId}
+    </select>
 </mapper>
