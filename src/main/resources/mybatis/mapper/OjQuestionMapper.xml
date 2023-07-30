@@ -220,4 +220,8 @@
   <select id="selectByTitle" resultMap="BaseResultMap">
     select * from oj_question where title=#{title};
     </select>
+
+  <select id="queryQuestionsByTitle"  resultMap="BaseResultMap">
+    select * from oj_question where title like '%${title}%' limit #{page} , #{pageSize};
+  </select>
 </mapper>

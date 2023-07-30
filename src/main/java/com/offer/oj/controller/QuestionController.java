@@ -1,10 +1,7 @@
 package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
-import com.offer.oj.domain.dto.QuestionDTO;
-import com.offer.oj.domain.dto.SelectQuestionDTO;
-import com.offer.oj.domain.dto.UserIdentityDTO;
-import com.offer.oj.domain.dto.VariableQuestionDTO;
+import com.offer.oj.domain.dto.*;
 import com.offer.oj.service.QuestionService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -66,9 +63,8 @@ public class QuestionController {
 
     @PostMapping("/question/search")
     @ResponseBody
-    public Result<List<QuestionDTO>> searchQuestion(@Validated @RequestBody SelectQuestionDTO questionDTO) {
-        String title = questionDTO.getTitle();
-        return questionService.searchQuestion(title);
+    public Result<List<QuestionDTO>> searchQuestion(@RequestBody PageSearchDTO pageSearchDTO) {
+        return questionService.queryQuestionsByTitle(pageSearchDTO);
     }
 }
 

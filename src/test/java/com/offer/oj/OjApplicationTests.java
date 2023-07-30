@@ -166,12 +166,15 @@ class OjApplicationTests {
     }
     @Test
     void testSelectQuestion(){
-        String title1 = "解数独";
-        System.out.println(questionService.searchQuestion(title1));
-        String title = "和";
-        System.out.println(questionService.searchQuestion(title));
-        String title2 = "";
-        System.out.println(questionService.searchQuestion(title2));
+//        String title1 = "解数独";
+//        System.out.println(questionService.searchQuestion(title1));
+        String title = "回文数";
+//        System.out.println(questionService.searchQuestion(title));
+//        String title2 = "";
+//        System.out.println(questionService.searchQuestion(title2));
+
+
+//        System.out.println(questionService.queryQuestionsByTitle(title, 1, 1));
     }
 
     @Test

@@ -2,6 +2,7 @@ package com.offer.oj.service;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.OjUser;
+import com.offer.oj.domain.dto.PageSearchDTO;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.UserDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
@@ -28,4 +29,6 @@ public interface QuestionService {
     Result deleteQuestion(QuestionDTO questionDTO);
 
     Result modifyQuestion(VariableQuestionDTO questionDTO);
+
+    Result queryQuestionsByTitle(PageSearchDTO pageSearchDTO);
 }

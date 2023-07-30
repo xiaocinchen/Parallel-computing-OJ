@@ -6,7 +6,9 @@ import com.alicp.jetcache.CacheManager;
 import com.offer.oj.MQ.sender.QuestionMQSender;
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
+import com.offer.oj.domain.dto.PageSearchDTO;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.dto.SearchResultDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.query.QuestionModifyQuery;
@@ -23,6 +25,7 @@ import org.springframework.util.ObjectUtils;
 
 import java.net.URI;
 import java.net.URISyntaxException;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -188,6 +191,40 @@ public class QuestionServiceImpl implements QuestionService {
         } catch (Exception e) {
             throw new RuntimeException("Modify question Exception.");
         }
+        return result;
+    }
+
+    @Override
+    public Result queryQuestionsByTitle(PageSearchDTO pageSearchDTO) {
+        Result<List<SearchResultDTO>> result = new Result<>();
+        String key = pageSearchDTO.getTitle() + pageSearchDTO.getPageIndex() + pageSearchDTO.getPageSize();;
+        Cache<String, List<SearchResultDTO>> questionDTOCache = cacheManager.getCache(CacheEnum.PAGE_QUESTION_CACHE.getValue());
+        List<SearchResultDTO> searchResultDTOList;
+        if (Objects.nonNull(questionDTOCache.get(key))) {
+            searchResultDTOList = questionDTOCache.get(key);
+            result.setData(searchResultDTOList);
+            result.setSuccess(true);
+            result.setCode(0);
+        } else if (!ObjectUtils.isEmpty(questionMapper.queryQuestionsByTitle(pageSearchDTO))) {
+            searchResultDTOList = questionMapper.queryQuestionsByTitle(pageSearchDTO);
+            Cache<String, List<SearchResultDTO>> selectCache = cacheManager.getCache(CacheEnum.PAGE_QUESTION_CACHE.getValue());
+            selectCache.put(key, searchResultDTOList);
+            result.setSuccess(true);
+            result.setCode(0);
+            result.setData(searchResultDTOList);
+        } else {
+            key = null;
+            result.setSuccess(false);
+            result.setCode(-1);
+            result.setMessage("No related questions!");
+            return result;
+        }
+        String finalKey = key;
+        ThreadPoolUtil.sendMQThreadPool.execute(() -> {
+            searchResultDTOList.stream()
+                    .parallel().map(SearchResultDTO::getId)
+                    .forEach(id -> questionMQSender.sendQuestionPageSearchMQ(id, finalKey));
+        });
         return result;
     }
 }

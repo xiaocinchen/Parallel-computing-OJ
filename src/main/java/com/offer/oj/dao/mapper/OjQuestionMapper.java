@@ -1,7 +1,6 @@
 package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.OjQuestion;
-import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.query.QuestionInnerQuery;
 import org.apache.ibatis.annotations.Param;
 
@@ -28,4 +27,6 @@ public interface OjQuestionMapper {
     List<OjQuestion> selectAllQuestionByTitle(@Param("title") String title);
 
     List<OjQuestion> selectByTitle(@Param("title") String title);
+
+    List<OjQuestion> queryQuestionsByTitle(@Param("title") String title, @Param("page") Integer page,@Param("pageSize") Integer pageSize);
 }

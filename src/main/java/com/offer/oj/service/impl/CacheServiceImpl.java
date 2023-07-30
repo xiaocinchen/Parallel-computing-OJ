@@ -95,6 +95,17 @@ public class CacheServiceImpl implements CacheService {
         cacheManager.getOrCreateCache(quickConfig);
     }
 
+    @PostConstruct
+    public void initQuestionPageCache(){
+        QuickConfig quickConfig = QuickConfig.newBuilder(CacheEnum.PAGE_QUESTION_CACHE.getValue())
+                .expire(Duration.ofDays(15))
+                .localExpire(Duration.ofDays(10))
+                .cacheType(CacheType.BOTH)
+                .syncLocal(true)
+                .build();
+        cacheManager.getOrCreateCache(quickConfig);
+    }
+
     private QuickConfig getDefaultQuickConfig(String cacheEnum) {
         return QuickConfig.newBuilder(cacheEnum)
                 .localExpire(Duration.ofMinutes(30))
