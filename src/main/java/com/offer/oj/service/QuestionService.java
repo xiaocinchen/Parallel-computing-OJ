@@ -23,8 +23,6 @@ public interface QuestionService {
 
     boolean isQuestionDTOEmpty(QuestionDTO questionDTO);
 
-    boolean isValidUrl(String url) throws IOException;
-
     Result deleteQuestion(QuestionDTO questionDTO);
 
     Result modifyQuestion(VariableQuestionDTO questionDTO);

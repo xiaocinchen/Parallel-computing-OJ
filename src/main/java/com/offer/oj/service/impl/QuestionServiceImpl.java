@@ -121,24 +121,6 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public boolean isValidUrl(String url) {
-        URI uri = null;
-        try {
-            uri = new URI(url);
-        } catch (URISyntaxException e) {
-            e.printStackTrace();
-            return false;
-        }
-        if (uri.getHost() == null) {
-            return false;
-        }
-        if (uri.getScheme().equalsIgnoreCase("http") || uri.getScheme().equalsIgnoreCase("https")) {
-            return true;
-        }
-        return false;
-    }
-
-    @Override
     @Transactional
     public Result deleteQuestion(QuestionDTO questionDTO) {
         String message = "";
@@ -217,5 +199,24 @@ public class QuestionServiceImpl implements QuestionService {
                     .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, pageSearchDTO.toString()));
         });
         return result;
+    }
+
+
+    /***** private method *****/
+    private boolean isValidUrl(String url) {
+        URI uri = null;
+        try {
+            uri = new URI(url);
+        } catch (URISyntaxException e) {
+            e.printStackTrace();
+            return false;
+        }
+        if (uri.getHost() == null) {
+            return false;
+        }
+        if (uri.getScheme().equalsIgnoreCase("http") || uri.getScheme().equalsIgnoreCase("https")) {
+            return true;
+        }
+        return false;
     }
 }
