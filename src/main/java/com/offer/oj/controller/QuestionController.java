@@ -63,7 +63,7 @@ public class QuestionController {
 
     @PostMapping("/question/search")
     @ResponseBody
-    public Result<List<QuestionDTO>> searchQuestion(@RequestBody PageSearchDTO pageSearchDTO) {
+    public Result<List<SearchResultDTO>> searchQuestion(@RequestBody PageSearchDTO pageSearchDTO) {
         return questionService.queryQuestionsByTitle(pageSearchDTO);
     }
 }

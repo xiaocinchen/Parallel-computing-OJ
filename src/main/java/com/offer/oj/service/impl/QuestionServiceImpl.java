@@ -11,6 +11,7 @@ import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.SearchResultDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.enums.CacheEnum;
+import com.offer.oj.domain.enums.SeparatorEnum;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.util.LockUtil;
@@ -195,35 +196,25 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Result queryQuestionsByTitle(PageSearchDTO pageSearchDTO) {
+    public Result<List<SearchResultDTO>> queryQuestionsByTitle(PageSearchDTO pageSearchDTO) {
         Result<List<SearchResultDTO>> result = new Result<>();
-        String key = pageSearchDTO.getTitle() + pageSearchDTO.getPageIndex() + pageSearchDTO.getPageSize();;
-        Cache<String, List<SearchResultDTO>> questionDTOCache = cacheManager.getCache(CacheEnum.PAGE_QUESTION_CACHE.getValue());
         List<SearchResultDTO> searchResultDTOList;
-        if (Objects.nonNull(questionDTOCache.get(key))) {
-            searchResultDTOList = questionDTOCache.get(key);
-            result.setData(searchResultDTOList);
-            result.setSuccess(true);
-            result.setCode(0);
-        } else if (!ObjectUtils.isEmpty(questionMapper.queryQuestionsByTitle(pageSearchDTO))) {
+        try {
             searchResultDTOList = questionMapper.queryQuestionsByTitle(pageSearchDTO);
-            Cache<String, List<SearchResultDTO>> selectCache = cacheManager.getCache(CacheEnum.PAGE_QUESTION_CACHE.getValue());
-            selectCache.put(key, searchResultDTOList);
-            result.setSuccess(true);
-            result.setCode(0);
-            result.setData(searchResultDTOList);
-        } else {
-            key = null;
-            result.setSuccess(false);
-            result.setCode(-1);
-            result.setMessage("No related questions!");
-            return result;
+        } catch (Exception e) {
+            throw new RuntimeException("Query question exception");
         }
-        String finalKey = key;
+        result.setSimpleResult(true, 0);
+        if (ObjectUtils.isEmpty(searchResultDTOList)) {
+            result.setData(new ArrayList<>());
+            return result;
+        } else {
+            result.setData(searchResultDTOList);
+        }
         ThreadPoolUtil.sendMQThreadPool.execute(() -> {
             searchResultDTOList.stream()
                     .parallel().map(SearchResultDTO::getId)
-                    .forEach(id -> questionMQSender.sendQuestionPageSearchMQ(id, finalKey));
+                    .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, pageSearchDTO.toString()));
         });
         return result;
     }

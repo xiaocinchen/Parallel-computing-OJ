@@ -1,5 +1,7 @@
 package com.offer.oj.dao;
 
+import com.alicp.jetcache.anno.CacheType;
+import com.alicp.jetcache.anno.Cached;
 import com.offer.oj.domain.dto.PageSearchDTO;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.SearchResultDTO;
@@ -7,6 +9,7 @@ import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 
 import java.util.List;
+import java.util.concurrent.TimeUnit;
 
 public interface QuestionMapper {
     Boolean insertSelective(VariableQuestionDTO question);
@@ -20,5 +23,6 @@ public interface QuestionMapper {
 
     Boolean modifyQuestion(QuestionModifyQuery question);
 
+    @Cached(name = "selectPageQuestionCache",key = "#pageSearchDTO.toString()", expire = 15, timeUnit = TimeUnit.DAYS, cacheType = CacheType.BOTH)
     List<SearchResultDTO> queryQuestionsByTitle(PageSearchDTO pageSearchDTO);
 }

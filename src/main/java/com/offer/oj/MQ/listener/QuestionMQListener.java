@@ -57,7 +57,7 @@ public class QuestionMQListener {
         Cache<Integer, FrequencySet<String>> cache = cacheManager.getCache(CacheEnum.QUESTION_ID_FUZZY_KEY_CACHE.getValue());
         FrequencySet<String> frequencySet = cache.get(id);
         if (frequencySet != null) {
-            frequencySet.parallelStream().forEach(key -> cacheService.getCache(CacheEnum.SELECT_QUESTION_CACHE.getValue()).remove(key));
+            frequencySet.parallelStream().forEach(key -> cacheService.getCache(CacheEnum.PAGE_QUESTION_CACHE.getValue()).remove(key));
             cache.remove(id);
         }
         try {

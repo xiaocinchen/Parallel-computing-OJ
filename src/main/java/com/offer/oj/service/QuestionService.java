@@ -1,12 +1,10 @@
 package com.offer.oj.service;
 
 import com.offer.oj.dao.Result;
-import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.PageSearchDTO;
 import com.offer.oj.domain.dto.QuestionDTO;
-import com.offer.oj.domain.dto.UserDTO;
+import com.offer.oj.domain.dto.SearchResultDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
-import jakarta.servlet.http.Cookie;
 
 import java.io.IOException;
 import java.util.List;
@@ -20,6 +18,7 @@ public interface QuestionService {
     /**
      * 查找题目
      */
+    @Deprecated
     Result<List<QuestionDTO>> searchQuestion(String title);
 
     boolean isQuestionDTOEmpty(QuestionDTO questionDTO);
@@ -30,5 +29,5 @@ public interface QuestionService {
 
     Result modifyQuestion(VariableQuestionDTO questionDTO);
 
-    Result queryQuestionsByTitle(PageSearchDTO pageSearchDTO);
+    Result<List<SearchResultDTO>> queryQuestionsByTitle(PageSearchDTO pageSearchDTO);
 }
