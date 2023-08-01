@@ -1,18 +1,13 @@
 package com.offer.oj.util;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import com.offer.oj.util.pack.RedisTemplateHolder;
 import org.springframework.data.redis.core.RedisTemplate;
-import org.springframework.stereotype.Component;
 
 import java.util.concurrent.TimeUnit;
 
-@Component
 public class LockUtil {
-    @Autowired
-    private RedisTemplate<String, String> redisTemplate;
-
-
-    public boolean isLocked(String key, Long timeoutSecond) {
+    public static boolean isLocked(String key, Long timeoutSecond) {
+        RedisTemplate<String, String> redisTemplate = RedisTemplateHolder.getRedisTemplate();
         if (Boolean.TRUE.equals(redisTemplate.hasKey(key))) {
             return true;
         } else {

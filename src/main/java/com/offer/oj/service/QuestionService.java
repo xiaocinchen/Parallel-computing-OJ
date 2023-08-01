@@ -21,8 +21,6 @@ public interface QuestionService {
     @Deprecated
     Result<List<QuestionDTO>> searchQuestion(String title);
 
-    boolean isQuestionDTOEmpty(QuestionDTO questionDTO);
-
     Result deleteQuestion(QuestionDTO questionDTO);
 
     Result modifyQuestion(VariableQuestionDTO questionDTO);

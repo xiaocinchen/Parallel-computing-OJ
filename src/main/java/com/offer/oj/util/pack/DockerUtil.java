@@ -1,4 +1,4 @@
-package com.offer.oj.util;
+package com.offer.oj.util.pack;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
@@ -14,6 +14,7 @@ import com.offer.oj.domain.dto.SubmitCodeDTO;
 import com.offer.oj.domain.enums.CodeResultEnum;
 import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
+import com.offer.oj.util.JudgeUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;

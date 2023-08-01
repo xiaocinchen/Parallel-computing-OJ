@@ -5,13 +5,11 @@ import com.google.code.kaptcha.Constants;
 import com.google.code.kaptcha.impl.DefaultKaptcha;
 import com.offer.oj.domain.dto.KaptchaDTO;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Component;
 
 import java.awt.image.BufferedImage;
 import java.util.Properties;
 
 @Slf4j
-@Component
 public class KaptchaUtil {
 
     private static DefaultKaptcha defaultKaptcha = null;

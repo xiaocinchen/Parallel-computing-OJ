@@ -4,7 +4,7 @@ import com.offer.oj.dao.CodeMapper;
 import com.offer.oj.domain.dto.CodeResultDTO;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
 import com.offer.oj.domain.query.CodeInnerQuery;
-import com.offer.oj.util.DockerUtil;
+import com.offer.oj.util.pack.DockerUtil;
 import com.rabbitmq.client.Channel;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.amqp.core.ExchangeTypes;

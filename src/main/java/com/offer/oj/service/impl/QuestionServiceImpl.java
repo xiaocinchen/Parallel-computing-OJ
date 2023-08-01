@@ -11,7 +11,6 @@ import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.SearchResultDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
 import com.offer.oj.domain.enums.CacheEnum;
-import com.offer.oj.domain.enums.SeparatorEnum;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.util.LockUtil;
@@ -42,9 +41,6 @@ public class QuestionServiceImpl implements QuestionService {
     private CacheManager cacheManager;
 
     @Autowired
-    private LockUtil lockUtil;
-
-    @Autowired
     private QuestionMQSender questionMQSender;
 
     private static final String QUESTION_ADD_LOCK = "QUESTION_ADD_LOCK";
@@ -53,8 +49,9 @@ public class QuestionServiceImpl implements QuestionService {
     public Result addQuestion(VariableQuestionDTO variableQuestionDTO) {
         String md5 = DigestUtils.md5DigestAsHex(JSON.toJSONString(variableQuestionDTO).getBytes());
         String lockKey = QUESTION_ADD_LOCK + md5;
-        if (lockUtil.isLocked(lockKey, 10L)) {
-            throw new RuntimeException("Please do not resubmit");
+        if (LockUtil.isLocked(lockKey, 10L)) {
+            log.warn("Please do not resubmit.");
+            return new Result(false, "Please do not resubmit.", -2);
         }
         Result result = new Result();
         String message = "";
@@ -112,13 +109,6 @@ public class QuestionServiceImpl implements QuestionService {
         return result;
     }
 
-    @Override
-    public boolean isQuestionDTOEmpty(QuestionDTO questionDTO) {
-        return Objects.isNull(questionDTO)
-                || ObjectUtils.isEmpty(questionDTO.getTitle())
-                || ObjectUtils.isEmpty(questionDTO.getDescription())
-                || ObjectUtils.isEmpty(questionDTO.getPictureUrl());
-    }
 
     @Override
     @Transactional
