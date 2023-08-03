@@ -6,6 +6,7 @@ import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
+import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
 import com.offer.oj.domain.query.QuestionInnerQuery;
 import com.offer.oj.service.EmailService;
@@ -205,14 +206,15 @@ class OjApplicationTests {
         questionService.deleteQuestion(questionDTO);
     }
 
-//    @Test
-//    void testDocker() throws IllegalAccessException, InterruptedException, IOException {
-//        SubmitCodeDTO submitCodeDTO = new SubmitCodeDTO();
-//        submitCodeDTO.setFileName("Main");
-//        submitCodeDTO.setAuthorId(1);
-//        submitCodeDTO.setType(CodeTypeEnum.JAVA);
-//        System.out.println(dockerUtil.executeCodeAndGetResult(submitCodeDTO));
-//    }
+    @Test
+    void testDocker() throws IllegalAccessException, InterruptedException, IOException {
+        SubmitCodeDTO submitCodeDTO = new SubmitCodeDTO();
+        submitCodeDTO.setFileName("1_2_07221226418120016");
+        submitCodeDTO.setIsResult(false);
+        submitCodeDTO.setAuthorId(2);
+        submitCodeDTO.setType(CodeTypeEnum.JAVA);
+        System.out.println(dockerUtil.executeCodeAndGetResult(submitCodeDTO));
+    }
 
 //    @Test
 //    void testJudgeQuestion(){
