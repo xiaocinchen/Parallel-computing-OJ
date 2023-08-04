@@ -8,16 +8,15 @@ import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
 import com.github.dockerjava.core.DockerClientConfig;
 import com.github.dockerjava.core.DockerClientImpl;
-import com.github.dockerjava.core.command.ExecStartResultCallback;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
+import com.google.common.collect.ImmutableSet;
 import com.offer.oj.domain.dto.CodeResultDTO;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
 import com.offer.oj.domain.enums.CodeResultEnum;
 import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
-import com.offer.oj.util.JudgeUtil;
 import com.offer.oj.util.ThreadPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
@@ -25,9 +24,13 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.time.Duration;
+import java.util.Set;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicReference;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 @Slf4j
 @Component
@@ -66,6 +69,14 @@ public class DockerUtil {
 
     @Value("${docker.host.bind.target.port}")
     private Integer configBindTargetPort;
+
+    private final Pattern pattern = Pattern.compile("Time: (\\d+\\.\\d+)s, Memory: (\\d+)KB");
+
+
+    private static final Set<CodeTypeEnum> NEED_COMPILE_CODE_TYPE_SET = ImmutableSet.of(
+            CodeTypeEnum.C_PLUS_PLUS,
+            CodeTypeEnum.JAVA
+    );
 
     private static final Long Memory = 512 * 1024 * 1024L;
 
@@ -119,7 +130,7 @@ public class DockerUtil {
         hostConfig.withMemory(Memory);
         switch (submitCodeDTO.getType()) {
             case JAVA -> {
-                return client.createContainerCmd("openjdk:11").withUser("root")
+                return client.createContainerCmd("java:time").withUser("root")
 //                        .withCmd("bash", "-c", "javac " + fileWholeNameWithType
 //                                + " && java -cp " + configBindTargetPath + " " + submitCodeDTO.getFileName()
 //                                + " > " + fileWholeName + ".out"
@@ -170,154 +181,163 @@ public class DockerUtil {
         //创建容器
         CreateContainerResponse createContainerResponse = createContainers(submitCodeDTO);
         String containerId = createContainerResponse.getId();
-        StringBuilder logs = new StringBuilder();
         WaitContainerResultCallback waitCallback = new WaitContainerResultCallback();
-        CountDownLatch latch = new CountDownLatch(1);
-
-        // 监听容器输出
-        ResultCallback.Adapter<Frame> callback = new ResultCallback.Adapter<>() {
-            @Override
-            public void onStart(Closeable closeable) {
-            }
-
-            @Override
-            public void onNext(Frame item) {
-                System.out.println("next"+item.toString());
-                logs.append(item.toString().replace("STDOUT:", ""));
-            }
-
-            @Override
-            public void onError(Throwable throwable) {
-                log.error(throwable.toString());
-            }
-
-            @Override
-            public void onComplete() {
-                System.out.println("complete");
-                latch.countDown();
-//                log.info(String.valueOf(logs));
-            }
-
-            @Override
-            public void close() {
-            }
-        };
 
         try {
             dockerClient.startContainerCmd(containerId).exec();
-            CodeResultEnum resultEnum = CodeResultEnum.ACCEPT;
-            for (int i = 0; i < 1; i++) {
+            //先编译
+            if (NEED_COMPILE_CODE_TYPE_SET.contains(submitCodeDTO.getType())) {
+                StringBuilder compileOutput = new StringBuilder();
+                AtomicReference<CompletableFuture<Void>> compileFutureRef = new AtomicReference<>();
+                compileFutureRef.set(CompletableFuture.runAsync(() -> {
+                    try {
+                        dockerClient.execStartCmd(getCompileCmdId(submitCodeDTO.getType(), containerId)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
+                            @Override
+                            public void onNext(Frame item) {
+                                compileOutput.append(item);
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                compileFutureRef.get().complete(null);
+                            }
+                        }).awaitCompletion();
+                    } catch (InterruptedException e) {
+                        throw new RuntimeException(e);
+                    }
+                }));
+                try {
+                    compileFutureRef.get().get(5, TimeUnit.SECONDS);
+                } catch (Exception e) {
+                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                    codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
+                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                    return codeResult;
+                }
+                if (compileOutput.toString().contains("STDERR")) {
+                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                    codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
+                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                    codeResult.setError(compileOutput.toString());
+                    return codeResult;
+                }
+                codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
+            }
+
+            for (int i = 0; i < 2; i++) {
                 String outputFileName = i + ".out";
                 String inputFileName = i + ".input";
-                ExecCreateCmd execCreateCmd = dockerClient.execCreateCmd(containerId);
-                execCreateCmd.withAttachStdout(true);
-                execCreateCmd.withAttachStderr(true);
-                execCreateCmd.withTty(true);
 //                execCreateCmd.withCmd("bash", "-c", "time -p python3 /data/1.py </data/input/question1/input%s.txt >/data/%s.out".formatted(i + 1, i + 1));
-                switch (submitCodeDTO.getType()) {
-                    case PYTHON ->
-//                            execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 " + codeFileWholeNameWithType + " < " + inputFileWholePath + inputFileName + " > " + outputFileWholePath + outputFileName);
-                            execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 /data/2.py");
-                    case C_PLUS_PLUS ->
-//                            execCreateCmd.withCmd("bash", "-c", "g++ -o " + codeFileWholeName + "program " + codeFileWholeNameWithType + "&&" + codeFileWholePath + "program " + " < " + inputFileWholePath + inputFileName + " > " + outputFileWholePath + outputFileName);
-                            execCreateCmd.withCmd("bash", "-c", "/usr/bin/time g++ -o /data/program /data/main.cpp && /data/program");
-                    case JAVA ->
-//                            execCreateCmd.withCmd("bash", "-c", "javac " + codeFileWholeNameWithType
-//                                + " && java -cp " + configBindTargetPath + " " + submitCodeDTO.getFileName()
-//                                + " > " + outputFileName);
-                            execCreateCmd.withCmd("bash", "-c", "time javac /data/Main.java && java -cp /data/ Main");
-
-                    default -> throw new RuntimeException("No Such Code Type" + submitCodeDTO.getType().getValue());
-                }
-                CompletableFuture<Void> future = CompletableFuture.runAsync(() -> {
+                StringBuilder execOutput = new StringBuilder();
+                AtomicReference<CompletableFuture<Void>> execFutureRef = new AtomicReference<>();
+                execFutureRef.set(CompletableFuture.runAsync(() -> {
                     try {
-                        dockerClient.execStartCmd(execCreateCmd.exec().getId()).withDetach(false).exec(callback).awaitCompletion();
+                        dockerClient.execStartCmd(getExecCodeCmdId(submitCodeDTO.getType(), containerId)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
+                            @Override
+                            public void onNext(Frame frame) {
+                                log.info(frame.toString());
+                                execOutput.append(frame);
+                            }
+
+                            @Override
+                            public void onComplete() {
+                                execFutureRef.get().complete(null);
+                            }
+                        }).awaitCompletion();
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-//                    dockerClient.waitContainerCmd(containerId).exec(waitCallback);
-                }, ThreadPoolUtil.monitorThreadPool);
+                }));
                 try {
-                    future.get(20, TimeUnit.SECONDS);
+                    execFutureRef.get().get(2, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
                     e.printStackTrace();
-                    resultEnum = CodeResultEnum.TIME_LIMIT_EXCEEDED;
+                    codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
+                    codeResult.setTime(2000);
                     break;
                 } catch (Exception e) {
                     e.printStackTrace();
-                    resultEnum = CodeResultEnum.RUNTIME_ERROR;
+                    codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
+                    codeResult.setError(execOutput.toString());
+                    break;
                 }
-                future.join();
+                if (execOutput.toString().contains("Exception")){
+                    codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
+                    codeResult.setError(execOutput.toString());
+                    break;
+                }
+
+                Matcher matcher = pattern.matcher(execOutput.toString());
+                if (matcher.find()) {
+                    int time = (int) (Double.parseDouble(matcher.group(1)) * 1000);
+                    int memory = Integer.parseInt(matcher.group(2));
+                    if (time > 2000) {
+                        codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
+                        codeResult.setTime(2000);
+                        break;
+                    } else {
+                        if (codeResult.getTime() == null || time > codeResult.getTime()) {
+                            codeResult.setTime(time);
+                        }
+                    }
+                    //256 * 1024 KB
+                    if (memory > 262144) {
+                        codeResult.setMemory(262144);
+                        codeResult.setResult(CodeResultEnum.MEMORY_LIMIT_EXCEEDED.getResult());
+                        break;
+                    } else {
+                        if (codeResult.getMemory() == null || memory > codeResult.getMemory()) {
+                            codeResult.setMemory(memory);
+                        }
+                    }
+                } else {
+                    throw new RuntimeException("No time and Memory" + submitCodeDTO.getFileName());
+                }
 //                if (!JudgeUtil.compareFiles(resultOutputFileWholePath + outputFileName, outputFileWholePath + outputFileName)) {
 //                    resultEnum = CodeResultEnum.WRONG_ANSWER;
 //                    break;
 //                }
             }
-//            Thread.sleep(5000);
             dockerClient.stopContainerCmd(containerId).exec();
             dockerClient.removeContainerCmd(containerId).exec();
-            codeResult.setResult(resultEnum.getResult());
-            return null;
-
-//            try {
-//                Integer exitCode = waitCallback.awaitStatusCode(3L, TimeUnit.SECONDS);
-//                codeResult.setCode(exitCode);
-//                if (exitCode == 0) {
-//                    // 函数执行成功
-//                    long endTime = System.currentTimeMillis();
-//                    codeResult.setTime((int) (endTime - startTime));
-//                    codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
-//                } else {
-//                    // 函数执行出错
-//                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-//                    codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
-//                }
-//            } catch (Exception e) {
-//                dockerClient.stopContainerCmd(containerId).exec();
-//                codeResult.setCode(-1);
-//                codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-//                codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
-//                codeResult.setTime(CodeResultEnum.TIME_LIMIT_EXCEEDED.getLimit());
-//                log.error("Docker Client Exception: Time out");
-//                e.printStackTrace();
-//            }
-//        } catch (Exception e) {
-//            codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-//            codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
-//            log.error("Docker Client Exception: Unknown");
-//            e.printStackTrace();
-//        } finally {
-//            try {
-//                latch.await();
-//            } catch (InterruptedException e) {
-//                e.printStackTrace();
-//            }
-//            dockerClient.removeContainerCmd(containerId).exec();
-//            if (codeResult.getStatus().equals(CodeStatusEnum.SUCCESS.getStatus())) {
-//                String fileWholePath = configBindSourcePath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator();
-//                String fileWholeName = fileWholePath + submitCodeDTO.getFileName();
-//                String resultName = configBindSourceResultPath + submitCodeDTO.getQuestionId() + SeparatorEnum.UNDERLINE.getSeparator() + submitCodeDTO.getType().getValue() + ".out";
-//
-//                if (submitCodeDTO.getIsResult()) {
-//                    codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
-//                } else {
-//                    try {
-//                        if (JudgeUtil.compareFiles(fileWholeName + ".out", resultName)) {
-//                            codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
-//                        } else {
-//                            codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
-//                        }
-//                    } catch (Exception e) {
-//                        e.printStackTrace();
-//                        codeResult.setResult(CodeResultEnum.RUNNING.getResult());
-//                    }
-//                }
-//            }
-//        }
-//        return codeResult;
+            return codeResult;
         } catch (Exception e) {
             e.printStackTrace();
         }
         return codeResult;
     }
+
+    private String getCompileCmdId(CodeTypeEnum codeTypeEnum, String containerId) {
+        ExecCreateCmd execCreateCmd = dockerClient.execCreateCmd(containerId);
+        execCreateCmd.withAttachStderr(true).withAttachStdout(true).withTty(true);
+        switch (codeTypeEnum) {
+            case C_PLUS_PLUS -> execCreateCmd.withCmd("bash", "-c", "g++ -o /data/program /data/main.cpp");
+            case JAVA -> execCreateCmd.withCmd("bash", "-c", "javac /data/Main.java");
+            default -> throw new RuntimeException("No such Code Type" + codeTypeEnum.getValue());
+        }
+        return execCreateCmd.exec().getId();
+    }
+
+    private String getExecCodeCmdId(CodeTypeEnum codeTypeEnum, String containerId) {
+        ExecCreateCmd execCreateCmd = dockerClient.execCreateCmd(containerId);
+        execCreateCmd.withAttachStderr(true).withAttachStdout(true).withTty(true);
+        switch (codeTypeEnum) {
+            case PYTHON ->
+//                            execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 " + codeFileWholeNameWithType + " < " + inputFileWholePath + inputFileName + " > " + outputFileWholePath + outputFileName);
+                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 /data/2.py");
+            case C_PLUS_PLUS ->
+//                            execCreateCmd.withCmd("bash", "-c", "g++ -o " + codeFileWholeName + "program " + codeFileWholeNameWithType + "&&" + codeFileWholePath + "program " + " < " + inputFileWholePath + inputFileName + " > " + outputFileWholePath + outputFileName);
+                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\"  /data/program");
+            case JAVA ->
+//                            execCreateCmd.withCmd("bash", "-c", "javac " + codeFileWholeNameWithType
+//                                + " && java -cp " + configBindTargetPath + " " + submitCodeDTO.getFileName()
+//                                + " > " + outputFileName);
+                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" java -cp /data/ Main");
+//                    execCreateCmd.withCmd("bash", "-c", "python /data/1.py");
+
+            default -> throw new RuntimeException("No Such Code Type" + codeTypeEnum.getValue());
+        }
+        return execCreateCmd.exec().getId();
+    }
+
 }
