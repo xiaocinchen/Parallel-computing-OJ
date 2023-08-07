@@ -39,11 +39,8 @@ public class GroupQuestionBridgeServiceImpl implements GroupQuestionBridgeServic
                 message = "Delete failed: No such question, Id=" + groupQuestionDTO.getId();
                 log.warn(message);
                 result.setSimpleResult(false, message, -2);
-            } else if (groupQuestionBridgeMapper.selectByGroupId(groupQuestionDTO.getId()).equals(null)) {
-                message = "Delete question success. Id = " + groupQuestionDTO.getId();
-                log.info(message);
-                result.setSimpleResult(true, message, 0);
             } else {
+                groupQuestionBridgeMapper.selectByGroupId(groupQuestionDTO.getId());
                 message = "Delete question failed. Id = " + groupQuestionDTO.getId();
                 log.info(message);
                 result.setSimpleResult(false, message, -3);
