@@ -22,6 +22,10 @@ public class CodeResultDTO implements Serializable {
 
     private String error;
 
+    private Integer testNumber;
+
+    private Integer acNumber;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

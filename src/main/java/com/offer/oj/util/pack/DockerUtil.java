@@ -2,7 +2,6 @@ package com.offer.oj.util.pack;
 
 import com.github.dockerjava.api.DockerClient;
 import com.github.dockerjava.api.async.ResultCallback;
-import com.github.dockerjava.api.async.ResultCallbackTemplate;
 import com.github.dockerjava.api.command.*;
 import com.github.dockerjava.api.model.*;
 import com.github.dockerjava.core.DefaultDockerClientConfig;
@@ -11,13 +10,14 @@ import com.github.dockerjava.core.DockerClientImpl;
 import com.github.dockerjava.zerodep.ZerodepDockerHttpClient;
 import com.github.dockerjava.transport.DockerHttpClient;
 import com.google.common.collect.ImmutableSet;
+import com.offer.oj.domain.dto.CodeExecDTO;
 import com.offer.oj.domain.dto.CodeResultDTO;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
 import com.offer.oj.domain.enums.CodeResultEnum;
 import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
-import com.offer.oj.util.ThreadPoolUtil;
+import com.offer.oj.util.FileUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -157,23 +157,34 @@ public class DockerUtil {
 
     public CodeResultDTO executeCodeAndGetResult(SubmitCodeDTO submitCodeDTO) {
         //组装代码路径
-        String codeFileWholePath;
+        String codeFileWholePath, codeFileSourceWhilePath;
         if (submitCodeDTO.getIsResult()) {
-            codeFileWholePath = configBindTargetResultPath;
+            codeFileWholePath = configBindTargetResultPath
+                    + "question" + submitCodeDTO.getQuestionId()
+                    + SeparatorEnum.SLASH.getSeparator()
+                    + "code" + SeparatorEnum.SLASH.getSeparator();
+            codeFileSourceWhilePath = configBindSourceResultPath;
         } else {
-            codeFileWholePath = configBindTargetPath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator() + "code" + SeparatorEnum.SLASH.getSeparator();
+            codeFileWholePath = configBindTargetPath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator()
+                    + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator()
+                    + "code" + SeparatorEnum.SLASH.getSeparator();
+            codeFileSourceWhilePath = codeFileWholePath.replace(configBindTargetPath, configBindSourcePath);
         }
-        String codeFileWholeName = codeFileWholePath + submitCodeDTO.getFileName();
-        String codeFileWholeNameWithType = codeFileWholeName + SeparatorEnum.DOT.getSeparator() + submitCodeDTO.getType().getValue();
+//        String codeFileWholeName = codeFileWholePath + submitCodeDTO.getFileName();
+//        String codeFileWholeNameWithType = codeFileWholeName + SeparatorEnum.DOT.getSeparator() + submitCodeDTO.getType().getValue();
 
         //组装输入路径
+        String inputSourceFileWholePath = configBindSourceInputPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator();
         String inputFileWholePath = configBindTargetInputPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator();
         //组装输出路径
+        String outputSourceFileWhilePath = configBindSourcePath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator() + "output" + SeparatorEnum.SLASH.getSeparator();
         String outputFileWholePath = configBindTargetPath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator() + "output" + SeparatorEnum.SLASH.getSeparator();
         //组装答案路径
-        String resultFileWholePath = configBindSourceResultPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator();
-        String resultCodeFileWholePath = resultFileWholePath + "code" + SeparatorEnum.SLASH.getSeparator();
-        String resultOutputFileWholePath = resultFileWholePath + "output" + SeparatorEnum.SLASH.getSeparator();
+        String resultTargetFileWholePath = configBindTargetResultPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator();
+        String resultTargetCodeFileWholePath = resultTargetFileWholePath + "code" + SeparatorEnum.SLASH.getSeparator();
+        String resultTargetOutputFileWholePath = resultTargetFileWholePath + "output" + SeparatorEnum.SLASH.getSeparator();
+
+        String resultOutputFileWholePath = configBindSourceResultPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator() + "output" + SeparatorEnum.SLASH.getSeparator();
 
         CodeResultDTO codeResult = new CodeResultDTO();
         codeResult.setFileName(submitCodeDTO.getFileName());
@@ -181,7 +192,13 @@ public class DockerUtil {
         //创建容器
         CreateContainerResponse createContainerResponse = createContainers(submitCodeDTO);
         String containerId = createContainerResponse.getId();
-        WaitContainerResultCallback waitCallback = new WaitContainerResultCallback();
+//        WaitContainerResultCallback waitCallback = new WaitContainerResultCallback();
+        CodeExecDTO codeExecDTO;
+        if (submitCodeDTO.getIsResult()){
+            codeExecDTO = new CodeExecDTO(containerId, submitCodeDTO.getType(), submitCodeDTO.getFileName(), resultTargetCodeFileWholePath, inputFileWholePath, resultTargetOutputFileWholePath);
+        }else {
+            codeExecDTO = new CodeExecDTO(containerId, submitCodeDTO.getType(), submitCodeDTO.getFileName(), codeFileWholePath, inputFileWholePath, outputFileWholePath);
+        }
 
         try {
             dockerClient.startContainerCmd(containerId).exec();
@@ -191,7 +208,7 @@ public class DockerUtil {
                 AtomicReference<CompletableFuture<Void>> compileFutureRef = new AtomicReference<>();
                 compileFutureRef.set(CompletableFuture.runAsync(() -> {
                     try {
-                        dockerClient.execStartCmd(getCompileCmdId(submitCodeDTO.getType(), containerId)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
+                        dockerClient.execStartCmd(getCompileCmdId(codeExecDTO)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
                             @Override
                             public void onNext(Frame item) {
                                 compileOutput.append(item);
@@ -221,18 +238,29 @@ public class DockerUtil {
                     codeResult.setError(compileOutput.toString());
                     return codeResult;
                 }
-                codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
             }
+            codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
 
-            for (int i = 0; i < 2; i++) {
-                String outputFileName = i + ".out";
-                String inputFileName = i + ".input";
+            File[] inputFiles = FileUtil.getDir(inputSourceFileWholePath).listFiles();
+            FileUtil.getDir(outputSourceFileWhilePath);
+            FileUtil.getDir(codeFileSourceWhilePath);
+            FileUtil.getDir(resultOutputFileWholePath);
+            assert inputFiles != null;
+            codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
+            int fileNumber = inputFiles.length;
+            int acNumber = 0;
+            for (File inputFile : inputFiles) {
+                if (!inputFile.isFile()) {
+                    continue;
+                }
+                String outputFileName = inputFile.getName().split("\\.")[0] + ".out";
+                String inputFileName = inputFile.getName();
 //                execCreateCmd.withCmd("bash", "-c", "time -p python3 /data/1.py </data/input/question1/input%s.txt >/data/%s.out".formatted(i + 1, i + 1));
                 StringBuilder execOutput = new StringBuilder();
                 AtomicReference<CompletableFuture<Void>> execFutureRef = new AtomicReference<>();
                 execFutureRef.set(CompletableFuture.runAsync(() -> {
                     try {
-                        dockerClient.execStartCmd(getExecCodeCmdId(submitCodeDTO.getType(), containerId)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
+                        dockerClient.execStartCmd(getExecCodeCmdId(codeExecDTO, inputFileName, outputFileName)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
                             @Override
                             public void onNext(Frame frame) {
                                 log.info(frame.toString());
@@ -261,7 +289,7 @@ public class DockerUtil {
                     codeResult.setError(execOutput.toString());
                     break;
                 }
-                if (execOutput.toString().contains("Exception")){
+                if (execOutput.toString().contains("Exception")) {
                     codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
                     codeResult.setError(execOutput.toString());
                     break;
@@ -291,15 +319,24 @@ public class DockerUtil {
                         }
                     }
                 } else {
-                    throw new RuntimeException("No time and Memory" + submitCodeDTO.getFileName());
+                    throw new RuntimeException("No time and Memory" + submitCodeDTO.getFileName() + execOutput);
                 }
-//                if (!JudgeUtil.compareFiles(resultOutputFileWholePath + outputFileName, outputFileWholePath + outputFileName)) {
-//                    resultEnum = CodeResultEnum.WRONG_ANSWER;
-//                    break;
-//                }
+                if (!submitCodeDTO.getIsResult()) {
+                    if (!FileUtil.compareFiles(resultOutputFileWholePath + outputFileName, outputSourceFileWhilePath + outputFileName)) {
+                        codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
+                        break;
+                    }
+                }
+                acNumber++;
             }
+            codeResult.setTestNumber(fileNumber);
+            codeResult.setAcNumber(fileNumber);
             dockerClient.stopContainerCmd(containerId).exec();
             dockerClient.removeContainerCmd(containerId).exec();
+            if (submitCodeDTO.getIsResult()){
+                codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
+                codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
+            }
             return codeResult;
         } catch (Exception e) {
             e.printStackTrace();
@@ -307,35 +344,43 @@ public class DockerUtil {
         return codeResult;
     }
 
-    private String getCompileCmdId(CodeTypeEnum codeTypeEnum, String containerId) {
-        ExecCreateCmd execCreateCmd = dockerClient.execCreateCmd(containerId);
+    private String getCompileCmdId(CodeExecDTO codeExecDTO) {
+
+        ExecCreateCmd execCreateCmd = dockerClient.execCreateCmd(codeExecDTO.getContainerId());
         execCreateCmd.withAttachStderr(true).withAttachStdout(true).withTty(true);
-        switch (codeTypeEnum) {
-            case C_PLUS_PLUS -> execCreateCmd.withCmd("bash", "-c", "g++ -o /data/program /data/main.cpp");
-            case JAVA -> execCreateCmd.withCmd("bash", "-c", "javac /data/Main.java");
-            default -> throw new RuntimeException("No such Code Type" + codeTypeEnum.getValue());
+        switch (codeExecDTO.getCodeTypeEnum()) {
+            case C_PLUS_PLUS ->
+                    execCreateCmd.withCmd("bash", "-c", "g++ -o " + codeExecDTO.getCodeFileWholeName()+ " " + codeExecDTO.getCodeFileWholeNameWithType());
+            case JAVA -> execCreateCmd.withCmd("bash", "-c", "javac " + codeExecDTO.getCodeFileWholeNameWithType());
+            default -> throw new RuntimeException("No such Code Type" + codeExecDTO.getCodeTypeEnum().getValue());
         }
         return execCreateCmd.exec().getId();
     }
 
-    private String getExecCodeCmdId(CodeTypeEnum codeTypeEnum, String containerId) {
-        ExecCreateCmd execCreateCmd = dockerClient.execCreateCmd(containerId);
+    private String getExecCodeCmdId(CodeExecDTO codeExecDTO, String inputFileName, String outputFileName) {
+        ExecCreateCmd execCreateCmd = dockerClient.execCreateCmd(codeExecDTO.getContainerId());
         execCreateCmd.withAttachStderr(true).withAttachStdout(true).withTty(true);
-        switch (codeTypeEnum) {
+        switch (codeExecDTO.getCodeTypeEnum()) {
             case PYTHON ->
 //                            execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 " + codeFileWholeNameWithType + " < " + inputFileWholePath + inputFileName + " > " + outputFileWholePath + outputFileName);
-                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 /data/2.py");
+                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 "
+                            + codeExecDTO.getCodeFileWholeNameWithType()
+                            + " < " + codeExecDTO.getInputFileWholePath() + inputFileName
+                            + " > " + codeExecDTO.getOutputFileWholePath() + outputFileName);
             case C_PLUS_PLUS ->
 //                            execCreateCmd.withCmd("bash", "-c", "g++ -o " + codeFileWholeName + "program " + codeFileWholeNameWithType + "&&" + codeFileWholePath + "program " + " < " + inputFileWholePath + inputFileName + " > " + outputFileWholePath + outputFileName);
-                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\"  /data/program");
+                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" "
+                            + codeExecDTO.getCodeFileWholePath()
+                            + codeExecDTO.getFileName()
+                            + SeparatorEnum.SPACE.getSeparator()
+                            + " < " + codeExecDTO.getInputFileWholePath() + inputFileName
+                            + " > " + codeExecDTO.getOutputFileWholePath() + outputFileName);
             case JAVA ->
 //                            execCreateCmd.withCmd("bash", "-c", "javac " + codeFileWholeNameWithType
 //                                + " && java -cp " + configBindTargetPath + " " + submitCodeDTO.getFileName()
 //                                + " > " + outputFileName);
                     execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" java -cp /data/ Main");
-//                    execCreateCmd.withCmd("bash", "-c", "python /data/1.py");
-
-            default -> throw new RuntimeException("No Such Code Type" + codeTypeEnum.getValue());
+            default -> throw new RuntimeException("No Such Code Type" + codeExecDTO.getCodeTypeEnum().getValue());
         }
         return execCreateCmd.exec().getId();
     }
