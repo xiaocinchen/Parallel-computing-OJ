@@ -13,6 +13,7 @@ public enum CacheEnum {
     STAGE_CODE_CACHE("stageCodeCache"),
     QUESTION_ID_FUZZY_KEY_CACHE("questionIdFuzzyKeyCache"),
     PAGE_QUESTION_CACHE("selectPageQuestionCache"),
+    SELECT_QUESTION_GROUP_CACHE("selectQuestionGroupCache"),
     ;
     private final String value;
 
