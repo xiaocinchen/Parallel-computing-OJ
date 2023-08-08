@@ -11,14 +11,14 @@ public class ThreadPoolUtil {
     public static ExecutorService sendMQThreadPool =
             new ThreadPoolExecutor(2, 4,
                     1L, TimeUnit.MINUTES,
-                    new LinkedBlockingQueue<>(10),new ThreadFactoryBuilder().setNameFormat("SendMQ-pool-%d").build(),new ThreadPoolExecutor.AbortPolicy());
+                    new LinkedBlockingQueue<>(120),new ThreadFactoryBuilder().setNameFormat("SendMQ-pool-%d").build(),new ThreadPoolExecutor.AbortPolicy());
     public static ExecutorService compileThreadPool =
-            new ThreadPoolExecutor(4, 6,
+            new ThreadPoolExecutor(2, 4,
                     10L, TimeUnit.MINUTES,
-                    new LinkedBlockingQueue<>(10),new ThreadFactoryBuilder().setNameFormat("Monitor-pool-%d").build(),new ThreadPoolExecutor.AbortPolicy());
+                    new LinkedBlockingQueue<>(120),new ThreadFactoryBuilder().setNameFormat("Monitor-pool-%d").build(),new ThreadPoolExecutor.AbortPolicy());
     public static ExecutorService execThreadPool =
-            new ThreadPoolExecutor(4, 6,
+            new ThreadPoolExecutor(2, 4,
                     10L, TimeUnit.MINUTES,
-                    new LinkedBlockingQueue<>(10),new ThreadFactoryBuilder().setNameFormat("Monitor-pool-%d").build(),new ThreadPoolExecutor.AbortPolicy());
+                    new LinkedBlockingQueue<>(120),new ThreadFactoryBuilder().setNameFormat("Monitor-pool-%d").build(),new ThreadPoolExecutor.AbortPolicy());
 
 }

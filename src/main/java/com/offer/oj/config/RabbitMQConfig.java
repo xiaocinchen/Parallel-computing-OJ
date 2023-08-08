@@ -53,7 +53,7 @@ public class RabbitMQConfig {
     @Bean
     public Binding codeJudgeQueueExchange(@Qualifier("codeJudgeQueue") Queue queue,
                                           @Qualifier("codeExchange") Exchange exchange) {
-        return BindingBuilder.bind(queue).to(exchange).with("code.judge").noargs();
+        return BindingBuilder.bind(queue).to(exchange).with("code.#").noargs();
     }
 
     @Bean

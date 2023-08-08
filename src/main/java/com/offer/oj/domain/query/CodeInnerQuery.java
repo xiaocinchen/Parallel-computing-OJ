@@ -32,4 +32,6 @@ public class CodeInnerQuery extends BaseInnerQuery implements Serializable {
 
     private Integer acNumber;
 
+    private Date modifyTime;
+
 }
