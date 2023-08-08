@@ -29,6 +29,7 @@ import java.util.Set;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -77,6 +78,10 @@ public class DockerUtil {
     private static final Set<CodeTypeEnum> NEED_COMPILE_CODE_TYPE_SET = ImmutableSet.of(
             CodeTypeEnum.C_PLUS_PLUS,
             CodeTypeEnum.JAVA
+    );
+
+    private static final Set<String> ERROR_COMPILE_KEYWORDS_SET = ImmutableSet.of(
+
     );
 
     private static final Long Memory = 512 * 1024 * 1024L;
@@ -178,8 +183,8 @@ public class DockerUtil {
         String inputSourceFileWholePath = configBindSourceInputPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator();
         String inputFileWholePath = configBindTargetInputPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator();
         //组装输出路径
-        String outputSourceFileWhilePath = configBindSourcePath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator() + "output" + SeparatorEnum.SLASH.getSeparator();
-        String outputFileWholePath = configBindTargetPath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator() + "output" + SeparatorEnum.SLASH.getSeparator();
+        String outputSourceFileWhilePath = configBindSourcePath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator() + "question" + submitCodeDTO.getQuestionId() + "/output/";
+        String outputFileWholePath = configBindTargetPath + submitCodeDTO.getAuthorId() + SeparatorEnum.SLASH.getSeparator() + "question" + submitCodeDTO.getQuestionId() + "/output/";
         //组装答案路径
         String resultTargetFileWholePath = configBindTargetResultPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator();
         String resultTargetCodeFileWholePath = resultTargetFileWholePath + "code" + SeparatorEnum.SLASH.getSeparator();
@@ -197,9 +202,9 @@ public class DockerUtil {
         String containerId = createContainerResponse.getId();
 //        WaitContainerResultCallback waitCallback = new WaitContainerResultCallback();
         CodeExecDTO codeExecDTO;
-        if (submitCodeDTO.getIsResult()){
+        if (submitCodeDTO.getIsResult()) {
             codeExecDTO = new CodeExecDTO(containerId, submitCodeDTO.getType(), submitCodeDTO.getFileName(), resultTargetCodeFileWholePath, inputFileWholePath, resultTargetOutputFileWholePath);
-        }else {
+        } else {
             codeExecDTO = new CodeExecDTO(containerId, submitCodeDTO.getType(), submitCodeDTO.getFileName(), codeFileWholePath, inputFileWholePath, outputFileWholePath);
         }
 
@@ -225,9 +230,9 @@ public class DockerUtil {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                }, ThreadPoolUtil.compileThreadPool));
+                }));
                 try {
-                    compileFutureRef.get().get(5, TimeUnit.SECONDS);
+                    compileFutureRef.get().get(50, TimeUnit.SECONDS);
                 } catch (Exception e) {
                     codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
                     codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
@@ -256,7 +261,13 @@ public class DockerUtil {
                 if (!inputFile.isFile()) {
                     continue;
                 }
-                String outputFileName = inputFile.getName().split("\\.")[0] + ".out";
+                String outputFileName;
+                if (submitCodeDTO.getIsResult()){
+                    outputFileName = inputFile.getName().split("\\.")[0] + ".out";
+                }else {
+                    outputFileName = submitCodeDTO.getFileName() + SeparatorEnum.UNDERLINE.getSeparator() + inputFile.getName().split("\\.")[0] + ".out";
+                }
+                String resultFileName = inputFile.getName().split("\\.")[0] + ".out";
                 String inputFileName = inputFile.getName();
 //                execCreateCmd.withCmd("bash", "-c", "time -p python3 /data/1.py </data/input/question1/input%s.txt >/data/%s.out".formatted(i + 1, i + 1));
                 StringBuilder execOutput = new StringBuilder();
@@ -278,9 +289,9 @@ public class DockerUtil {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                }, ThreadPoolUtil.execThreadPool));
+                }));
                 try {
-                    execFutureRef.get().get(2, TimeUnit.SECONDS);
+                    execFutureRef.get().get(50, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
                     e.printStackTrace();
                     codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
@@ -325,7 +336,7 @@ public class DockerUtil {
                     throw new RuntimeException("No time and Memory" + submitCodeDTO.getFileName() + execOutput);
                 }
                 if (!submitCodeDTO.getIsResult()) {
-                    if (!FileUtil.compareFiles(resultOutputFileWholePath + outputFileName, outputSourceFileWhilePath + outputFileName)) {
+                    if (!FileUtil.compareFiles(resultOutputFileWholePath + resultFileName, outputSourceFileWhilePath + outputFileName)) {
                         codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
                         break;
                     }
@@ -333,15 +344,16 @@ public class DockerUtil {
                 acNumber++;
             }
             codeResult.setAcNumber(acNumber);
-            dockerClient.stopContainerCmd(containerId).exec();
-            dockerClient.removeContainerCmd(containerId).exec();
-            if (submitCodeDTO.getIsResult()){
+            if (submitCodeDTO.getIsResult()) {
                 codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
                 codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
             }
             return codeResult;
         } catch (Exception e) {
             e.printStackTrace();
+        } finally {
+            dockerClient.stopContainerCmd(containerId).exec();
+            dockerClient.removeContainerCmd(containerId).exec();
         }
         return codeResult;
     }
@@ -352,7 +364,7 @@ public class DockerUtil {
         execCreateCmd.withAttachStderr(true).withAttachStdout(true).withTty(true);
         switch (codeExecDTO.getCodeTypeEnum()) {
             case C_PLUS_PLUS ->
-                    execCreateCmd.withCmd("bash", "-c", "g++ -o " + codeExecDTO.getCodeFileWholeName()+ " " + codeExecDTO.getCodeFileWholeNameWithType());
+                    execCreateCmd.withCmd("bash", "-c", "g++ -o " + codeExecDTO.getCodeFileWholeName() + " " + codeExecDTO.getCodeFileWholeNameWithType());
             case JAVA -> execCreateCmd.withCmd("bash", "-c", "javac " + codeExecDTO.getCodeFileWholeNameWithType());
             default -> throw new RuntimeException("No such Code Type" + codeExecDTO.getCodeTypeEnum().getValue());
         }

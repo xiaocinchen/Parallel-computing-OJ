@@ -102,8 +102,8 @@ spring:
     listener:
       simple:
         acknowledge-mode: manual
-        concurrency: 5
-        max-concurrency: 10
+        concurrency: 3
+        max-concurrency: 5
         retry:
           enabled: true
     template:
