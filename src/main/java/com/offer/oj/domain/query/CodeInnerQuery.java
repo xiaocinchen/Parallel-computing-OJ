@@ -26,4 +26,10 @@ public class CodeInnerQuery extends BaseInnerQuery implements Serializable {
 
     private Integer executionTime;
 
+    private Integer executionMemory;
+
+    private Integer testNumber;
+
+    private Integer acNumber;
+
 }

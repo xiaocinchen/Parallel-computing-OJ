@@ -53,6 +53,9 @@ class OjApplicationTests {
     @Autowired
     private CodeMQSender codeMQSender;
 
+    @Autowired
+    private OjCodeMapper ojCodeMapper;
+
     @Test
     void contextLoads() {
     }
@@ -249,5 +252,15 @@ class OjApplicationTests {
     @Test
     void testQuestionDetail(){
         System.out.println(questionService.QuestionDetail(19));
+    }
+
+    @Test
+    void testUpdateByFileName(){
+        OjCode ojCode = new OjCode();
+        ojCode.setFileName("1_32_07182214262830000");
+        ojCode.setAcNumber(1);
+        ojCode.setTestNumber(20);
+        ojCode.setExecutionMemory(128);
+        ojCodeMapper.updateByFileName(ojCode);
     }
 }

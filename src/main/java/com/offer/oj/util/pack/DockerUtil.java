@@ -18,6 +18,7 @@ import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
 import com.offer.oj.util.FileUtil;
+import com.offer.oj.util.ThreadPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -188,6 +189,8 @@ public class DockerUtil {
 
         CodeResultDTO codeResult = new CodeResultDTO();
         codeResult.setFileName(submitCodeDTO.getFileName());
+        codeResult.setAcNumber(0);
+        codeResult.setTestNumber(0);
 
         //创建容器
         CreateContainerResponse createContainerResponse = createContainers(submitCodeDTO);
@@ -222,7 +225,7 @@ public class DockerUtil {
                     } catch (InterruptedException e) {
                         throw new RuntimeException(e);
                     }
-                }));
+                }, ThreadPoolUtil.compileThreadPool));
                 try {
                     compileFutureRef.get().get(5, TimeUnit.SECONDS);
                 } catch (Exception e) {
@@ -247,7 +250,7 @@ public class DockerUtil {
             FileUtil.getDir(resultOutputFileWholePath);
             assert inputFiles != null;
             codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
-            int fileNumber = inputFiles.length;
+            codeResult.setTestNumber(inputFiles.length);
             int acNumber = 0;
             for (File inputFile : inputFiles) {
                 if (!inputFile.isFile()) {
@@ -275,7 +278,7 @@ public class DockerUtil {
                     } catch (Exception e) {
                         throw new RuntimeException(e);
                     }
-                }));
+                }, ThreadPoolUtil.execThreadPool));
                 try {
                     execFutureRef.get().get(2, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
@@ -329,8 +332,7 @@ public class DockerUtil {
                 }
                 acNumber++;
             }
-            codeResult.setTestNumber(fileNumber);
-            codeResult.setAcNumber(fileNumber);
+            codeResult.setAcNumber(acNumber);
             dockerClient.stopContainerCmd(containerId).exec();
             dockerClient.removeContainerCmd(containerId).exec();
             if (submitCodeDTO.getIsResult()){
