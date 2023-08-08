@@ -2,7 +2,9 @@ package com.offer.oj;
 
 import com.offer.oj.MQ.sender.CodeMQSender;
 import com.offer.oj.dao.QuestionMapper;
+import com.offer.oj.dao.mapper.OjCodeMapper;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
+import com.offer.oj.domain.OjCode;
 import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
@@ -52,6 +54,9 @@ class OjApplicationTests {
 
     @Autowired
     private CodeMQSender codeMQSender;
+
+    @Autowired
+    private OjCodeMapper ojCodeMapper;
 
     @Test
     void contextLoads() {
@@ -244,5 +249,15 @@ class OjApplicationTests {
         modifyPasswordDTO.setPassword("123456");
         modifyPasswordDTO.setKaptchaCode("5000");
         userService.modifyPassword(modifyPasswordDTO);
+    }
+
+    @Test
+    void testUpdateByFileName(){
+        OjCode ojCode = new OjCode();
+        ojCode.setFileName("1_32_07182214262830000");
+        ojCode.setAcNumber(1);
+        ojCode.setTestNumber(20);
+        ojCode.setExecutionMemory(128);
+        ojCodeMapper.updateByFileName(ojCode);
     }
 }

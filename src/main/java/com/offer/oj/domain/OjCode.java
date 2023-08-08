@@ -20,6 +20,12 @@ public class OjCode implements Serializable {
 
     private Integer executionTime;
 
+    private Integer executionMemory;
+
+    private Integer testNumber;
+
+    private Integer acNumber;
+
     private static final long serialVersionUID = 1L;
 
     public Integer getId() {
@@ -86,6 +92,30 @@ public class OjCode implements Serializable {
         this.executionTime = executionTime;
     }
 
+    public Integer getExecutionMemory() {
+        return executionMemory;
+    }
+
+    public void setExecutionMemory(Integer executionMemory) {
+        this.executionMemory = executionMemory;
+    }
+
+    public Integer getTestNumber() {
+        return testNumber;
+    }
+
+    public void setTestNumber(Integer testNumber) {
+        this.testNumber = testNumber;
+    }
+
+    public Integer getAcNumber() {
+        return acNumber;
+    }
+
+    public void setAcNumber(Integer acNumber) {
+        this.acNumber = acNumber;
+    }
+
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -105,7 +135,10 @@ public class OjCode implements Serializable {
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
             && (this.getResult() == null ? other.getResult() == null : this.getResult().equals(other.getResult()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
-            && (this.getExecutionTime() == null ? other.getExecutionTime() == null : this.getExecutionTime().equals(other.getExecutionTime()));
+            && (this.getExecutionTime() == null ? other.getExecutionTime() == null : this.getExecutionTime().equals(other.getExecutionTime()))
+            && (this.getExecutionMemory() == null ? other.getExecutionMemory() == null : this.getExecutionMemory().equals(other.getExecutionMemory()))
+            && (this.getTestNumber() == null ? other.getTestNumber() == null : this.getTestNumber().equals(other.getTestNumber()))
+            && (this.getAcNumber() == null ? other.getAcNumber() == null : this.getAcNumber().equals(other.getAcNumber()));
     }
 
     @Override
@@ -120,6 +153,9 @@ public class OjCode implements Serializable {
         result = prime * result + ((getResult() == null) ? 0 : getResult().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
         result = prime * result + ((getExecutionTime() == null) ? 0 : getExecutionTime().hashCode());
+        result = prime * result + ((getExecutionMemory() == null) ? 0 : getExecutionMemory().hashCode());
+        result = prime * result + ((getTestNumber() == null) ? 0 : getTestNumber().hashCode());
+        result = prime * result + ((getAcNumber() == null) ? 0 : getAcNumber().hashCode());
         return result;
     }
 
@@ -137,6 +173,9 @@ public class OjCode implements Serializable {
         sb.append(", result=").append(result);
         sb.append(", createTime=").append(createTime);
         sb.append(", executionTime=").append(executionTime);
+        sb.append(", executionMemory=").append(executionMemory);
+        sb.append(", testNumber=").append(testNumber);
+        sb.append(", acNumber=").append(acNumber);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

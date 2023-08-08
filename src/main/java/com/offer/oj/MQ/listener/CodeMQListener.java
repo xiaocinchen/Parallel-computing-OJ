@@ -43,6 +43,9 @@ public class CodeMQListener {
             query.setResult(codeResultDTO.getResult());
             query.setStatus(codeResultDTO.getStatus());
             query.setExecutionTime(codeResultDTO.getTime());
+            query.setExecutionMemory(codeResultDTO.getMemory());
+            query.setAcNumber(codeResultDTO.getAcNumber());
+            query.setTestNumber(codeResultDTO.getTestNumber());
             codeMapper.updateCodeByFileName(query);
         } catch (Throwable e) {
             throw new ListenerExecutionFailedException("Judge Code Listener Exception.", e);

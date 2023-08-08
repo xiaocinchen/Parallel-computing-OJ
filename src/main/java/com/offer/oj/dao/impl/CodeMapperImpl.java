@@ -39,10 +39,7 @@ public class CodeMapperImpl implements CodeMapper {
     @Override
     public boolean updateCodeByFileName(CodeInnerQuery codeInnerQuery) {
         OjCode ojCode = new OjCode();
-        ojCode.setResult(codeInnerQuery.getResult());
-        ojCode.setStatus(codeInnerQuery.getStatus());
-        ojCode.setExecutionTime(codeInnerQuery.getExecutionTime());
-        ojCode.setFileName(codeInnerQuery.getFileName());
+        BeanUtils.copyProperties(codeInnerQuery, ojCode);
         try {
             ojCodeMapper.updateByFileName(ojCode);
             return true;
@@ -54,7 +51,7 @@ public class CodeMapperImpl implements CodeMapper {
     }
 
     @Override
-    public SelectCodeDTO queryCodeByName(String fileName){
+    public SelectCodeDTO queryCodeByName(String fileName) {
         CodeInnerQuery codeInnerQuery = new CodeInnerQuery();
         codeInnerQuery.setFileName(fileName);
         try {
@@ -70,9 +67,9 @@ public class CodeMapperImpl implements CodeMapper {
     }
 
     @Override
-    public boolean selectAndDeleteCodeByName(String fileName){
+    public boolean selectAndDeleteCodeByName(String fileName) {
         SelectCodeDTO selectCodeDTO = queryCodeByName(fileName);
-        if (ObjectUtils.isEmpty(selectCodeDTO)){
+        if (ObjectUtils.isEmpty(selectCodeDTO)) {
             return true;
         }
         try {
