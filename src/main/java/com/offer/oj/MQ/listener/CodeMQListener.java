@@ -11,6 +11,7 @@ import org.springframework.amqp.core.ExchangeTypes;
 import org.springframework.amqp.rabbit.annotation.*;
 import org.springframework.amqp.rabbit.support.ListenerExecutionFailedException;
 import org.springframework.amqp.support.AmqpHeaders;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.Headers;
 import org.springframework.messaging.handler.annotation.Payload;
@@ -39,13 +40,7 @@ public class CodeMQListener {
         try {
             CodeResultDTO codeResultDTO = dockerUtil.executeCodeAndGetResult(submitCodeDTO);
             CodeInnerQuery query = new CodeInnerQuery();
-            query.setFileName(codeResultDTO.getFileName());
-            query.setResult(codeResultDTO.getResult());
-            query.setStatus(codeResultDTO.getStatus());
-            query.setExecutionTime(codeResultDTO.getTime());
-            query.setExecutionMemory(codeResultDTO.getMemory());
-            query.setAcNumber(codeResultDTO.getAcNumber());
-            query.setTestNumber(codeResultDTO.getTestNumber());
+            BeanUtils.copyProperties(codeResultDTO, query);
             codeMapper.updateCodeByFileName(query);
         } catch (Throwable e) {
             throw new ListenerExecutionFailedException("Judge Code Listener Exception.", e);

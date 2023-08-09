@@ -12,21 +12,25 @@ public class OjCode implements Serializable {
 
     private Integer authorId;
 
+    private Integer questionId;
+
     private String status;
 
     private String result;
 
     private Date createTime;
 
+    private Date modifyTime;
+
     private Integer executionTime;
 
     private Integer executionMemory;
 
+    private String message;
+
     private Integer testNumber;
 
     private Integer acNumber;
-
-    private Date modifyTime;
 
     private static final long serialVersionUID = 1L;
 
@@ -62,6 +66,14 @@ public class OjCode implements Serializable {
         this.authorId = authorId;
     }
 
+    public Integer getQuestionId() {
+        return questionId;
+    }
+
+    public void setQuestionId(Integer questionId) {
+        this.questionId = questionId;
+    }
+
     public String getStatus() {
         return status;
     }
@@ -86,6 +98,14 @@ public class OjCode implements Serializable {
         this.createTime = createTime;
     }
 
+    public Date getModifyTime() {
+        return modifyTime;
+    }
+
+    public void setModifyTime(Date modifyTime) {
+        this.modifyTime = modifyTime;
+    }
+
     public Integer getExecutionTime() {
         return executionTime;
     }
@@ -100,6 +120,14 @@ public class OjCode implements Serializable {
 
     public void setExecutionMemory(Integer executionMemory) {
         this.executionMemory = executionMemory;
+    }
+
+    public String getMessage() {
+        return message;
+    }
+
+    public void setMessage(String message) {
+        this.message = message == null ? null : message.trim();
     }
 
     public Integer getTestNumber() {
@@ -118,14 +146,6 @@ public class OjCode implements Serializable {
         this.acNumber = acNumber;
     }
 
-    public Date getModifyTime() {
-        return modifyTime;
-    }
-
-    public void setModifyTime(Date modifyTime) {
-        this.modifyTime = modifyTime;
-    }
-
     @Override
     public boolean equals(Object that) {
         if (this == that) {
@@ -142,14 +162,16 @@ public class OjCode implements Serializable {
             && (this.getFileName() == null ? other.getFileName() == null : this.getFileName().equals(other.getFileName()))
             && (this.getType() == null ? other.getType() == null : this.getType().equals(other.getType()))
             && (this.getAuthorId() == null ? other.getAuthorId() == null : this.getAuthorId().equals(other.getAuthorId()))
+            && (this.getQuestionId() == null ? other.getQuestionId() == null : this.getQuestionId().equals(other.getQuestionId()))
             && (this.getStatus() == null ? other.getStatus() == null : this.getStatus().equals(other.getStatus()))
             && (this.getResult() == null ? other.getResult() == null : this.getResult().equals(other.getResult()))
             && (this.getCreateTime() == null ? other.getCreateTime() == null : this.getCreateTime().equals(other.getCreateTime()))
+            && (this.getModifyTime() == null ? other.getModifyTime() == null : this.getModifyTime().equals(other.getModifyTime()))
             && (this.getExecutionTime() == null ? other.getExecutionTime() == null : this.getExecutionTime().equals(other.getExecutionTime()))
             && (this.getExecutionMemory() == null ? other.getExecutionMemory() == null : this.getExecutionMemory().equals(other.getExecutionMemory()))
+            && (this.getMessage() == null ? other.getMessage() == null : this.getMessage().equals(other.getMessage()))
             && (this.getTestNumber() == null ? other.getTestNumber() == null : this.getTestNumber().equals(other.getTestNumber()))
-            && (this.getAcNumber() == null ? other.getAcNumber() == null : this.getAcNumber().equals(other.getAcNumber()))
-            && (this.getModifyTime() == null ? other.getModifyTime() == null : this.getModifyTime().equals(other.getModifyTime()));
+            && (this.getAcNumber() == null ? other.getAcNumber() == null : this.getAcNumber().equals(other.getAcNumber()));
     }
 
     @Override
@@ -160,14 +182,16 @@ public class OjCode implements Serializable {
         result = prime * result + ((getFileName() == null) ? 0 : getFileName().hashCode());
         result = prime * result + ((getType() == null) ? 0 : getType().hashCode());
         result = prime * result + ((getAuthorId() == null) ? 0 : getAuthorId().hashCode());
+        result = prime * result + ((getQuestionId() == null) ? 0 : getQuestionId().hashCode());
         result = prime * result + ((getStatus() == null) ? 0 : getStatus().hashCode());
         result = prime * result + ((getResult() == null) ? 0 : getResult().hashCode());
         result = prime * result + ((getCreateTime() == null) ? 0 : getCreateTime().hashCode());
+        result = prime * result + ((getModifyTime() == null) ? 0 : getModifyTime().hashCode());
         result = prime * result + ((getExecutionTime() == null) ? 0 : getExecutionTime().hashCode());
         result = prime * result + ((getExecutionMemory() == null) ? 0 : getExecutionMemory().hashCode());
+        result = prime * result + ((getMessage() == null) ? 0 : getMessage().hashCode());
         result = prime * result + ((getTestNumber() == null) ? 0 : getTestNumber().hashCode());
         result = prime * result + ((getAcNumber() == null) ? 0 : getAcNumber().hashCode());
-        result = prime * result + ((getModifyTime() == null) ? 0 : getModifyTime().hashCode());
         return result;
     }
 
@@ -181,14 +205,16 @@ public class OjCode implements Serializable {
         sb.append(", fileName=").append(fileName);
         sb.append(", type=").append(type);
         sb.append(", authorId=").append(authorId);
+        sb.append(", questionId=").append(questionId);
         sb.append(", status=").append(status);
         sb.append(", result=").append(result);
         sb.append(", createTime=").append(createTime);
+        sb.append(", modifyTime=").append(modifyTime);
         sb.append(", executionTime=").append(executionTime);
         sb.append(", executionMemory=").append(executionMemory);
+        sb.append(", message=").append(message);
         sb.append(", testNumber=").append(testNumber);
         sb.append(", acNumber=").append(acNumber);
-        sb.append(", modifyTime=").append(modifyTime);
         sb.append(", serialVersionUID=").append(serialVersionUID);
         sb.append("]");
         return sb.toString();

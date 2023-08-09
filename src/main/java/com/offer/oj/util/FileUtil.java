@@ -1,5 +1,6 @@
 package com.offer.oj.util;
 
+import com.offer.oj.domain.dto.CompareFileDTO;
 import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
@@ -9,7 +10,8 @@ import java.util.List;
 
 @Slf4j
 public class FileUtil {
-    public static boolean compareFiles(String filePath1, String filePath2) {
+    public static CompareFileDTO compareFiles(String filePath1, String filePath2) {
+        CompareFileDTO result = new CompareFileDTO();
         List<String> file1Lines, file2Lines;
         try {
             file1Lines = Files.readAllLines(Paths.get(filePath1));
@@ -18,18 +20,21 @@ public class FileUtil {
             throw new RuntimeException("ReadFile Exception.", e);
         }
 
-        if (file1Lines.size() != file2Lines.size()) {
-            return false;
-        }
 
         for (int i = 0; i < file1Lines.size(); i++) {
-            if (!file1Lines.get(i).trim().equals(file2Lines.get(i).trim())) {
-                log.info("Files are different! "+file1Lines.get(i).trim()+" "+file2Lines.get(i).trim());
-                return false;
+            String file2Line = "";
+            if (file2Lines.size() > i) {
+                file2Line = file2Lines.get(i).trim();
+            }
+            if (!file1Lines.get(i).trim().equals(file2Line)) {
+                result.setSame(false);
+                result.setDifferentLineNumber(i+1);
+                result.setDifferentLine(file1Lines.get(i).trim() + " " + file2Lines.get(i).trim());
+                return result;
             }
         }
-
-        return true;
+        result.setSame(true);
+        return result;
     }
 
     public static File getDir(String path) {

@@ -6,18 +6,20 @@
     <result column="file_name" jdbcType="VARCHAR" property="fileName" />
     <result column="type" jdbcType="CHAR" property="type" />
     <result column="author_id" jdbcType="INTEGER" property="authorId" />
+    <result column="question_id" jdbcType="INTEGER" property="questionId" />
     <result column="status" jdbcType="CHAR" property="status" />
     <result column="result" jdbcType="VARCHAR" property="result" />
     <result column="create_time" jdbcType="TIMESTAMP" property="createTime" />
+    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
     <result column="execution_time" jdbcType="INTEGER" property="executionTime" />
     <result column="execution_memory" jdbcType="INTEGER" property="executionMemory" />
+    <result column="message" jdbcType="VARCHAR" property="message" />
     <result column="test_number" jdbcType="INTEGER" property="testNumber" />
     <result column="ac_number" jdbcType="INTEGER" property="acNumber" />
-    <result column="modify_time" jdbcType="TIMESTAMP" property="modifyTime" />
   </resultMap>
   <sql id="Base_Column_List">
-    id, file_name, type, author_id, status, result, create_time, execution_time, execution_memory, 
-    test_number, ac_number, modify_time
+    id, file_name, type, author_id, question_id, status, result, create_time, modify_time, 
+    execution_time, execution_memory, message, test_number, ac_number
   </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
@@ -31,15 +33,15 @@
   </delete>
   <insert id="insert" parameterType="com.offer.oj.domain.OjCode">
     insert into oj_code (id, file_name, type, 
-      author_id, status, result, 
-      create_time, execution_time, execution_memory, 
-      test_number, ac_number, modify_time
-      )
+      author_id, question_id, status, 
+      result, create_time, modify_time, 
+      execution_time, execution_memory, message, 
+      test_number, ac_number)
     values (#{id,jdbcType=INTEGER}, #{fileName,jdbcType=VARCHAR}, #{type,jdbcType=CHAR}, 
-      #{authorId,jdbcType=INTEGER}, #{status,jdbcType=CHAR}, #{result,jdbcType=VARCHAR}, 
-      #{createTime,jdbcType=TIMESTAMP}, #{executionTime,jdbcType=INTEGER}, #{executionMemory,jdbcType=INTEGER}, 
-      #{testNumber,jdbcType=INTEGER}, #{acNumber,jdbcType=INTEGER}, #{modifyTime,jdbcType=TIMESTAMP}
-      )
+      #{authorId,jdbcType=INTEGER}, #{questionId,jdbcType=INTEGER}, #{status,jdbcType=CHAR}, 
+      #{result,jdbcType=VARCHAR}, #{createTime,jdbcType=TIMESTAMP}, #{modifyTime,jdbcType=TIMESTAMP}, 
+      #{executionTime,jdbcType=INTEGER}, #{executionMemory,jdbcType=INTEGER}, #{message,jdbcType=VARCHAR}, 
+      #{testNumber,jdbcType=INTEGER}, #{acNumber,jdbcType=INTEGER})
   </insert>
   <insert id="insertSelective" parameterType="com.offer.oj.domain.OjCode">
     insert into oj_code
@@ -56,6 +58,9 @@
       <if test="authorId != null">
         author_id,
       </if>
+      <if test="questionId != null">
+        question_id,
+      </if>
       <if test="status != null">
         status,
       </if>
@@ -65,20 +70,23 @@
       <if test="createTime != null">
         create_time,
       </if>
+      <if test="modifyTime != null">
+        modify_time,
+      </if>
       <if test="executionTime != null">
         execution_time,
       </if>
       <if test="executionMemory != null">
         execution_memory,
       </if>
+      <if test="message != null">
+        message,
+      </if>
       <if test="testNumber != null">
         test_number,
       </if>
       <if test="acNumber != null">
         ac_number,
-      </if>
-      <if test="modifyTime != null">
-        modify_time,
       </if>
     </trim>
     <trim prefix="values (" suffix=")" suffixOverrides=",">
@@ -94,6 +102,9 @@
       <if test="authorId != null">
         #{authorId,jdbcType=INTEGER},
       </if>
+      <if test="questionId != null">
+        #{questionId,jdbcType=INTEGER},
+      </if>
       <if test="status != null">
         #{status,jdbcType=CHAR},
       </if>
@@ -103,20 +114,23 @@
       <if test="createTime != null">
         #{createTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="modifyTime != null">
+        #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
       <if test="executionTime != null">
         #{executionTime,jdbcType=INTEGER},
       </if>
       <if test="executionMemory != null">
         #{executionMemory,jdbcType=INTEGER},
       </if>
+      <if test="message != null">
+        #{message,jdbcType=VARCHAR},
+      </if>
       <if test="testNumber != null">
         #{testNumber,jdbcType=INTEGER},
       </if>
       <if test="acNumber != null">
         #{acNumber,jdbcType=INTEGER},
-      </if>
-      <if test="modifyTime != null">
-        #{modifyTime,jdbcType=TIMESTAMP},
       </if>
     </trim>
   </insert>
@@ -132,6 +146,9 @@
       <if test="authorId != null">
         author_id = #{authorId,jdbcType=INTEGER},
       </if>
+      <if test="questionId != null">
+        question_id = #{questionId,jdbcType=INTEGER},
+      </if>
       <if test="status != null">
         status = #{status,jdbcType=CHAR},
       </if>
@@ -141,20 +158,23 @@
       <if test="createTime != null">
         create_time = #{createTime,jdbcType=TIMESTAMP},
       </if>
+      <if test="modifyTime != null">
+        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
+      </if>
       <if test="executionTime != null">
         execution_time = #{executionTime,jdbcType=INTEGER},
       </if>
       <if test="executionMemory != null">
         execution_memory = #{executionMemory,jdbcType=INTEGER},
       </if>
+      <if test="message != null">
+        message = #{message,jdbcType=VARCHAR},
+      </if>
       <if test="testNumber != null">
         test_number = #{testNumber,jdbcType=INTEGER},
       </if>
       <if test="acNumber != null">
         ac_number = #{acNumber,jdbcType=INTEGER},
-      </if>
-      <if test="modifyTime != null">
-        modify_time = #{modifyTime,jdbcType=TIMESTAMP},
       </if>
     </set>
     where id = #{id,jdbcType=INTEGER}
@@ -164,14 +184,16 @@
     set file_name = #{fileName,jdbcType=VARCHAR},
       type = #{type,jdbcType=CHAR},
       author_id = #{authorId,jdbcType=INTEGER},
+      question_id = #{questionId,jdbcType=INTEGER},
       status = #{status,jdbcType=CHAR},
       result = #{result,jdbcType=VARCHAR},
       create_time = #{createTime,jdbcType=TIMESTAMP},
+      modify_time = #{modifyTime,jdbcType=TIMESTAMP},
       execution_time = #{executionTime,jdbcType=INTEGER},
       execution_memory = #{executionMemory,jdbcType=INTEGER},
+      message = #{message,jdbcType=VARCHAR},
       test_number = #{testNumber,jdbcType=INTEGER},
-      ac_number = #{acNumber,jdbcType=INTEGER},
-      modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+      ac_number = #{acNumber,jdbcType=INTEGER}
     where id = #{id,jdbcType=INTEGER}
   </update>
   <update id="updateByFileName" parameterType="com.offer.oj.domain.OjCode">
@@ -194,6 +216,9 @@
       </if>
       <if test="acNumber != null">
         ac_number = #{acNumber,jdbcType=INTEGER},
+      </if>
+      <if test="message != null">
+        message = #{message,jdbcType=VARCHAR},
       </if>
     </set>
     where file_name = #{fileName,jdbcType=VARCHAR}
@@ -250,6 +275,12 @@
     </if>
     <if test="modifyTime != null">
       AND modify_time = #{modifyTime,jdbcType=TIMESTAMP}
+    </if>
+    <if test="message != null">
+      AND message = #{message,jdbcType=VARCHAR}
+    </if>
+    <if test="questionId != null">
+      AND question_id = #{questionId,jdbcType=INTEGER}
     </if>
   </sql>
 
