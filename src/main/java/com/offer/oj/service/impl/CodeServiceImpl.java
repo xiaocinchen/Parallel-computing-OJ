@@ -10,6 +10,8 @@ import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
 import com.offer.oj.domain.query.CodeInnerQuery;
+import com.offer.oj.domain.query.CodeResultListQuery;
+import com.offer.oj.domain.dto.CodeResultListDTO;
 import com.offer.oj.service.CacheService;
 import com.offer.oj.service.CodeService;
 import com.offer.oj.util.ThreadPoolUtil;
@@ -90,6 +92,12 @@ public class CodeServiceImpl implements CodeService {
         result.setCode(0);
         result.setSuccess(true);
         return result;
+    }
+
+    @Override
+    public Result<CodeResultListDTO> codeResultGet(CodeResultListQuery codeResultListQuery) {
+        Result<CodeResultListDTO> codeResultVOResult = new Result<>();
+        return null;
     }
 
 

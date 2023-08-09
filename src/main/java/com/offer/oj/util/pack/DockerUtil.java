@@ -145,23 +145,14 @@ public class DockerUtil {
         switch (submitCodeDTO.getType()) {
             case JAVA -> {
                 return client.createContainerCmd("java:time").withUser("root")
-//                        .withCmd("bash", "-c", "javac " + fileWholeNameWithType
-//                                + " && java -cp " + configBindTargetPath + " " + submitCodeDTO.getFileName()
-//                                + " > " + fileWholeName + ".out"
-//                        )
                         .withHostConfig(hostConfig).withTty(true).exec();
             }
             case PYTHON -> {
                 return client.createContainerCmd("python:time").withUser("root")
-//                        .withCmd("bash", "-c", "python3 " + fileWholeNameWithType + " > " + fileWholeName + ".out")
-//                        .withCmd("bash", "-c","python3 /data/1.py")
                         .withHostConfig(hostConfig).withTty(true).exec();
             }
             case C_PLUS_PLUS -> {
                 return client.createContainerCmd("cpp:time").withUser("root")
-//                        .withCmd("bash", "-c", "g++ -o " + fileWholePath + "program " + fileWholeNameWithType
-//                                + "&&" + fileWholePath + "program >" + fileWholeName + ".out"
-//                        )
                         .withHostConfig(hostConfig).withTty(true).exec();
             }
             default -> throw new RuntimeException("Unexpected code type:" + submitCodeDTO.getType().getValue());
@@ -184,8 +175,6 @@ public class DockerUtil {
                     + "code" + SeparatorEnum.SLASH.getSeparator();
             codeFileSourceWhilePath = codeFileWholePath.replace(configBindTargetPath, configBindSourcePath);
         }
-//        String codeFileWholeName = codeFileWholePath + submitCodeDTO.getFileName();
-//        String codeFileWholeNameWithType = codeFileWholeName + SeparatorEnum.DOT.getSeparator() + submitCodeDTO.getType().getValue();
 
         //组装输入路径
         String inputSourceFileWholePath = configBindSourceInputPath + "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator();
@@ -349,11 +338,15 @@ public class DockerUtil {
                     throw new RuntimeException("No time and Memory" + submitCodeDTO.getFileName() + execOutput);
                 }
                 if (!submitCodeDTO.getIsResult()) {
-                    CompareFileDTO compareFile = FileUtil.compareFiles(resultOutputFileWholePath + resultFileName, outputSourceFileWhilePath + outputFileName);
-                    if (!compareFile.isSame()){
-                        codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
-                        codeResult.setMessage("line "+compareFile.getDifferentLineNumber()+": "+compareFile.getDifferentLine());
-                        break;
+                    try {
+                        CompareFileDTO compareFile = FileUtil.compareFiles(resultOutputFileWholePath + resultFileName, outputSourceFileWhilePath + outputFileName);
+                        if (!compareFile.isSame()) {
+                            codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
+                            codeResult.setMessage("line " + compareFile.getDifferentLineNumber() + ": " + compareFile.getDifferentLine());
+                            break;
+                        }
+                    } catch (Exception e) {
+                        throw new RuntimeException(e.getMessage());
                     }
                 }
                 acNumber++;
@@ -380,7 +373,8 @@ public class DockerUtil {
         switch (codeExecDTO.getCodeTypeEnum()) {
             case C_PLUS_PLUS ->
                     execCreateCmd.withCmd("bash", "-c", "g++ -o " + codeExecDTO.getCodeFileWholeName() + " " + codeExecDTO.getCodeFileWholeNameWithType());
-            case JAVA -> execCreateCmd.withCmd("bash", "-c", "javac " + codeExecDTO.getCodeFileWholeNameWithType());
+            case JAVA ->
+                    execCreateCmd.withCmd("bash", "-c", "javac " + codeExecDTO.getCodeFileWholeName() + "/Main.java");
             default -> throw new RuntimeException("No such Code Type" + codeExecDTO.getCodeTypeEnum().getValue());
         }
         return execCreateCmd.exec().getId();
@@ -390,25 +384,20 @@ public class DockerUtil {
         ExecCreateCmd execCreateCmd = dockerClient.execCreateCmd(codeExecDTO.getContainerId());
         execCreateCmd.withAttachStderr(true).withAttachStdout(true).withTty(true);
         switch (codeExecDTO.getCodeTypeEnum()) {
-            case PYTHON ->
-//                            execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 " + codeFileWholeNameWithType + " < " + inputFileWholePath + inputFileName + " > " + outputFileWholePath + outputFileName);
-                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 "
-                            + codeExecDTO.getCodeFileWholeNameWithType()
-                            + " < " + codeExecDTO.getInputFileWholePath() + inputFileName
-                            + " > " + codeExecDTO.getOutputFileWholePath() + outputFileName);
-            case C_PLUS_PLUS ->
-//                            execCreateCmd.withCmd("bash", "-c", "g++ -o " + codeFileWholeName + "program " + codeFileWholeNameWithType + "&&" + codeFileWholePath + "program " + " < " + inputFileWholePath + inputFileName + " > " + outputFileWholePath + outputFileName);
-                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" "
-                            + codeExecDTO.getCodeFileWholePath()
-                            + codeExecDTO.getFileName()
-                            + SeparatorEnum.SPACE.getSeparator()
-                            + " < " + codeExecDTO.getInputFileWholePath() + inputFileName
-                            + " > " + codeExecDTO.getOutputFileWholePath() + outputFileName);
-            case JAVA ->
-//                            execCreateCmd.withCmd("bash", "-c", "javac " + codeFileWholeNameWithType
-//                                + " && java -cp " + configBindTargetPath + " " + submitCodeDTO.getFileName()
-//                                + " > " + outputFileName);
-                    execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" java -cp /data/ Main");
+            case PYTHON -> execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" python3 "
+                    + codeExecDTO.getCodeFileWholeNameWithType()
+                    + " < " + codeExecDTO.getInputFileWholePath() + inputFileName
+                    + " > " + codeExecDTO.getOutputFileWholePath() + outputFileName);
+            case C_PLUS_PLUS -> execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" "
+                    + codeExecDTO.getCodeFileWholePath()
+                    + codeExecDTO.getFileName()
+                    + SeparatorEnum.SPACE.getSeparator()
+                    + " < " + codeExecDTO.getInputFileWholePath() + inputFileName
+                    + " > " + codeExecDTO.getOutputFileWholePath() + outputFileName);
+            case JAVA -> execCreateCmd.withCmd("bash", "-c", "/usr/bin/time -f \"Time: %Us, Memory: %MKB\" java -cp "
+                    + codeExecDTO.getCodeFileWholeName() + SeparatorEnum.SLASH.getSeparator() + " Main"
+                    + " < " + codeExecDTO.getInputFileWholePath() + inputFileName
+                    + " > " + codeExecDTO.getOutputFileWholePath() + outputFileName);
             default -> throw new RuntimeException("No Such Code Type" + codeExecDTO.getCodeTypeEnum().getValue());
         }
         return execCreateCmd.exec().getId();

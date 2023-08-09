@@ -4,6 +4,7 @@ import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.CodeStageDTO;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
 import com.offer.oj.domain.dto.UserIdentityDTO;
+import com.offer.oj.domain.dto.CodeResultListDTO;
 import com.offer.oj.service.CodeService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
@@ -44,5 +45,10 @@ public class CodeController {
     public Result<CodeStageDTO> codeStageGet(@Validated @RequestParam CodeStageDTO codeStageDTO, HttpServletRequest request){
         codeStageDTO.setAuthorId(((UserIdentityDTO)request.getAttribute("UserIdentityDTO")).getUserId());
         return codeService.stageCodeGet(codeStageDTO);
+    }
+
+    @GetMapping("/code/result")
+    public Result<CodeResultListDTO> codeResult(){
+        return null;
     }
 }
