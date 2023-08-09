@@ -18,20 +18,24 @@ public class CodeInnerQuery extends BaseInnerQuery implements Serializable {
 
     private Integer authorId;
 
+    private Integer questionId;
+
     private String status;
 
     private String result;
 
     private Date createTime;
 
+    private Date modifyTime;
+
     private Integer executionTime;
 
     private Integer executionMemory;
 
+    private String message;
+
     private Integer testNumber;
 
     private Integer acNumber;
-
-    private Date modifyTime;
 
 }

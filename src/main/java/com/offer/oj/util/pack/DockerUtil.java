@@ -12,13 +12,13 @@ import com.github.dockerjava.transport.DockerHttpClient;
 import com.google.common.collect.ImmutableSet;
 import com.offer.oj.domain.dto.CodeExecDTO;
 import com.offer.oj.domain.dto.CodeResultDTO;
+import com.offer.oj.domain.dto.CompareFileDTO;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
 import com.offer.oj.domain.enums.CodeResultEnum;
 import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
 import com.offer.oj.util.FileUtil;
-import com.offer.oj.util.ThreadPoolUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
@@ -29,7 +29,6 @@ import java.util.Set;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.*;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -72,7 +71,7 @@ public class DockerUtil {
     @Value("${docker.host.bind.target.port}")
     private Integer configBindTargetPort;
 
-    private final Pattern pattern = Pattern.compile("Time: (\\d+\\.\\d+)s, Memory: (\\d+)KB");
+    private final Pattern resultPattern = Pattern.compile("Time: (\\d+\\.\\d+)s, Memory: (\\d+)KB");
 
 
     private static final Set<CodeTypeEnum> NEED_COMPILE_CODE_TYPE_SET = ImmutableSet.of(
@@ -80,8 +79,17 @@ public class DockerUtil {
             CodeTypeEnum.JAVA
     );
 
-    private static final Set<String> ERROR_COMPILE_KEYWORDS_SET = ImmutableSet.of(
-
+    private static final Set<String> RUNTIME_ERROR_KEYWORDS_SET = ImmutableSet.of(
+            "SyntaxError",
+            "NameError",
+            "TypeError",
+            "IndexError",
+            "KeyError",
+            "ValueError",
+            "AttributeError",
+            "ZeroDivisionError",
+            "FileNotFoundError",
+            "ImportError"
     );
 
     private static final Long Memory = 512 * 1024 * 1024L;
@@ -234,16 +242,17 @@ public class DockerUtil {
                 try {
                     compileFutureRef.get().get(50, TimeUnit.SECONDS);
                 } catch (Exception e) {
+                    codeResult.setMessage(e.getMessage());
                     codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
                     codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
                     codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
                     return codeResult;
                 }
                 if (compileOutput.toString().contains("STDERR")) {
+                    codeResult.setMessage(compileOutput.toString().trim());
                     codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
                     codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
                     codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-                    codeResult.setError(compileOutput.toString());
                     return codeResult;
                 }
             }
@@ -257,14 +266,15 @@ public class DockerUtil {
             codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
             codeResult.setTestNumber(inputFiles.length);
             int acNumber = 0;
+            execLoop:
             for (File inputFile : inputFiles) {
                 if (!inputFile.isFile()) {
                     continue;
                 }
                 String outputFileName;
-                if (submitCodeDTO.getIsResult()){
+                if (submitCodeDTO.getIsResult()) {
                     outputFileName = inputFile.getName().split("\\.")[0] + ".out";
-                }else {
+                } else {
                     outputFileName = submitCodeDTO.getFileName() + SeparatorEnum.UNDERLINE.getSeparator() + inputFile.getName().split("\\.")[0] + ".out";
                 }
                 String resultFileName = inputFile.getName().split("\\.")[0] + ".out";
@@ -294,50 +304,55 @@ public class DockerUtil {
                     execFutureRef.get().get(50, TimeUnit.SECONDS);
                 } catch (TimeoutException e) {
                     e.printStackTrace();
+                    codeResult.setMessage(inputFile.getName());
                     codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
-                    codeResult.setTime(2000);
+                    codeResult.setExecutionTime(2000);
                     break;
                 } catch (Exception e) {
-                    e.printStackTrace();
+                    codeResult.setMessage(e.getMessage());
                     codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
-                    codeResult.setError(execOutput.toString());
+                    codeResult.setMessage(execOutput.toString());
                     break;
                 }
-                if (execOutput.toString().contains("Exception")) {
-                    codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
-                    codeResult.setError(execOutput.toString());
-                    break;
+                for (String error : RUNTIME_ERROR_KEYWORDS_SET) {
+                    if (execOutput.toString().contains(error)) {
+                        codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
+                        codeResult.setMessage(execOutput.toString());
+                        break execLoop;
+                    }
                 }
 
-                Matcher matcher = pattern.matcher(execOutput.toString());
+                Matcher matcher = resultPattern.matcher(execOutput.toString());
                 if (matcher.find()) {
                     int time = (int) (Double.parseDouble(matcher.group(1)) * 1000);
                     int memory = Integer.parseInt(matcher.group(2));
                     if (time > 2000) {
                         codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
-                        codeResult.setTime(2000);
+                        codeResult.setExecutionTime(2000);
                         break;
                     } else {
-                        if (codeResult.getTime() == null || time > codeResult.getTime()) {
-                            codeResult.setTime(time);
+                        if (codeResult.getExecutionTime() == null || time > codeResult.getExecutionTime()) {
+                            codeResult.setExecutionTime(time);
                         }
                     }
                     //256 * 1024 KB
                     if (memory > 262144) {
-                        codeResult.setMemory(262144);
+                        codeResult.setExecutionMemory(262144);
                         codeResult.setResult(CodeResultEnum.MEMORY_LIMIT_EXCEEDED.getResult());
                         break;
                     } else {
-                        if (codeResult.getMemory() == null || memory > codeResult.getMemory()) {
-                            codeResult.setMemory(memory);
+                        if (codeResult.getExecutionMemory() == null || memory > codeResult.getExecutionMemory()) {
+                            codeResult.setExecutionMemory(memory);
                         }
                     }
                 } else {
                     throw new RuntimeException("No time and Memory" + submitCodeDTO.getFileName() + execOutput);
                 }
                 if (!submitCodeDTO.getIsResult()) {
-                    if (!FileUtil.compareFiles(resultOutputFileWholePath + resultFileName, outputSourceFileWhilePath + outputFileName)) {
+                    CompareFileDTO compareFile = FileUtil.compareFiles(resultOutputFileWholePath + resultFileName, outputSourceFileWhilePath + outputFileName);
+                    if (!compareFile.isSame()){
                         codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
+                        codeResult.setMessage("line "+compareFile.getDifferentLineNumber()+": "+compareFile.getDifferentLine());
                         break;
                     }
                 }

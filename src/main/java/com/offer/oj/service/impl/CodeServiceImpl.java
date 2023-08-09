@@ -52,6 +52,7 @@ public class CodeServiceImpl implements CodeService {
         BeanUtils.copyProperties(submitCodeDTO, codeInnerQuery);
         codeInnerQuery.setType(submitCodeDTO.getType().getValue());
         codeInnerQuery.setStatus(CodeStatusEnum.PENDING.getStatus());
+        codeInnerQuery.setQuestionId(submitCodeDTO.getQuestionId());
         if (codeMapper.submitCode(codeInnerQuery)) {
             ThreadPoolUtil.sendMQThreadPool.execute(() -> codeMQSender.sendCodeForJudgeMQ(submitCodeDTO));
             message = "Submit success.";

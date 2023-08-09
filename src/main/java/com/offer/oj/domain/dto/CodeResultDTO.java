@@ -14,18 +14,24 @@ public class CodeResultDTO implements Serializable {
 
     private String status;
 
-    private Integer time;
+    private Integer executionTime;
 
-    private Integer memory;
+    private Integer executionMemory;
 
     private String fileName;
 
-    private String error;
+    private String message;
 
     private Integer testNumber;
 
     private Integer acNumber;
 
+    private final String filePattern = "/.+?(?=[\\p{Punct}&&[^./_]])";
+
     @Serial
     private static final long serialVersionUID = 1L;
+
+    public void setMessage(String message) {
+        this.message = message.replaceAll(filePattern,"");
+    }
 }
