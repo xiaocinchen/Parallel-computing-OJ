@@ -1,6 +1,7 @@
 package com.offer.oj.MQ.sender;
 
 import com.offer.oj.domain.dto.SubmitCodeDTO;
+import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.MQExchangeEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
 import com.offer.oj.util.FileUtil;
@@ -10,7 +11,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
-import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -35,7 +35,14 @@ public class CodeMQSender {
         }
         codeFilePath += "question" + submitCodeDTO.getQuestionId() + SeparatorEnum.SLASH.getSeparator() + "code/";
         FileUtil.getDir(codeFilePath);
-        String codeFileName = codeFilePath + submitCodeDTO.getFileName() + SeparatorEnum.DOT.getSeparator() + submitCodeDTO.getType().getValue();
+        String codeFileName;
+        if (submitCodeDTO.getType().equals(CodeTypeEnum.JAVA)) {
+            codeFilePath = codeFilePath + submitCodeDTO.getFileName() + SeparatorEnum.SLASH.getSeparator();
+            FileUtil.getDir(codeFilePath);
+            codeFileName = codeFilePath + "Main.java";
+        } else {
+            codeFileName = codeFilePath + submitCodeDTO.getFileName() + SeparatorEnum.DOT.getSeparator() + submitCodeDTO.getType().getValue();
+        }
         String codeContent = submitCodeDTO.getContent();
         try {
             writeFile(codeFileName, codeContent);

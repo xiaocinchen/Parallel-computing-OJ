@@ -1,5 +1,6 @@
 package com.offer.oj.dao;
 
+import com.offer.oj.domain.dto.CodeResultDTO;
 import com.offer.oj.domain.dto.SelectCodeDTO;
 import com.offer.oj.domain.query.CodeInnerQuery;
 
