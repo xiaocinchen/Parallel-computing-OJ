@@ -261,7 +261,7 @@
     <select id="queryQuestionsByTitle" resultMap="BaseResultMap">
         select *
         from oj_question
-        where title like '${title}%' limit #{page}
+        where title like '${title}%' and status = #{status} limit #{page}
             , #{pageSize};
     </select>
 </mapper>

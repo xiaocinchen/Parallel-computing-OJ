@@ -3,6 +3,7 @@ package com.offer.oj.controller;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.*;
 import com.offer.oj.service.QuestionService;
+import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -62,9 +63,9 @@ public class QuestionController {
 
 
     @PostMapping("/question/search")
-    @ResponseBody
-    public Result<List<SearchResultDTO>> searchQuestion(@RequestBody PageSearchDTO pageSearchDTO) {
-        return questionService.queryQuestionsByTitle(pageSearchDTO);
+    public Result<List<SearchResultDTO>> searchQuestion( HttpServletRequest request, @RequestBody PageSearchDTO pageSearchDTO) {
+        String role = ((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getUsername();
+        return questionService.queryQuestionsByTitle(role, pageSearchDTO);
     }
 }
 

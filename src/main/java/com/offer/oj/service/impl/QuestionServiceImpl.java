@@ -170,11 +170,16 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Result<List<SearchResultDTO>> queryQuestionsByTitle(PageSearchDTO pageSearchDTO) {
+    public Result<List<SearchResultDTO>> queryQuestionsByTitle(String role, PageSearchDTO pageSearchDTO) {
         Result<List<SearchResultDTO>> result = new Result<>();
         List<SearchResultDTO> searchResultDTOList;
         try {
-            searchResultDTOList = questionMapper.queryQuestionsByTitle(pageSearchDTO);
+            if (role.equals("teacher")){
+                searchResultDTOList = questionMapper.queryQuestionsByTitle(0, pageSearchDTO);
+            }
+            else {
+                searchResultDTOList = questionMapper.queryQuestionsByTitle(0, pageSearchDTO);
+            }
         } catch (Exception e) {
             throw new RuntimeException("Query question exception");
         }

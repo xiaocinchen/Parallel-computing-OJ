@@ -29,5 +29,5 @@ public interface OjQuestionMapper {
 
     List<OjQuestion> selectByTitle(@Param("title") String title);
 
-    List<OjQuestion> queryQuestionsByTitle(@Param("title") String title, @Param("page") Integer page,@Param("pageSize") Integer pageSize);
+    List<OjQuestion> queryQuestionsByTitle(@Param("status") Integer status, @Param("title") String title, @Param("page") Integer page,@Param("pageSize") Integer pageSize);
 }

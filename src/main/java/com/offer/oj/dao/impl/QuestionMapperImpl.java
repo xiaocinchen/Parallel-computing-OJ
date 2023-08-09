@@ -101,8 +101,8 @@ public class QuestionMapperImpl implements QuestionMapper {
     }
 
     @Override
-    public List<SearchResultDTO> queryQuestionsByTitle(PageSearchDTO pageSearchDTO) {
-        List<OjQuestion> ojQuestionList  =  ojQuestionMapper.queryQuestionsByTitle(pageSearchDTO.getTitle(),pageSearchDTO.getPageIndex(), pageSearchDTO.getPageSize());
+    public List<SearchResultDTO> queryQuestionsByTitle(Integer status,PageSearchDTO pageSearchDTO) {
+        List<OjQuestion> ojQuestionList  =  ojQuestionMapper.queryQuestionsByTitle(status, pageSearchDTO.getTitle(),pageSearchDTO.getPageIndex(), pageSearchDTO.getPageSize());
         List<SearchResultDTO> searchResultDTOList = new ArrayList<>();
         for (OjQuestion question : ojQuestionList){
             SearchResultDTO searchResult = new SearchResultDTO();

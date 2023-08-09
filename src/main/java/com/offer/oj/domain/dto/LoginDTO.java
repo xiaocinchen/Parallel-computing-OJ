@@ -16,7 +16,7 @@ public class LoginDTO implements Serializable {
     private String password;
 
     @NotNull
-    private String code;
+//    private String code;
 
     @Serial
     private static final long serialVersionUID = 1L;

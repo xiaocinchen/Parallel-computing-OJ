@@ -24,5 +24,5 @@ public interface QuestionMapper {
     Boolean modifyQuestion(QuestionModifyQuery question);
 
     @Cached(name = "selectPageQuestionCache",key = "#pageSearchDTO.toString()", expire = 15, timeUnit = TimeUnit.DAYS, cacheType = CacheType.BOTH)
-    List<SearchResultDTO> queryQuestionsByTitle(PageSearchDTO pageSearchDTO);
+    List<SearchResultDTO> queryQuestionsByTitle(Integer status, PageSearchDTO pageSearchDTO);
 }
