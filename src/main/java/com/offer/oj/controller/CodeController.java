@@ -4,13 +4,16 @@ import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.CodeStageDTO;
 import com.offer.oj.domain.dto.SubmitCodeDTO;
 import com.offer.oj.domain.dto.UserIdentityDTO;
-import com.offer.oj.domain.dto.CodeResultListDTO;
+import com.offer.oj.domain.dto.CodeSimpleResultDTO;
+import com.offer.oj.domain.query.CodeResultListQuery;
 import com.offer.oj.service.CodeService;
 import jakarta.servlet.http.HttpServletRequest;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @Slf4j
 @CrossOrigin
@@ -38,17 +41,17 @@ public class CodeController {
     @PostMapping("/stage/submit")
     public Result codeStageSubmit(@Validated @RequestBody CodeStageDTO codeStageDTO, HttpServletRequest request){
         codeStageDTO.setAuthorId(((UserIdentityDTO)request.getAttribute("UserIdentityDTO")).getUserId());
-        return codeService.stageCodeSubmit(codeStageDTO);
+        return codeService.submitStageCode(codeStageDTO);
     }
 
     @GetMapping("/stage/get")
     public Result<CodeStageDTO> codeStageGet(@Validated @RequestParam CodeStageDTO codeStageDTO, HttpServletRequest request){
         codeStageDTO.setAuthorId(((UserIdentityDTO)request.getAttribute("UserIdentityDTO")).getUserId());
-        return codeService.stageCodeGet(codeStageDTO);
+        return codeService.getStageCode(codeStageDTO);
     }
 
-    @GetMapping("/code/result")
-    public Result<CodeResultListDTO> codeResult(){
-        return null;
+    @GetMapping("/result/get")
+    public Result<List<CodeSimpleResultDTO>> codeResult(@Validated CodeResultListQuery codeResultListQuery){
+        return codeService.getCodeResult(codeResultListQuery);
     }
 }

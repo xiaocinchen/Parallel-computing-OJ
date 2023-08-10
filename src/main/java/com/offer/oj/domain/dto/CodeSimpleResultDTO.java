@@ -1,14 +1,22 @@
 package com.offer.oj.domain.dto;
 
-import java.io.Serializable;
+import lombok.Data;
 
-public class CodeResultListDTO implements Serializable {
+import java.io.Serializable;
+import java.util.Date;
+
+@Data
+public class CodeSimpleResultDTO implements Serializable {
 
     private Integer id;
+
     private String type;
+
     private String result;
 
     private String status;
+
+    private Date createTime;
 
     private Integer executionTime;
 

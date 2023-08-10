@@ -21,6 +21,9 @@
     id, file_name, type, author_id, question_id, status, result, create_time, modify_time, 
     execution_time, execution_memory, message, test_number, ac_number
   </sql>
+  <sql id="Simple_Column_List">
+    id, type, question_id, status, result, create_time, execution_time, execution_memory, test_number, ac_number
+  </sql>
   <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
     select 
     <include refid="Base_Column_List" />
@@ -240,6 +243,16 @@
     SELECT count(*) FROM oj_code
     WHERE 1=1
     <include refid="dynamicWhere"/>
+  </select>
+
+  <select id="queryForSimpleList" parameterType="com.offer.oj.domain.query.CodeInnerQuery" resultMap="BaseResultMap">
+    SELECT
+    <include refid="Simple_Column_List"/>
+    FROM
+    oj_code
+    WHERE 1=1
+    <include refid="dynamicWhere"/>
+    <include refid="pagination"/>
   </select>
 
   <sql id="dynamicWhere">

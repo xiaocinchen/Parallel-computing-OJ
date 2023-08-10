@@ -21,4 +21,6 @@ public interface OjCodeMapper {
     int updateByFileName(OjCode row);
 
     List<OjCode> queryForList(CodeInnerQuery codeInnerQuery);
+
+    List<OjCode> queryForSimpleList(CodeInnerQuery codeInnerQuery);
 }

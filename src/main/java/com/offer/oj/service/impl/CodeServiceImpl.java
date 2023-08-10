@@ -11,7 +11,7 @@ import com.offer.oj.domain.enums.CodeStatusEnum;
 import com.offer.oj.domain.enums.SeparatorEnum;
 import com.offer.oj.domain.query.CodeInnerQuery;
 import com.offer.oj.domain.query.CodeResultListQuery;
-import com.offer.oj.domain.dto.CodeResultListDTO;
+import com.offer.oj.domain.dto.CodeSimpleResultDTO;
 import com.offer.oj.service.CacheService;
 import com.offer.oj.service.CodeService;
 import com.offer.oj.util.ThreadPoolUtil;
@@ -19,6 +19,9 @@ import com.offer.oj.util.TimeUtil;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
+import java.util.concurrent.atomic.AtomicReference;
 
 @Service
 public class CodeServiceImpl implements CodeService {
@@ -68,7 +71,7 @@ public class CodeServiceImpl implements CodeService {
     }
 
     @Override
-    public Result stageCodeSubmit(CodeStageDTO codeStageDTO) {
+    public Result submitStageCode(CodeStageDTO codeStageDTO) {
         try {
             cacheService.getCache(CacheEnum.STAGE_CODE_CACHE.getValue()).put(
                     codeStageDTO.getAuthorId() + SeparatorEnum.UNDERLINE.getSeparator() + codeStageDTO.getType().getValue(),
@@ -81,11 +84,11 @@ public class CodeServiceImpl implements CodeService {
     }
 
     @Override
-    public Result<CodeStageDTO> stageCodeGet(CodeStageDTO codeStageDTO){
+    public Result<CodeStageDTO> getStageCode(CodeStageDTO codeStageDTO) {
         Result<CodeStageDTO> result = new Result<>();
-        try{
+        try {
             codeStageDTO = (CodeStageDTO) cacheService.getCache(CacheEnum.STAGE_CODE_CACHE.getValue()).get(codeStageDTO.getAuthorId() + SeparatorEnum.UNDERLINE.getSeparator() + codeStageDTO.getType().getValue());
-        } catch (Exception e){
+        } catch (Exception e) {
             throw new CacheException(e);
         }
         result.setData(codeStageDTO);
@@ -95,9 +98,18 @@ public class CodeServiceImpl implements CodeService {
     }
 
     @Override
-    public Result<CodeResultListDTO> codeResultGet(CodeResultListQuery codeResultListQuery) {
-        Result<CodeResultListDTO> codeResultVOResult = new Result<>();
-        return null;
+    public Result<List<CodeSimpleResultDTO>> getCodeResult(CodeResultListQuery codeResultListQuery) {
+        Result<List<CodeSimpleResultDTO>> result = new Result<>();
+        try {
+            List<CodeSimpleResultDTO> codeSimpleResultDTOS = codeMapper.queryCodeResultListByAuthorId(codeResultListQuery);
+            AtomicReference<Integer> i = new AtomicReference<>(0);
+            codeSimpleResultDTOS.forEach(codeSimpleResultDTO-> codeSimpleResultDTO.setId(i.getAndSet(i.get() + 1)));
+            result.setData(codeSimpleResultDTOS);
+            result.setSimpleResult(true,0);
+        } catch (Exception e) {
+            throw new RuntimeException("Query Code Simple Result" + codeResultListQuery, e);
+        }
+        return result;
     }
 
 

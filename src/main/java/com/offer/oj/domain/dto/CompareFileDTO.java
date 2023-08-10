@@ -12,7 +12,7 @@ public class CompareFileDTO implements Serializable {
 
     private Integer differentLineNumber;
 
-    private String differentLine;
+    private String differentLineContent;
     @Serial
     private static final long serialVersionUID = 1L;
 }
