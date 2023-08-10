@@ -18,6 +18,10 @@ public class CodeSimpleResultDTO implements Serializable {
 
     private Date createTime;
 
+    private Integer acNumber;
+
+    private Integer testNumber;
+
     private Integer executionTime;
 
     private Integer executionMemory;
