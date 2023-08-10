@@ -279,19 +279,4 @@ class OjApplicationTests {
     void testQuestionDetail(){
         System.out.println(questionService.QuestionDetail(19));
     }
-
-
-    @Test
-    void TestGetCodeResult(){
-        CodeResultListQuery codeResultListQuery = new CodeResultListQuery();
-        codeResultListQuery.setPageSize(1);
-        codeResultListQuery.setPage(0);
-        codeResultListQuery.setAuthorId(32);
-        System.out.println(codeService.getCodeResult(codeResultListQuery));
-    }
-
-    @Test
-    void testQuestionDetail(){
-        System.out.println(questionService.QuestionDetail(19));
-    }
 }
