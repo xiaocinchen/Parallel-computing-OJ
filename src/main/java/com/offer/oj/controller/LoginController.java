@@ -55,6 +55,7 @@ public class LoginController {
         return userService.login(loginDTO, response);
     }
 
+
     @RequestMapping("/register/verify")
     public Result verifyEmail(@RequestBody @Validated VerificationDTO verificationDTO) {
         return userService.registerVerifyEmail(verificationDTO);

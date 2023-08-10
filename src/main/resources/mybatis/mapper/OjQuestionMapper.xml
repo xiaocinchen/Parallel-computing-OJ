@@ -264,4 +264,11 @@
         where title like '${title}%' and status = #{status} limit #{page}
             , #{pageSize};
     </select>
+
+    <select id="studentSelectByTitle" resultMap="BaseResultMap">
+        select *
+        from oj_question
+        where title like '${title}%' and status = #{status} limit #{page}
+            , #{pageSize};
+    </select>
 </mapper>

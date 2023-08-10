@@ -9,7 +9,7 @@ import java.io.Serial;
 import java.io.Serializable;
 
 @Data
-public class VariableQuestionDTO implements Serializable {
+public class QuestionInsertDTO implements Serializable {
 
     private final static String INFO_INCOMPLETE_LOG = "Incomplete question information";
 
@@ -22,10 +22,11 @@ public class VariableQuestionDTO implements Serializable {
     @NotNull(message = INFO_INCOMPLETE_LOG)
     private String title;
 
-//    @Size(max = 1000,min = 20,message = "The description should be between 20 and 1000 characters! ")
+    //    @Size(max = 1000,min = 20,message = "The description should be between 20 and 1000 characters! ")
     @NotNull(message = INFO_INCOMPLETE_LOG)
-    private QuestionDescriptionDTO description;
+    private String description;
 
+    @NotNull(message = INFO_INCOMPLETE_LOG)
     private String modifier;
 
     private boolean status;

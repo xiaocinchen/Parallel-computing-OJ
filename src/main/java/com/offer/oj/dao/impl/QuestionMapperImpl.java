@@ -3,10 +3,7 @@ package com.offer.oj.dao.impl;
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.OjQuestion;
-import com.offer.oj.domain.dto.PageSearchDTO;
-import com.offer.oj.domain.dto.QuestionDTO;
-import com.offer.oj.domain.dto.SearchResultDTO;
-import com.offer.oj.domain.dto.VariableQuestionDTO;
+import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.CacheService;
 import lombok.extern.slf4j.Slf4j;
@@ -26,7 +23,7 @@ public class QuestionMapperImpl implements QuestionMapper {
     private CacheService cacheService;
 
     @Override
-    public Boolean insertSelective(VariableQuestionDTO question) {
+    public Boolean insertSelective(QuestionInsertDTO question) {
         OjQuestion ojQuestion = new OjQuestion();
         BeanUtils.copyProperties(question, ojQuestion);
         try {
@@ -102,7 +99,13 @@ public class QuestionMapperImpl implements QuestionMapper {
 
     @Override
     public List<SearchResultDTO> queryQuestionsByTitle(Integer status,PageSearchDTO pageSearchDTO) {
-        List<OjQuestion> ojQuestionList  =  ojQuestionMapper.queryQuestionsByTitle(status, pageSearchDTO.getTitle(),pageSearchDTO.getPageIndex(), pageSearchDTO.getPageSize());
+        List<OjQuestion> ojQuestionList;
+        if (status == 0){
+            ojQuestionList  =  ojQuestionMapper.queryQuestionsByTitle( pageSearchDTO.getTitle(),pageSearchDTO.getPageIndex(), pageSearchDTO.getPageSize());
+        }
+        else {
+            ojQuestionList = ojQuestionMapper.studentSelectByTitle(1, pageSearchDTO.getTitle(),pageSearchDTO.getPageIndex(), pageSearchDTO.getPageSize());
+        }
         List<SearchResultDTO> searchResultDTOList = new ArrayList<>();
         for (OjQuestion question : ojQuestionList){
             SearchResultDTO searchResult = new SearchResultDTO();
