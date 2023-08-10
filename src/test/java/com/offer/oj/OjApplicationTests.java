@@ -277,4 +277,9 @@ class OjApplicationTests {
         codeResultListQuery.setAuthorId(32);
         System.out.println(codeService.getCodeResult(codeResultListQuery));
     }
+
+    @Test
+    void testQuestionDetail(){
+        System.out.println(questionService.QuestionDetail(19));
+    }
 }
