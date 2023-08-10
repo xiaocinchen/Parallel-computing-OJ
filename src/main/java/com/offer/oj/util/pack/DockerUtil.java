@@ -258,9 +258,9 @@ public class DockerUtil {
         codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
         codeResult.setTestNumber(inputFiles.length);
         int acNumber = 0;
-        execLoop:
 
         //执行
+        execLoop:
         for (File inputFile : inputFiles) {
             if (!inputFile.isFile()) {
                 continue;
