@@ -149,20 +149,20 @@ class OjApplicationTests {
         System.out.println(ojQuestionMapper.queryForCount(questionInnerQuery));
     }
 
-    @Test
-    void testAddQuestion() throws IOException {
-        OjUser user = new OjUser();
-        user.setRole("teacher");
-        user.setUsername("dave");
-        VariableQuestionDTO question = new VariableQuestionDTO();
-        question.setModifier(user.getUsername());
-        question.setTitle("解数独");
-        question.setDescription("编写一个程序，通过填充空格来解决数独问题。数独的解法需 遵循如下规则：" +
-                "数字1-9在每一行只能出现一次。数字1-9在每一列只能出现一次。数字1-9在每一个以粗实线分隔的3x3宫内只能出现一次。（请参考示例图）数独部分空格内已填入了数字，空白格用'.'表示。" );
-        question.setPictureUrl("https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2021/04/12/250px-sudoku-by-l2g-20050714svg.png");
-        questionService.addQuestion(question);
-        questionService.addQuestion(question);
-    }
+//    @Test
+//    void testAddQuestion() throws IOException {
+//        OjUser user = new OjUser();
+//        user.setRole("teacher");
+//        user.setUsername("dave");
+//        VariableQuestionDTO question = new VariableQuestionDTO();
+//        question.setModifier(user.getUsername());
+//        question.setTitle("解数独");
+//        question.setDescription("编写一个程序，通过填充空格来解决数独问题。数独的解法需 遵循如下规则：" +
+//                "数字1-9在每一行只能出现一次。数字1-9在每一列只能出现一次。数字1-9在每一个以粗实线分隔的3x3宫内只能出现一次。（请参考示例图）数独部分空格内已填入了数字，空白格用'.'表示。" );
+//        question.setPictureUrl("https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2021/04/12/250px-sudoku-by-l2g-20050714svg.png");
+//        questionService.addQuestion(question);
+//        questionService.addQuestion(question);
+//    }
     @Test
     void testSelectQuestion(){
 //        String title1 = "解数独";
@@ -176,27 +176,27 @@ class OjApplicationTests {
 //        System.out.println(questionService.queryQuestionsByTitle(title, 1, 1));
     }
 
-    @Test
-    void testModifyQuestion(){
-        VariableQuestionDTO questionDTO = new VariableQuestionDTO();
-        questionDTO.setId(19);
-        questionDTO.setModifier("php");
-        questionDTO.setDescription("给定一个整数数组 nums和一个整数目标值 target，请你在该数组中找出 和为目标值 target 的那两个整数，并返回它们的数组下标。\" +\n" +
-                "                \"你可以假设每种输入只");
-        questionDTO.setTitle("5数独");
-        questionService.modifyQuestion(questionDTO);
-    }
+//    @Test
+//    void testModifyQuestion(){
+//        VariableQuestionDTO questionDTO = new VariableQuestionDTO();
+//        questionDTO.setId(19);
+//        questionDTO.setModifier("php");
+//        questionDTO.setDescription("给定一个整数数组 nums和一个整数目标值 target，请你在该数组中找出 和为目标值 target 的那两个整数，并返回它们的数组下标。\" +\n" +
+//                "                \"你可以假设每种输入只");
+//        questionDTO.setTitle("5数独");
+//        questionService.modifyQuestion(questionDTO);
+//    }
 
 
-    @Test
-    void testInsertWrongQuestion(){
-        VariableQuestionDTO question = new VariableQuestionDTO();
-        question.setTitle(null);
-        question.setDescription("给定一个整数数组 nums和一个整数目标值 target，请你在该数组中找出 和为目标值 target 的那两个整数，并返回它们的数组下标。" +
-                "你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。你可以按任意顺序返回答案。" );
-        question.setPictureUrl("https://pic.leetcode.cn/1684401557-pILmGc-output.lin%20(1).png?x-oss-process=image%2Fformat%2Cwebp");
-        questionMapper.insertSelective(question);
-    }
+//    @Test
+//    void testInsertWrongQuestion(){
+//        VariableQuestionDTO question = new VariableQuestionDTO();
+//        question.setTitle(null);
+//        question.setDescription("给定一个整数数组 nums和一个整数目标值 target，请你在该数组中找出 和为目标值 target 的那两个整数，并返回它们的数组下标。" +
+//                "你可以假设每种输入只会对应一个答案。但是，数组中同一个元素在答案里不能重复出现。你可以按任意顺序返回答案。" );
+//        question.setPictureUrl("https://pic.leetcode.cn/1684401557-pILmGc-output.lin%20(1).png?x-oss-process=image%2Fformat%2Cwebp");
+//        questionMapper.insertSelective(question);
+//    }
 
     @Test
     void deleteQuestion(){
@@ -244,5 +244,10 @@ class OjApplicationTests {
         modifyPasswordDTO.setPassword("123456");
         modifyPasswordDTO.setKaptchaCode("5000");
         userService.modifyPassword(modifyPasswordDTO);
+    }
+
+    @Test
+    void testQuestionDetail(){
+        System.out.println(questionService.QuestionDetail(19));
     }
 }

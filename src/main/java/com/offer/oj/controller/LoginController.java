@@ -43,17 +43,13 @@ public class LoginController {
         if (ObjectUtils.isEmpty(cookie)) {
             return new Result(false, "Cookie miss.", -1);
         }
-//        Result codeResult = kaptchaService.checkKaptcha(cookie.getValue(), loginDTO.getCode());
-//        if (codeResult.getCode() != 0){
-//            return codeResult;
-//        }
+        Result codeResult = kaptchaService.checkKaptcha(cookie.getValue(), loginDTO.getCode());
+        if (codeResult.getCode() != 0){
+            return codeResult;
+        }
         return userService.login(loginDTO, response);
     }
 
-    @PostMapping("/login_1")
-    public Result login_test(@RequestBody @Validated LoginDTO loginDTO, HttpServletResponse response) {
-        return userService.login(loginDTO, response);
-    }
 
     @RequestMapping("/register/verify")
     public Result verifyEmail(@RequestBody @Validated VerificationDTO verificationDTO) {

@@ -3,13 +3,11 @@ package com.offer.oj.service.impl;
 import com.alibaba.fastjson.JSON;
 import com.alicp.jetcache.Cache;
 import com.alicp.jetcache.CacheManager;
+import com.google.gson.Gson;
 import com.offer.oj.MQ.sender.QuestionMQSender;
 import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
-import com.offer.oj.domain.dto.PageSearchDTO;
-import com.offer.oj.domain.dto.QuestionDTO;
-import com.offer.oj.domain.dto.SearchResultDTO;
-import com.offer.oj.domain.dto.VariableQuestionDTO;
+import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.enums.CacheEnum;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
@@ -29,7 +27,8 @@ import java.net.URISyntaxException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
-
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 
 @Slf4j
 @Service
@@ -48,6 +47,7 @@ public class QuestionServiceImpl implements QuestionService {
 
     @Override
     public Result addQuestion(VariableQuestionDTO variableQuestionDTO) {
+        QuestionInsertDTO questionInsertDTO = new QuestionInsertDTO();
         String md5 = DigestUtils.md5DigestAsHex(JSON.toJSONString(variableQuestionDTO).getBytes());
         String lockKey = QUESTION_ADD_LOCK + md5;
         if (LockUtil.isLocked(lockKey, 10L)) {
@@ -57,24 +57,24 @@ public class QuestionServiceImpl implements QuestionService {
         Result result = new Result();
         String message = "";
         if (!isValidUrl(variableQuestionDTO.getPictureUrl())) {
-            message = "picture_url is invalid !" + variableQuestionDTO.getPictureUrl();
-            log.error(message);
-            result.setSuccess(false);
-            result.setCode(-1);
+            result.setSimpleResult(false, "picture_url is invalid !" + variableQuestionDTO.getPictureUrl(),-4);
         } else {
             try {
-                variableQuestionDTO.setModifier(variableQuestionDTO.getModifier());
-                questionMapper.insertSelective(variableQuestionDTO);
-                result.setSuccess(true);
-                result.setCode(0);
-                message = "Submit question successfully!";
-                log.info(message);
+                if (Objects.nonNull(variableQuestionDTO.getDescription().getDescription())&&Objects.nonNull(variableQuestionDTO.getDescription().getExample())){
+                    String json = new Gson().toJson(variableQuestionDTO.getDescription());
+                    BeanUtils.copyProperties(variableQuestionDTO, questionInsertDTO);
+                    questionInsertDTO.setDescription(json);
+                    questionMapper.insertSelective(questionInsertDTO);
+                    result.setSimpleResult(true, "Submit question successfully!", 0);
+                }
+                else {
+                    result.setSimpleResult(false, "Complete Description!", -3);
+                }
             } catch (Exception e) {
                 log.error(String.valueOf(e));
                 result.setSuccess(false);
             }
         }
-        result.setMessage(message);
         return result;
     }
 
@@ -178,7 +178,7 @@ public class QuestionServiceImpl implements QuestionService {
                 searchResultDTOList = questionMapper.queryQuestionsByTitle(0, pageSearchDTO);
             }
             else {
-                searchResultDTOList = questionMapper.queryQuestionsByTitle(0, pageSearchDTO);
+                searchResultDTOList = questionMapper.queryQuestionsByTitle(1, pageSearchDTO);
             }
         } catch (Exception e) {
             throw new RuntimeException("Query question exception");
@@ -193,7 +193,7 @@ public class QuestionServiceImpl implements QuestionService {
         ThreadPoolUtil.sendMQThreadPool.execute(() -> {
             searchResultDTOList.stream()
                     .parallel().map(SearchResultDTO::getId)
-                    .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, pageSearchDTO.toString()));
+                    .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, role +pageSearchDTO.toString()));
         });
         return result;
     }
@@ -215,5 +215,23 @@ public class QuestionServiceImpl implements QuestionService {
             return true;
         }
         return false;
+    }
+    @Override
+    public VariableQuestionDTO QuestionDetail(Integer id){
+        QuestionDTO questionDTO = questionMapper.selectQuestionById(id);
+        VariableQuestionDTO variableQuestionDTO = new VariableQuestionDTO();
+        QuestionDescriptionDTO questionDescriptionDTO = new QuestionDescriptionDTO();
+        String description = questionDTO.getDescription();
+        BeanUtils.copyProperties(questionDTO, variableQuestionDTO);
+        try {
+            ObjectMapper objectMapper = new ObjectMapper();
+            JsonNode jsonNode = objectMapper.readTree(description);
+            questionDescriptionDTO.setDescription(jsonNode.get("description").asText());
+            questionDescriptionDTO.setExample(jsonNode.get("example").asText());
+            variableQuestionDTO.setDescription(questionDescriptionDTO);
+        }catch (Exception e){
+            log.error(String.valueOf(e));
+        }
+        return variableQuestionDTO;
     }
 }

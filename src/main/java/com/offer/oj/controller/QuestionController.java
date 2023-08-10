@@ -30,7 +30,7 @@ public class QuestionController {
         if (bindingResult.hasErrors()) {
             bindingResult.getAllErrors().forEach(s -> log.info(s.getDefaultMessage()));
             message = "Question Info incomplete.";
-            result.setSimpleResult(false, message);
+            result.setSimpleResult(false, message, -1);
         } else {
             variableQuestionDTO.setModifier(((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getUsername());
             result = questionService.addQuestion(variableQuestionDTO);
@@ -64,7 +64,7 @@ public class QuestionController {
 
     @PostMapping("/question/search")
     public Result<List<SearchResultDTO>> searchQuestion( HttpServletRequest request, @RequestBody PageSearchDTO pageSearchDTO) {
-        String role = ((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getUsername();
+        String role = ((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getRole();
         return questionService.queryQuestionsByTitle(role, pageSearchDTO);
     }
 }
