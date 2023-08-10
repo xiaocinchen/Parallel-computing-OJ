@@ -26,7 +26,6 @@ public class VariableQuestionDTO implements Serializable {
     @NotNull(message = INFO_INCOMPLETE_LOG)
     private QuestionDescriptionDTO description;
 
-    @NotNull(message = INFO_INCOMPLETE_LOG)
     private String modifier;
 
     private boolean status;
