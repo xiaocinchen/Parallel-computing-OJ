@@ -273,6 +273,31 @@ public class DockerUtil {
             }
             String resultFileName = inputFile.getName().split("\\.")[0] + ".out";
             String inputFileName = inputFile.getName();
+        //梳理输入文件
+        File[] inputFiles = FileUtil.getDir(inputSourceFileWholePath).listFiles();
+        FileUtil.getDir(outputSourceFileWhilePath);
+        FileUtil.getDir(codeFileSourceWhilePath);
+        FileUtil.getDir(resultOutputFileWholePath);
+        assert inputFiles != null;
+        Arrays.sort(inputFiles);
+        codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
+        codeResult.setTestNumber(inputFiles.length);
+        int acNumber = 0;
+        execLoop:
+
+        //执行
+        for (File inputFile : inputFiles) {
+            if (!inputFile.isFile()) {
+                continue;
+            }
+            String outputFileName;
+            if (submitCodeDTO.getIsResult()) {
+                outputFileName = inputFile.getName().split("\\.")[0] + ".out";
+            } else {
+                outputFileName = submitCodeDTO.getFileName() + SeparatorEnum.UNDERLINE.getSeparator() + inputFile.getName().split("\\.")[0] + ".out";
+            }
+            String resultFileName = inputFile.getName().split("\\.")[0] + ".out";
+            String inputFileName = inputFile.getName();
 //                execCreateCmd.withCmd("bash", "-c", "time -p python3 /data/1.py </data/input/question1/input%s.txt >/data/%s.out".formatted(i + 1, i + 1));
             StringBuilder execOutput = new StringBuilder();
             AtomicReference<CompletableFuture<Void>> execFutureRef = new AtomicReference<>();
