@@ -25,6 +25,8 @@ import org.springframework.stereotype.Component;
 
 import java.io.*;
 import java.time.Duration;
+import java.util.Arrays;
+import java.util.HashMap;
 import java.util.Set;
 import java.util.List;
 import java.util.Objects;
@@ -205,164 +207,178 @@ public class DockerUtil {
             codeExecDTO = new CodeExecDTO(containerId, submitCodeDTO.getType(), submitCodeDTO.getFileName(), codeFileWholePath, inputFileWholePath, outputFileWholePath);
         }
 
-        try {
-            dockerClient.startContainerCmd(containerId).exec();
-            //先编译
-            if (NEED_COMPILE_CODE_TYPE_SET.contains(submitCodeDTO.getType())) {
-                StringBuilder compileOutput = new StringBuilder();
-                AtomicReference<CompletableFuture<Void>> compileFutureRef = new AtomicReference<>();
-                compileFutureRef.set(CompletableFuture.runAsync(() -> {
-                    try {
-                        dockerClient.execStartCmd(getCompileCmdId(codeExecDTO)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
-                            @Override
-                            public void onNext(Frame item) {
-                                compileOutput.append(item);
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                compileFutureRef.get().complete(null);
-                            }
-                        }).awaitCompletion();
-                    } catch (InterruptedException e) {
-                        throw new RuntimeException(e);
-                    }
-                }));
+        dockerClient.startContainerCmd(containerId).exec();
+        //先编译
+        if (NEED_COMPILE_CODE_TYPE_SET.contains(submitCodeDTO.getType())) {
+            StringBuilder compileOutput = new StringBuilder();
+            AtomicReference<CompletableFuture<Void>> compileFutureRef = new AtomicReference<>();
+            compileFutureRef.set(CompletableFuture.runAsync(() -> {
                 try {
-                    compileFutureRef.get().get(50, TimeUnit.SECONDS);
-                } catch (Exception e) {
-                    codeResult.setMessage(e.getMessage());
-                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-                    codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
-                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-                    return codeResult;
+                    dockerClient.execStartCmd(getCompileCmdId(codeExecDTO)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
+                        @Override
+                        public void onNext(Frame item) {
+                            compileOutput.append(item);
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            compileFutureRef.get().complete(null);
+                        }
+                    }).awaitCompletion();
+                } catch (InterruptedException e) {
+                    throw new RuntimeException(e);
                 }
-                if (compileOutput.toString().contains("STDERR")) {
-                    codeResult.setMessage(compileOutput.toString().trim());
-                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-                    codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
-                    codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
-                    return codeResult;
+            }));
+            try {
+                compileFutureRef.get().get(50, TimeUnit.SECONDS);
+            } catch (Exception e) {
+                codeResult.setMessage(e.getMessage());
+                codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
+                codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                return codeResult;
+            }
+            if (compileOutput.toString().contains("STDERR")) {
+                codeResult.setMessage(compileOutput.toString().trim());
+                codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                codeResult.setResult(CodeResultEnum.COMPILE_ERROR.getResult());
+                codeResult.setStatus(CodeStatusEnum.FAIL.getStatus());
+                return codeResult;
+            }
+        }
+        codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
+
+        //梳理输入文件
+        File[] inputFiles = FileUtil.getDir(inputSourceFileWholePath).listFiles();
+        FileUtil.getDir(outputSourceFileWhilePath);
+        FileUtil.getDir(codeFileSourceWhilePath);
+        FileUtil.getDir(resultOutputFileWholePath);
+        assert inputFiles != null;
+        Arrays.sort(inputFiles);
+        codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
+        codeResult.setTestNumber(inputFiles.length);
+        int acNumber = 0;
+        execLoop:
+
+        //执行
+        for (File inputFile : inputFiles) {
+            if (!inputFile.isFile()) {
+                continue;
+            }
+            String outputFileName;
+            if (submitCodeDTO.getIsResult()) {
+                outputFileName = inputFile.getName().split("\\.")[0] + ".out";
+            } else {
+                outputFileName = submitCodeDTO.getFileName() + SeparatorEnum.UNDERLINE.getSeparator() + inputFile.getName().split("\\.")[0] + ".out";
+            }
+            String resultFileName = inputFile.getName().split("\\.")[0] + ".out";
+            String inputFileName = inputFile.getName();
+//                execCreateCmd.withCmd("bash", "-c", "time -p python3 /data/1.py </data/input/question1/input%s.txt >/data/%s.out".formatted(i + 1, i + 1));
+            StringBuilder execOutput = new StringBuilder();
+            AtomicReference<CompletableFuture<Void>> execFutureRef = new AtomicReference<>();
+            execFutureRef.set(CompletableFuture.runAsync(() -> {
+                try {
+                    dockerClient.execStartCmd(getExecCodeCmdId(codeExecDTO, inputFileName, outputFileName)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
+                        @Override
+                        public void onNext(Frame frame) {
+                            log.info(frame.toString());
+                            execOutput.append(frame);
+                        }
+
+                        @Override
+                        public void onComplete() {
+                            execFutureRef.get().complete(null);
+                        }
+                    }).awaitCompletion();
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
+            }));
+            try {
+                execFutureRef.get().get(50, TimeUnit.SECONDS);
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+                codeResult.setMessage(inputFile.getName());
+                codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
+                codeResult.setExecutionTime(2000);
+                break;
+            } catch (Exception e) {
+                codeResult.setMessage(e.getMessage());
+                codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
+                codeResult.setMessage(execOutput.toString());
+                break;
+            }
+            for (String error : RUNTIME_ERROR_KEYWORDS_SET) {
+                if (execOutput.toString().contains(error)) {
+                    codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
+                    codeResult.setMessage(execOutput.toString());
+                    break execLoop;
                 }
             }
-            codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
 
-            File[] inputFiles = FileUtil.getDir(inputSourceFileWholePath).listFiles();
-            FileUtil.getDir(outputSourceFileWhilePath);
-            FileUtil.getDir(codeFileSourceWhilePath);
-            FileUtil.getDir(resultOutputFileWholePath);
-            assert inputFiles != null;
-            codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
-            codeResult.setTestNumber(inputFiles.length);
-            int acNumber = 0;
-            execLoop:
-            for (File inputFile : inputFiles) {
-                if (!inputFile.isFile()) {
-                    continue;
-                }
-                String outputFileName;
-                if (submitCodeDTO.getIsResult()) {
-                    outputFileName = inputFile.getName().split("\\.")[0] + ".out";
-                } else {
-                    outputFileName = submitCodeDTO.getFileName() + SeparatorEnum.UNDERLINE.getSeparator() + inputFile.getName().split("\\.")[0] + ".out";
-                }
-                String resultFileName = inputFile.getName().split("\\.")[0] + ".out";
-                String inputFileName = inputFile.getName();
-//                execCreateCmd.withCmd("bash", "-c", "time -p python3 /data/1.py </data/input/question1/input%s.txt >/data/%s.out".formatted(i + 1, i + 1));
-                StringBuilder execOutput = new StringBuilder();
-                AtomicReference<CompletableFuture<Void>> execFutureRef = new AtomicReference<>();
-                execFutureRef.set(CompletableFuture.runAsync(() -> {
-                    try {
-                        dockerClient.execStartCmd(getExecCodeCmdId(codeExecDTO, inputFileName, outputFileName)).withDetach(false).exec(new ResultCallback.Adapter<Frame>() {
-                            @Override
-                            public void onNext(Frame frame) {
-                                log.info(frame.toString());
-                                execOutput.append(frame);
-                            }
-
-                            @Override
-                            public void onComplete() {
-                                execFutureRef.get().complete(null);
-                            }
-                        }).awaitCompletion();
-                    } catch (Exception e) {
-                        throw new RuntimeException(e);
-                    }
-                }));
-                try {
-                    execFutureRef.get().get(50, TimeUnit.SECONDS);
-                } catch (TimeoutException e) {
-                    e.printStackTrace();
-                    codeResult.setMessage(inputFile.getName());
+            Matcher matcher = resultPattern.matcher(execOutput.toString());
+            if (matcher.find()) {
+                int time = (int) (Double.parseDouble(matcher.group(1)) * 1000);
+                int memory = Integer.parseInt(matcher.group(2));
+                if (time > 2000) {
                     codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
                     codeResult.setExecutionTime(2000);
                     break;
-                } catch (Exception e) {
-                    codeResult.setMessage(e.getMessage());
-                    codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
-                    codeResult.setMessage(execOutput.toString());
-                    break;
-                }
-                for (String error : RUNTIME_ERROR_KEYWORDS_SET) {
-                    if (execOutput.toString().contains(error)) {
-                        codeResult.setResult(CodeResultEnum.RUNTIME_ERROR.getResult());
-                        codeResult.setMessage(execOutput.toString());
-                        break execLoop;
-                    }
-                }
-
-                Matcher matcher = resultPattern.matcher(execOutput.toString());
-                if (matcher.find()) {
-                    int time = (int) (Double.parseDouble(matcher.group(1)) * 1000);
-                    int memory = Integer.parseInt(matcher.group(2));
-                    if (time > 2000) {
-                        codeResult.setResult(CodeResultEnum.TIME_LIMIT_EXCEEDED.getResult());
-                        codeResult.setExecutionTime(2000);
-                        break;
-                    } else {
-                        if (codeResult.getExecutionTime() == null || time > codeResult.getExecutionTime()) {
-                            codeResult.setExecutionTime(time);
-                        }
-                    }
-                    //256 * 1024 KB
-                    if (memory > 262144) {
-                        codeResult.setExecutionMemory(262144);
-                        codeResult.setResult(CodeResultEnum.MEMORY_LIMIT_EXCEEDED.getResult());
-                        break;
-                    } else {
-                        if (codeResult.getExecutionMemory() == null || memory > codeResult.getExecutionMemory()) {
-                            codeResult.setExecutionMemory(memory);
-                        }
-                    }
                 } else {
-                    throw new RuntimeException("No time and Memory" + submitCodeDTO.getFileName() + execOutput);
-                }
-                if (!submitCodeDTO.getIsResult()) {
-                    try {
-                        CompareFileDTO compareFile = FileUtil.compareFiles(resultOutputFileWholePath + resultFileName, outputSourceFileWhilePath + outputFileName);
-                        if (!compareFile.isSame()) {
-                            codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
-                            codeResult.setMessage("line " + compareFile.getDifferentLineNumber() + ": " + compareFile.getDifferentLine());
-                            break;
-                        }
-                    } catch (Exception e) {
-                        throw new RuntimeException(e.getMessage());
+                    if (codeResult.getExecutionTime() == null || time > codeResult.getExecutionTime()) {
+                        codeResult.setExecutionTime(time);
                     }
                 }
-                acNumber++;
+                //256 * 1024 KB
+                if (memory > 262144) {
+                    codeResult.setExecutionMemory(262144);
+                    codeResult.setResult(CodeResultEnum.MEMORY_LIMIT_EXCEEDED.getResult());
+                    break;
+                } else {
+                    if (codeResult.getExecutionMemory() == null || memory > codeResult.getExecutionMemory()) {
+                        codeResult.setExecutionMemory(memory);
+                    }
+                }
+            } else {
+                throw new RuntimeException("No time and Memory" + submitCodeDTO.getFileName() + execOutput);
             }
-            codeResult.setAcNumber(acNumber);
-            if (submitCodeDTO.getIsResult()) {
-                codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
-                codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
+            if (!submitCodeDTO.getIsResult()) {
+                HashMap<String, String> resultMap = new HashMap<>();
+                try {
+                    CompareFileDTO compareFile = FileUtil.compareFiles(resultOutputFileWholePath + resultFileName, outputSourceFileWhilePath + outputFileName);
+                    if (!compareFile.isSame()) {
+                        resultMap.put("line", String.valueOf(compareFile.getDifferentLineNumber()));
+                        resultMap.put("output", compareFile.getDifferentLineContent());
+                        try (BufferedReader reader = new BufferedReader(new FileReader(inputSourceFileWholePath + inputFileName))) {
+                            String line;
+                            int currentLine = 0;
+                            while ((line = reader.readLine()) != null) {
+                                currentLine++;
+                                if (currentLine == compareFile.getDifferentLineNumber()) {
+                                    resultMap.put("input", line);
+                                    break;
+                                }
+                            }
+                        } catch (Exception e) {
+                            throw new RuntimeException("File not found: " + inputSourceFileWholePath + inputFileName);
+                        }
+                        codeResult.setResult(CodeResultEnum.WRONG_ANSWER.getResult());
+                        codeResult.setMessage(resultMap.toString());
+                        break;
+                    }
+                } catch (Exception e) {
+                    throw new RuntimeException("Compare File Exception", e);
+                }
             }
-            return codeResult;
-        } catch (Exception e) {
-            e.printStackTrace();
-        } finally {
-            dockerClient.stopContainerCmd(containerId).exec();
-            dockerClient.removeContainerCmd(containerId).exec();
+            acNumber++;
         }
+        codeResult.setAcNumber(acNumber);
+        if (submitCodeDTO.getIsResult()) {
+            codeResult.setResult(CodeResultEnum.ACCEPT.getResult());
+            codeResult.setStatus(CodeStatusEnum.SUCCESS.getStatus());
+        }
+        dockerClient.stopContainerCmd(containerId).exec();
+        dockerClient.removeContainerCmd(containerId).exec();
         return codeResult;
     }
 

@@ -8,7 +8,9 @@ import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
+import com.offer.oj.domain.query.CodeResultListQuery;
 import com.offer.oj.domain.query.QuestionInnerQuery;
+import com.offer.oj.service.CodeService;
 import com.offer.oj.service.EmailService;
 import com.offer.oj.service.JetcacheExample;
 import com.offer.oj.service.KaptchaService;
@@ -55,6 +57,9 @@ class OjApplicationTests {
 
     @Autowired
     private OjCodeMapper ojCodeMapper;
+
+    @Autowired
+    private CodeService codeService;
 
     @Test
     void contextLoads() {
@@ -262,5 +267,14 @@ class OjApplicationTests {
         ojCode.setTestNumber(20);
         ojCode.setExecutionMemory(128);
         ojCodeMapper.updateByFileName(ojCode);
+    }
+
+    @Test
+    void TestGetCodeResult(){
+        CodeResultListQuery codeResultListQuery = new CodeResultListQuery();
+        codeResultListQuery.setPageSize(1);
+        codeResultListQuery.setPage(0);
+        codeResultListQuery.setAuthorId(32);
+        System.out.println(codeService.getCodeResult(codeResultListQuery));
     }
 }

@@ -29,7 +29,7 @@ public class FileUtil {
             if (!file1Lines.get(i).trim().equals(file2Line)) {
                 result.setSame(false);
                 result.setDifferentLineNumber(i+1);
-                result.setDifferentLine(file1Lines.get(i).trim() + " " + file2Lines.get(i).trim());
+                result.setDifferentLineContent(file1Lines.get(i).trim() + " " + file2Line);
                 return result;
             }
         }
