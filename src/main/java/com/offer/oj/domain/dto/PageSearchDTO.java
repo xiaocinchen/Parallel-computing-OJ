@@ -1,5 +1,6 @@
 package com.offer.oj.domain.dto;
 
+import jakarta.validation.constraints.NotNull;
 import lombok.Data;
 import org.springframework.validation.annotation.Validated;
 
@@ -9,11 +10,14 @@ import java.io.Serializable;
 @Data
 public class PageSearchDTO implements Serializable {
 
-    String title;
+    @NotNull
+    private String title;
 
-    Integer pageIndex;
+    @NotNull
+    private Integer pageIndex;
 
-    Integer pageSize;
+    @NotNull
+    private Integer pageSize;
 
     @Serial
     private static final long serialVersionUID = 1L;

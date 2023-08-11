@@ -176,13 +176,16 @@ class OjApplicationTests {
     void testSelectQuestion(){
 //        String title1 = "解数独";
 //        System.out.println(questionService.searchQuestion(title1));
-        String title = "回文数";
+        String title = "回文";
 //        System.out.println(questionService.searchQuestion(title));
 //        String title2 = "";
 //        System.out.println(questionService.searchQuestion(title2));
 
-
-//        System.out.println(questionService.queryQuestionsByTitle(title, 1, 1));
+        PageSearchDTO pageSearchDTO = new PageSearchDTO();
+        pageSearchDTO.setTitle(title);
+        pageSearchDTO.setPageIndex(1);
+        pageSearchDTO.setPageSize(4);
+        System.out.println(questionService.queryQuestionsByTitle("teacher", pageSearchDTO));
     }
 
 //    @Test
@@ -276,6 +279,6 @@ class OjApplicationTests {
 
     @Test
     void testQuestionDetail(){
-        System.out.println(questionService.questionDetail(19));
+        System.out.println(questionService.questionDetail(22));
     }
 }

@@ -2,6 +2,7 @@ package com.offer.oj.config;
 
 import com.offer.oj.interceptor.AuthorizationInterceptor;
 import com.offer.oj.interceptor.BaseInterceptor;
+import com.offer.oj.interceptor.PassInterceptor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.InterceptorRegistry;
@@ -26,6 +27,10 @@ public class InterceptorConfig implements WebMvcConfigurer {
                 .excludePathPatterns("/v1/kaptcha/**")
                 .addPathPatterns("/v1/code/propose")
                 .order(2);
+
+        registry.addInterceptor(passInterceptor())
+                .addPathPatterns("/v1/question/search")
+                .order(3);
     }
 
     @Bean
@@ -36,5 +41,10 @@ public class InterceptorConfig implements WebMvcConfigurer {
     @Bean
     public BaseInterceptor baseInterceptor(){
         return new BaseInterceptor();
+    }
+
+    @Bean
+    public PassInterceptor passInterceptor(){
+        return new PassInterceptor();
     }
 }

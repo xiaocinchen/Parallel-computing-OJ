@@ -20,10 +20,12 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
+import com.offer.oj.domain.enums.RoleEnum;
 
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Objects;
 import com.fasterxml.jackson.databind.JsonNode;
@@ -173,7 +175,7 @@ public class QuestionServiceImpl implements QuestionService {
         Result<List<SearchResultDTO>> result = new Result<>();
         List<SearchResultDTO> searchResultDTOList;
         try {
-            if (role.equals("teacher")){
+            if (role.equals(RoleEnum.TEACHER.getValue())){
                 searchResultDTOList = questionMapper.queryQuestionsByTitle(0, pageSearchDTO);
             }
             else {
@@ -220,13 +222,28 @@ public class QuestionServiceImpl implements QuestionService {
         QuestionDTO questionDTO = questionMapper.selectQuestionById(id);
         VariableQuestionDTO variableQuestionDTO = new VariableQuestionDTO();
         QuestionDescriptionDTO questionDescriptionDTO = new QuestionDescriptionDTO();
+        ExampleDTO exampleDTO = new ExampleDTO();
+        List<ExampleDTO> exampleDTOList = new ArrayList<>();
+        JsonNode examples;
         String description = questionDTO.getDescription();
         BeanUtils.copyProperties(questionDTO, variableQuestionDTO);
         try {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(description);
             questionDescriptionDTO.setDescription(jsonNode.get("description").asText());
-//            questionDescriptionDTO.setExample(jsonNode.get("example").asText());
+            examples = jsonNode.get("exampleDTOList");
+            if (ObjectUtils.isEmpty(examples)){
+                questionDescriptionDTO.setExampleDTOList(Collections.emptyList());
+            }else {
+                for (JsonNode example: examples){
+                    String input = example.get("input").asText();
+                    String output = example.get("output").asText();
+                    exampleDTO.setInput(input);
+                    exampleDTO.setOutput(output);
+                    exampleDTOList.add(exampleDTO);
+                }
+                questionDescriptionDTO.setExampleDTOList(exampleDTOList);
+            }
             variableQuestionDTO.setDescription(questionDescriptionDTO);
         }catch (Exception e){
             throw new RuntimeException("Search question detail exception",e);

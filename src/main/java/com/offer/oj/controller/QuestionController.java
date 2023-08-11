@@ -2,6 +2,7 @@ package com.offer.oj.controller;
 
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.*;
+import com.offer.oj.domain.enums.RoleEnum;
 import com.offer.oj.service.QuestionService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
@@ -63,8 +64,12 @@ public class QuestionController {
 
 
     @PostMapping("/question/search")
-    public Result<List<SearchResultDTO>> searchQuestion( HttpServletRequest request, @RequestBody PageSearchDTO pageSearchDTO) {
-        String role = ((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getRole();
+    public Result<List<SearchResultDTO>> searchQuestion(HttpServletRequest request, @RequestBody @Validated PageSearchDTO pageSearchDTO) {
+        UserIdentityDTO userIdentityDTO = ((UserIdentityDTO) request.getAttribute("UserIdentityDTO"));
+        String role = RoleEnum.STUDENT.getValue();
+        if (userIdentityDTO!=null){
+            role = userIdentityDTO.getRole();
+        }
         return questionService.queryQuestionsByTitle(role, pageSearchDTO);
     }
 
@@ -76,4 +81,3 @@ public class QuestionController {
         return result;
     }
 }
-
