@@ -236,7 +236,6 @@ public class UserServiceImpl implements UserService {
     @Override
     public UserIdentityDTO getUserIdentity(Integer userId) {
         if (userId == null) {
-            log.info("The user has wrong qualification!");
             return null;
         }
         UserDTO userDTO = userMapper.selectById(userId);
