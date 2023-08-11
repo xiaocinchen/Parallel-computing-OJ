@@ -1,5 +1,6 @@
 package com.offer.oj.service.impl;
 
+import com.alibaba.fastjson.JSON;
 import com.alicp.jetcache.CacheException;
 import com.offer.oj.MQ.sender.CodeMQSender;
 import com.offer.oj.dao.CodeMapper;
@@ -14,15 +15,19 @@ import com.offer.oj.domain.query.CodeResultListQuery;
 import com.offer.oj.domain.dto.CodeSimpleResultDTO;
 import com.offer.oj.service.CacheService;
 import com.offer.oj.service.CodeService;
+import com.offer.oj.util.LockUtil;
 import com.offer.oj.util.ThreadPoolUtil;
 import com.offer.oj.util.TimeUtil;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.util.DigestUtils;
 
 import java.util.List;
 import java.util.concurrent.atomic.AtomicReference;
 
+@Slf4j
 @Service
 public class CodeServiceImpl implements CodeService {
 
@@ -35,8 +40,16 @@ public class CodeServiceImpl implements CodeService {
     @Autowired
     private CacheService cacheService;
 
+    private static final String CODE_SUBMIT_LOCK = "CODE_SUBMIT_LOCK";
+
     @Override
     public Result submitCode(SubmitCodeDTO submitCodeDTO) {
+        String md5 = DigestUtils.md5DigestAsHex(JSON.toJSONString(submitCodeDTO).getBytes());
+        String lockKey = CODE_SUBMIT_LOCK + md5;
+        if (LockUtil.isLocked(lockKey,5L)){
+            log.warn("Please do not resubmit.");
+            return new Result(false, "Please do not resubmit.", -2);
+        }
         Result result = new Result<>();
         String message = "";
         CodeInnerQuery codeInnerQuery = new CodeInnerQuery();
