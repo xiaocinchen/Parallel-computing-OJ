@@ -13,7 +13,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.security.sasl.AuthenticationException;
 
-public class BaseInterceptor implements HandlerInterceptor {
+public class PassInterceptor implements HandlerInterceptor {
 
     @Autowired
     private CacheService cacheService;
@@ -22,21 +22,13 @@ public class BaseInterceptor implements HandlerInterceptor {
     private UserService userService;
 
     @Override
-    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws Exception {
+    public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws AuthenticationException {
         Integer userId = (Integer) cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).get(Utils.getUserId(request));
-        if (userId != null) {
-            try {
-                UserIdentityDTO userIdentityDTO;
-                if ((userIdentityDTO = userService.getUserIdentity(userId)) != null) {
-                    request.setAttribute("UserIdentityDTO", userIdentityDTO);
-                    return true;
-                }
-            } catch (Exception e) {
-                throw new AuthenticationException("User authority exception.", e);
-            }
+        try {
+            request.setAttribute("UserIdentityDTO", userService.getUserIdentity(userId));
+        } catch (Exception e){
+            throw new AuthenticationException(e.getMessage());
         }
-        response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "Permission denied.");
-        return false;
+        return true;
     }
-
 }

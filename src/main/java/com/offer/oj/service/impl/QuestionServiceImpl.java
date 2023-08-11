@@ -9,6 +9,7 @@ import com.offer.oj.dao.QuestionMapper;
 import com.offer.oj.dao.Result;
 import com.offer.oj.domain.dto.*;
 import com.offer.oj.domain.enums.CacheEnum;
+import com.offer.oj.domain.enums.RoleEnum;
 import com.offer.oj.domain.query.QuestionModifyQuery;
 import com.offer.oj.service.QuestionService;
 import com.offer.oj.util.LockUtil;
@@ -173,7 +174,7 @@ public class QuestionServiceImpl implements QuestionService {
         Result<List<SearchResultDTO>> result = new Result<>();
         List<SearchResultDTO> searchResultDTOList;
         try {
-            if (role.equals("teacher")){
+            if (role.equals(RoleEnum.TEACHER.getValue())){
                 searchResultDTOList = questionMapper.queryQuestionsByTitle(0, pageSearchDTO);
             }
             else {
