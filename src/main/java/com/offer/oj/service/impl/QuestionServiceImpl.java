@@ -172,16 +172,14 @@ public class QuestionServiceImpl implements QuestionService {
     }
 
     @Override
-    public Result<List<SearchResultDTO>> queryQuestionsByTitle(String role, PageSearchDTO pageSearchDTO) {
+    public Result<List<SearchResultDTO>> queryQuestionsByTitle(PageSearchDTO pageSearchDTO) {
         Result<List<SearchResultDTO>> result = new Result<>();
         List<SearchResultDTO> searchResultDTOList;
         try {
-            if (role.equals(RoleEnum.TEACHER.getValue())){
-                searchResultDTOList = questionMapper.queryQuestionsByTitle(0, pageSearchDTO);
+            if (Objects.isNull(pageSearchDTO.getRole())){
+                pageSearchDTO.setRole(RoleEnum.STUDENT.getValue());
             }
-            else {
-                searchResultDTOList = questionMapper.queryQuestionsByTitle(1, pageSearchDTO);
-            }
+            searchResultDTOList = questionMapper.queryQuestionsByTitle(pageSearchDTO);
         } catch (Exception e) {
             throw new RuntimeException("Query question exception");
         }
@@ -195,7 +193,7 @@ public class QuestionServiceImpl implements QuestionService {
         ThreadPoolUtil.sendMQThreadPool.execute(() -> {
             searchResultDTOList.stream()
                     .parallel().map(SearchResultDTO::getId)
-                    .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, role +pageSearchDTO.toString()));
+                    .forEach(id -> questionMQSender.sendQuestionFuzzySearchMQ(id, pageSearchDTO.toString()));
         });
         return result;
     }

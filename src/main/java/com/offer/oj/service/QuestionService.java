@@ -24,7 +24,7 @@ public interface QuestionService {
 
     Result modifyQuestion(VariableQuestionDTO questionDTO);
 
-    Result<List<SearchResultDTO>> queryQuestionsByTitle(String role, PageSearchDTO pageSearchDTO);
+    Result<List<SearchResultDTO>> queryQuestionsByTitle(PageSearchDTO pageSearchDTO);
 
     VariableQuestionDTO questionDetail(Integer id);
 }

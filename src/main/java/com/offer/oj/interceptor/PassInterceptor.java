@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.servlet.HandlerInterceptor;
 
 import javax.security.sasl.AuthenticationException;
+import java.util.Objects;
 
 public class PassInterceptor implements HandlerInterceptor {
 
@@ -24,11 +25,13 @@ public class PassInterceptor implements HandlerInterceptor {
     @Override
     public boolean preHandle(@NotNull HttpServletRequest request, @NotNull HttpServletResponse response, @NotNull Object handler) throws AuthenticationException {
         Integer userId = (Integer) cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).get(Utils.getUserId(request));
+        UserIdentityDTO userIdentityDTO;
         try {
-            request.setAttribute("UserIdentityDTO", userService.getUserIdentity(userId));
-        } catch (Exception e){
+            userIdentityDTO = userService.getUserIdentity(userId);
+        } catch (Exception e) {
             throw new AuthenticationException(e.getMessage());
         }
+        request.setAttribute("UserIdentityDTO", Objects.requireNonNullElseGet(userIdentityDTO, UserIdentityDTO::new));
         return true;
     }
 }

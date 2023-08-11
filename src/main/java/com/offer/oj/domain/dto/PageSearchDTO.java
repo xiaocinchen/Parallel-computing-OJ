@@ -19,6 +19,8 @@ public class PageSearchDTO implements Serializable {
     @NotNull
     private Integer pageSize;
 
+    private String role;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

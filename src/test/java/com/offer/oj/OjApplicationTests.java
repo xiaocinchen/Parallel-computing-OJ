@@ -185,7 +185,7 @@ class OjApplicationTests {
         pageSearchDTO.setTitle(title);
         pageSearchDTO.setPageIndex(1);
         pageSearchDTO.setPageSize(4);
-        System.out.println(questionService.queryQuestionsByTitle("teacher", pageSearchDTO));
+        System.out.println(questionService.queryQuestionsByTitle(pageSearchDTO));
     }
 
 //    @Test

@@ -9,4 +9,6 @@ public class SearchResultDTO implements Serializable {
     private Integer id;
 
     private String name;
+
+    private Boolean status;
 }

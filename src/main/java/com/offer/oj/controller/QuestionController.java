@@ -66,15 +66,12 @@ public class QuestionController {
     @PostMapping("/question/search")
     public Result<List<SearchResultDTO>> searchQuestion(HttpServletRequest request, @RequestBody @Validated PageSearchDTO pageSearchDTO) {
         UserIdentityDTO userIdentityDTO = ((UserIdentityDTO) request.getAttribute("UserIdentityDTO"));
-        String role = RoleEnum.STUDENT.getValue();
-        if (userIdentityDTO!=null){
-            role = userIdentityDTO.getRole();
-        }
-        return questionService.queryQuestionsByTitle(role, pageSearchDTO);
+        pageSearchDTO.setRole(userIdentityDTO.getRole());
+        return questionService.queryQuestionsByTitle(pageSearchDTO);
     }
 
     @GetMapping("/question/detail")
-    public Result<VariableQuestionDTO> searchQuestionDetail(Integer id){
+    public Result<VariableQuestionDTO> searchQuestionDetail(Integer id) {
         Result<VariableQuestionDTO> result = new Result<>();
         result.setData(questionService.questionDetail(id));
         result.setSimpleResult(true, 0);

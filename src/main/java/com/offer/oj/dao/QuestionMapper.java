@@ -17,8 +17,9 @@ public interface QuestionMapper {
     Boolean deleteQuestionById(Integer questionId);
 
     QuestionDTO selectQuestionById(Integer questionId);
+
     Boolean modifyQuestion(QuestionModifyQuery question);
 
-    @Cached(name = "selectPageQuestionCache",key = "#pageSearchDTO.toString()", expire = 15, timeUnit = TimeUnit.DAYS, cacheType = CacheType.BOTH)
-    List<SearchResultDTO> queryQuestionsByTitle(Integer status, PageSearchDTO pageSearchDTO);
+    @Cached(name = "selectPageQuestionCache", key = "#pageSearchDTO.toString()", cacheNullValue = false, expire = 15, timeUnit = TimeUnit.DAYS, cacheType = CacheType.BOTH)
+    List<SearchResultDTO> queryQuestionsByTitle(PageSearchDTO pageSearchDTO);
 }
