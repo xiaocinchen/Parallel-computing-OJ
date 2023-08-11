@@ -40,6 +40,10 @@ public class QuestionDTO implements Serializable {
 
     private String category;
 
+    private Integer timeLimit;
+
+    private Integer memoryLimit;
+
     @Serial
     private static final long serialVersionUID = 1L;
 }

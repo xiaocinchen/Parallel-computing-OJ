@@ -59,7 +59,7 @@ public class QuestionServiceImpl implements QuestionService {
             result.setSimpleResult(false, "picture_url is invalid !" + variableQuestionDTO.getPictureUrl(),-4);
         } else {
             try {
-                if (Objects.nonNull(variableQuestionDTO.getDescription().getDescription())&&Objects.nonNull(variableQuestionDTO.getDescription().getExample())){
+                if (Objects.nonNull(variableQuestionDTO.getDescription().getDescription())&&Objects.nonNull(variableQuestionDTO.getDescription().getExampleDTOList())){
                     String json = new Gson().toJson(variableQuestionDTO.getDescription());
                     BeanUtils.copyProperties(variableQuestionDTO, questionInsertDTO);
                     questionInsertDTO.setDescription(json);
@@ -226,10 +226,10 @@ public class QuestionServiceImpl implements QuestionService {
             ObjectMapper objectMapper = new ObjectMapper();
             JsonNode jsonNode = objectMapper.readTree(description);
             questionDescriptionDTO.setDescription(jsonNode.get("description").asText());
-            questionDescriptionDTO.setExample(jsonNode.get("example").asText());
+//            questionDescriptionDTO.setExample(jsonNode.get("example").asText());
             variableQuestionDTO.setDescription(questionDescriptionDTO);
         }catch (Exception e){
-            log.error(String.valueOf(e));
+            throw new RuntimeException("Search question detail exception",e);
         }
         return variableQuestionDTO;
     }
