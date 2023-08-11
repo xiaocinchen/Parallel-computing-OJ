@@ -14,7 +14,6 @@ public interface QuestionMapper {
 
     List<QuestionDTO> fuzzySelectByTitle(String title);
 
-
     Boolean deleteQuestionById(Integer questionId);
 
     QuestionDTO selectQuestionById(Integer questionId);
