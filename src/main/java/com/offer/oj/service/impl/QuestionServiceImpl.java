@@ -21,7 +21,6 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.DigestUtils;
 import org.springframework.util.ObjectUtils;
 
-import java.io.IOException;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.util.ArrayList;
@@ -217,7 +216,7 @@ public class QuestionServiceImpl implements QuestionService {
         return false;
     }
     @Override
-    public VariableQuestionDTO QuestionDetail(Integer id){
+    public VariableQuestionDTO questionDetail(Integer id){
         QuestionDTO questionDTO = questionMapper.selectQuestionById(id);
         VariableQuestionDTO variableQuestionDTO = new VariableQuestionDTO();
         QuestionDescriptionDTO questionDescriptionDTO = new QuestionDescriptionDTO();

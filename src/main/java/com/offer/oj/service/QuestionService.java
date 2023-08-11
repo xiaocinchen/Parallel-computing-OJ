@@ -6,7 +6,6 @@ import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.dto.SearchResultDTO;
 import com.offer.oj.domain.dto.VariableQuestionDTO;
 
-import java.io.IOException;
 import java.util.List;
 
 public interface QuestionService {
@@ -27,5 +26,5 @@ public interface QuestionService {
 
     Result<List<SearchResultDTO>> queryQuestionsByTitle(String role, PageSearchDTO pageSearchDTO);
 
-    VariableQuestionDTO QuestionDetail(Integer id);
+    VariableQuestionDTO questionDetail(Integer id);
 }

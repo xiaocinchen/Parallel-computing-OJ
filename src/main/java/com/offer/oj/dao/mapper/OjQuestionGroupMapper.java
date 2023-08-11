@@ -1,6 +1,5 @@
 package com.offer.oj.dao.mapper;
 
-import com.offer.oj.domain.OjQuestion;
 import com.offer.oj.domain.OjQuestionGroup;
 import org.apache.ibatis.annotations.Param;
 

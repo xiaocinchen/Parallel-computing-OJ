@@ -6,7 +6,6 @@ import com.offer.oj.dao.mapper.OjCodeMapper;
 import com.offer.oj.dao.mapper.OjQuestionMapper;
 import com.offer.oj.domain.OjCode;
 import com.offer.oj.domain.dto.*;
-import com.offer.oj.domain.OjUser;
 import com.offer.oj.domain.dto.QuestionDTO;
 import com.offer.oj.domain.enums.CodeTypeEnum;
 import com.offer.oj.domain.enums.EmailTypeEnum;
@@ -277,6 +276,6 @@ class OjApplicationTests {
 
     @Test
     void testQuestionDetail(){
-        System.out.println(questionService.QuestionDetail(19));
+        System.out.println(questionService.questionDetail(19));
     }
 }

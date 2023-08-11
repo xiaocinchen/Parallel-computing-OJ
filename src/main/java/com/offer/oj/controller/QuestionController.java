@@ -67,5 +67,13 @@ public class QuestionController {
         String role = ((UserIdentityDTO) request.getAttribute("UserIdentityDTO")).getRole();
         return questionService.queryQuestionsByTitle(role, pageSearchDTO);
     }
+
+    @GetMapping("/question/detail")
+    public Result<VariableQuestionDTO> searchQuestionDetail(Integer id){
+        Result<VariableQuestionDTO> result = new Result<>();
+        result.setData(questionService.questionDetail(id));
+        result.setSimpleResult(true, 0);
+        return result;
+    }
 }
 
