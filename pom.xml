@@ -11,8 +11,17 @@
     <groupId>com.example</groupId>
     <artifactId>OJ</artifactId>
     <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
     <name>OJ</name>
     <description>OJ</description>
+    <modules>
+        <module>oj-public</module>
+        <module>oj-domain</module>
+        <module>oj-service</module>
+        <module>oj-dao</module>
+        <module>oj-web</module>
+        <module>oj-common</module>
+    </modules>
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -152,6 +161,41 @@
             <groupId>com.github.docker-java</groupId>
             <artifactId>docker-java-transport-zerodep</artifactId>
             <version>3.3.2</version>
+        </dependency>
+        <dependency>
+            <groupId>com.alibaba</groupId>
+            <artifactId>dubbo</artifactId>
+            <version>2.5.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>org.springframework</groupId>
+                    <artifactId>spring</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.zookeeper</groupId>
+            <artifactId>zookeeper</artifactId>
+            <version>3.3.3</version>
+            <exclusions>
+                <exclusion>
+                    <groupId>com.sun.jmx</groupId>
+                    <artifactId>jmxri</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>com.sun.jdmk</groupId>
+                    <artifactId>jmxtools</artifactId>
+                </exclusion>
+                <exclusion>
+                    <groupId>javax.jms</groupId>
+                    <artifactId>jms</artifactId>
+                </exclusion>
+            </exclusions>
+        </dependency>
+        <dependency>
+            <groupId>com.github.sgroschupf</groupId>
+            <artifactId>zkclient</artifactId>
+            <version>0.1</version>
         </dependency>
     </dependencies>
 
