@@ -1,10 +1,12 @@
 package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.pojo.OjQuestionGroup;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+@Mapper
 public interface OjQuestionGroupMapper {
     int deleteByPrimaryKey(Integer id);
 

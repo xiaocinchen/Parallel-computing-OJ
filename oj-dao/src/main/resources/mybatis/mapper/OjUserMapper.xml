@@ -1,0 +1,191 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.offer.oj.dao.mapper.OjUserMapper">
+  <resultMap id="BaseResultMap" type="com.offer.oj.domain.pojo.OjUser">
+    <id column="id" jdbcType="INTEGER" property="id" />
+    <result column="username" jdbcType="VARCHAR" property="username" />
+    <result column="first_name" jdbcType="VARCHAR" property="firstName" />
+    <result column="last_name" jdbcType="VARCHAR" property="lastName" />
+    <result column="gender" jdbcType="CHAR" property="gender" />
+    <result column="password" jdbcType="VARCHAR" property="password" />
+    <result column="role" jdbcType="CHAR" property="role" />
+    <result column="email" jdbcType="VARCHAR" property="email" />
+  </resultMap>
+  <sql id="Base_Column_List">
+    id, username, first_name, last_name, gender, password, role, email
+  </sql>
+  <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+    select
+    <include refid="Base_Column_List" />
+    from oj_user
+    where id = #{id,jdbcType=INTEGER}
+  </select>
+  <delete id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+    delete from oj_user
+    where id = #{id,jdbcType=INTEGER}
+  </delete>
+  <insert id="insert" parameterType="com.offer.oj.domain.pojo.OjUser">
+    insert into oj_user (id, username, first_name,
+      last_name, gender, password,
+      role, email)
+    values (#{id,jdbcType=INTEGER}, #{username,jdbcType=VARCHAR}, #{firstName,jdbcType=VARCHAR},
+      #{lastName,jdbcType=VARCHAR}, #{gender,jdbcType=CHAR}, #{password,jdbcType=VARCHAR},
+      #{role,jdbcType=CHAR}, #{email,jdbcType=VARCHAR})
+  </insert>
+  <insert id="insertSelective" parameterType="com.offer.oj.domain.pojo.OjUser">
+    insert into oj_user
+    <trim prefix="(" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        id,
+      </if>
+      <if test="username != null">
+        username,
+      </if>
+      <if test="firstName != null">
+        first_name,
+      </if>
+      <if test="lastName != null">
+        last_name,
+      </if>
+      <if test="gender != null">
+        gender,
+      </if>
+      <if test="password != null">
+        password,
+      </if>
+      <if test="role != null">
+        role,
+      </if>
+      <if test="email != null">
+        email,
+      </if>
+    </trim>
+    <trim prefix="values (" suffix=")" suffixOverrides=",">
+      <if test="id != null">
+        #{id,jdbcType=INTEGER},
+      </if>
+      <if test="username != null">
+        #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="firstName != null">
+        #{firstName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastName != null">
+        #{lastName,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null">
+        #{gender,jdbcType=CHAR},
+      </if>
+      <if test="password != null">
+        #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="role != null">
+        #{role,jdbcType=CHAR},
+      </if>
+      <if test="email != null">
+        #{email,jdbcType=VARCHAR},
+      </if>
+    </trim>
+  </insert>
+  <update id="updateByPrimaryKeySelective" parameterType="com.offer.oj.domain.pojo.OjUser">
+    update oj_user
+    <set>
+      <if test="username != null">
+        username = #{username,jdbcType=VARCHAR},
+      </if>
+      <if test="firstName != null">
+        first_name = #{firstName,jdbcType=VARCHAR},
+      </if>
+      <if test="lastName != null">
+        last_name = #{lastName,jdbcType=VARCHAR},
+      </if>
+      <if test="gender != null">
+        gender = #{gender,jdbcType=CHAR},
+      </if>
+      <if test="password != null">
+        password = #{password,jdbcType=VARCHAR},
+      </if>
+      <if test="role != null">
+        role = #{role,jdbcType=CHAR},
+      </if>
+      <if test="email != null">
+        email = #{email,jdbcType=VARCHAR},
+      </if>
+    </set>
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+  <update id="updateByPrimaryKey" parameterType="com.offer.oj.domain.pojo.OjUser">
+    update oj_user
+    set username = #{username,jdbcType=VARCHAR},
+      first_name = #{firstName,jdbcType=VARCHAR},
+      last_name = #{lastName,jdbcType=VARCHAR},
+      gender = #{gender,jdbcType=CHAR},
+      password = #{password,jdbcType=VARCHAR},
+      role = #{role,jdbcType=CHAR},
+      email = #{email,jdbcType=VARCHAR}
+    where id = #{id,jdbcType=INTEGER}
+  </update>
+
+  <update id="updateByUsername" parameterType="com.offer.oj.domain.pojo.OjUser">
+    update oj_user
+    set first_name = #{firstName,jdbcType=VARCHAR},
+        last_name = #{lastName,jdbcType=VARCHAR},
+        gender = #{gender,jdbcType=CHAR},
+        password = #{password,jdbcType=VARCHAR}
+    where username = #{username,jdbcType=VARCHAR}
+  </update>
+
+  <!-- 查列表 -->
+  <select id="queryForList" parameterType="com.offer.oj.domain.query.UserInnerQuery" resultMap="BaseResultMap">
+      SELECT
+      <include refid="Base_Column_List"/>
+      FROM
+      oj_user
+      WHERE 1=1
+      <include refid="dynamicWhere"/>
+      <include refid="pagination"/>
+  </select>
+
+  <!--  查数量-->
+  <select id="queryForCount" parameterType="com.offer.oj.domain.query.UserInnerQuery" resultType="Integer">
+    SELECT count(*) FROM oj_user
+    WHERE 1=1
+    <include refid="dynamicWhere"/>
+  </select>
+
+  <sql id="dynamicWhere">
+    <if test="id != null">
+      AND id = #{id}
+    </if>
+    <if test="username != null">
+      AND username = #{username}
+    </if>
+    <if test="firstName != null">
+      AND first_name = #{first_name}
+    </if>
+    <if test="lastName != null">
+      AND last_name = #{last_name}
+    </if>
+    <if test="gender != null">
+      AND gender = #{gender}
+    </if>
+    <if test="password != null">
+      AND password = #{password}
+    </if>
+    <if test="role != null">
+      AND role = #{role}
+    </if>
+    <if test="email != null">
+      AND email = #{email}
+    </if>
+  </sql>
+
+  <sql id="pagination">
+    <if test="pageSize!=null and startRow!=null">
+      <![CDATA[
+          LIMIT #{startRow} , #{pageSize}
+           ]]>
+    </if>
+  </sql>
+
+</mapper>

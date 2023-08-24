@@ -2,9 +2,11 @@ package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.pojo.OjCode;
 import com.offer.oj.domain.query.CodeInnerQuery;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
 
+@Mapper
 public interface OjCodeMapper {
     int deleteByPrimaryKey(Integer id);
 

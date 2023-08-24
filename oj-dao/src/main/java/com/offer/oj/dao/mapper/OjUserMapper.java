@@ -1,13 +1,12 @@
 package com.offer.oj.dao.mapper;
 
-import com.alicp.jetcache.anno.CacheType;
-import com.alicp.jetcache.anno.Cached;
 import com.offer.oj.domain.pojo.OjUser;
 import com.offer.oj.domain.query.UserInnerQuery;
+import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;
-import java.util.concurrent.TimeUnit;
 
+@Mapper
 public interface OjUserMapper {
     int deleteByPrimaryKey(Integer id);
 

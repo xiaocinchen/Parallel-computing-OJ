@@ -1,0 +1,70 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE generatorConfiguration
+        PUBLIC "-//mybatis.org//DTD MyBatis Generator Configuration 1.0//EN"
+        "http://mybatis.org/dtd/mybatis-generator-config_1_0.dtd">
+
+<generatorConfiguration>
+    <context id="MysqlTables" targetRuntime="MyBatis3">
+        <plugin type="org.mybatis.generator.plugins.SerializablePlugin" />
+        <plugin type="org.mybatis.generator.plugins.EqualsHashCodePlugin"/>
+        <plugin type="org.mybatis.generator.plugins.ToStringPlugin"/>
+
+        <commentGenerator>
+            <property name="suppressDate" value="true"/>
+            <!-- 是否去除自动生成的注释 true：是 ： false:否 -->
+            <property name="suppressAllComments" value="true"/>
+        </commentGenerator>
+        <!-- jdbc链接信息 -->
+        <jdbcConnection driverClass="com.mysql.jdbc.Driver"
+                        connectionURL="jdbc:mysql://127.0.0.1:3306/online_judge?serverTimezone=GMT%2B8&amp;useUnicode=true&amp;characterEncoding=utf-8"
+                        userId="offer" password="forJob123$">
+        </jdbcConnection>
+        <javaTypeResolver>
+            <property name="forceBigDecimals" value="false"/>
+        </javaTypeResolver>
+        <!-- 生成POJO类的位置 -->
+        <javaModelGenerator targetPackage="com.offer.oj.domain.pojo"
+                            targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+            <property name="trimStrings" value="true"/>
+        </javaModelGenerator>
+        <!-- mapper映射文件生成的位置 -->
+        <sqlMapGenerator targetPackage="mybatis.mapper"
+                         targetProject="src/main/resources">
+            <property name="enableSubPackages" value="true"/>
+        </sqlMapGenerator>
+        <!-- mapper接口生成的位置 -->
+        <javaClientGenerator type="XMLMAPPER"
+                             targetPackage="com.offer.oj.dao.mapper"
+                             targetProject="src/main/java">
+            <property name="enableSubPackages" value="true"/>
+        </javaClientGenerator>
+        <!-- 指定要生成的表 -->
+<!--        <table tableName="oj_user" enableCountByExample="false"-->
+<!--            enableUpdateByExample="false"-->
+<!--            enableDeleteByExample="false"-->
+<!--            enableSelectByExample="false"-->
+<!--            selectByExampleQueryId="false" />-->
+<!--        <table tableName="oj_question" enableCountByExample="false"-->
+<!--               enableUpdateByExample="false"-->
+<!--               enableDeleteByExample="false"-->
+<!--               enableSelectByExample="false"-->
+<!--               selectByExampleQueryId="false" />-->
+<!--            <table tableName="oj_group_question_bridge" enableCountByExample="false"-->
+<!--                   enableUpdateByExample="false"-->
+<!--                   enableDeleteByExample="false"-->
+<!--                   enableSelectByExample="false"-->
+<!--                   selectByExampleQueryId="false" />-->
+<!--            <table tableName="oj_code" enableCountByExample="false"-->
+<!--                   enableUpdateByExample="false"-->
+<!--                   enableDeleteByExample="false"-->
+<!--                   enableSelectByExample="false"-->
+<!--                   selectByExampleQueryId="false" />-->
+<!--            <table tableName="oj_question_group" enableCountByExample="false"-->
+<!--                   enableUpdateByExample="false"-->
+<!--                   enableDeleteByExample="false"-->
+<!--                   enableSelectByExample="false"-->
+<!--                   selectByExampleQueryId="false" />-->
+            <!--            <generatedKey column="id" sqlStatement="Mysql" identity="true"/>-->
+    </context>
+</generatorConfiguration>

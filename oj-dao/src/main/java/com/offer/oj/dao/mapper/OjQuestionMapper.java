@@ -2,10 +2,12 @@ package com.offer.oj.dao.mapper;
 
 import com.offer.oj.domain.pojo.OjQuestion;
 import com.offer.oj.domain.query.QuestionInnerQuery;
+import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
 import java.util.List;
 
+@Mapper
 public interface OjQuestionMapper {
     int deleteByPrimaryKey(Integer id);
 
