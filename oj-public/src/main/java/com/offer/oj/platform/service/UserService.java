@@ -47,5 +47,7 @@ public interface UserService {
 
     UserIdentityDTO getUserIdentity(Integer userId);
 
+    Integer getUserIdFromToken(String token);
+
     Result modifyPassword(ModifyPasswordDTO modifyPasswordDTO);
 }

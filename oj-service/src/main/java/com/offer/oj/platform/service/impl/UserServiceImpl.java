@@ -244,6 +244,12 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
+    public Integer getUserIdFromToken(String token){
+        return (Integer) cacheService.getCache(CacheEnum.LOGIN_CACHE.getValue()).get(token);
+    }
+
+
+    @Override
     public Result modifyPassword(ModifyPasswordDTO modifyPasswordDTO) {
         Result result = new Result();
         if (modifyPasswordDTO.getKaptchaCode().equals(cacheService.getCache(CacheEnum.KAPTCHA_CACHE.getValue()).get(modifyPasswordDTO.getUsername() + SeparatorEnum.UNDERLINE.getSeparator() + KaptchaEnum.FORGET_PASSWORD.getType()))) {

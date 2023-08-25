@@ -6,13 +6,13 @@
        http://dubbo.apache.org/schema/dubbo http://dubbo.apache.org/schema/dubbo/dubbo.xsd http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context.xsd">
     <context:property-placeholder/>
 
-    <dubbo:protocol name="dubbo" serialization="java"/>
+    <dubbo:protocol name="dubbo"/>
 
     <!-- 定义应用名 -->
     <dubbo:application name="oj-platform-provider"/>
 
     <!-- 定义注册中心地址 -->
-    <dubbo:registry address="zookeeper://127.0.0.1:2181"/>
+    <dubbo:registry address="zookeeper://43.134.185.77:2181"/>
 
     <!-- 定义实现类对应的 bean -->
     <bean id="userService" class="com.offer.oj.platform.service.impl.UserServiceImpl"/>
@@ -23,5 +23,10 @@
     <bean id="questionService" class="com.offer.oj.platform.service.impl.QuestionServiceImpl"/>
     <!-- 定义服务信息，引用上面的 bean -->
     <dubbo:service interface="com.offer.oj.platform.service.QuestionService" ref="questionService"/>
+
+    <!-- 定义实现类对应的 bean -->
+    <bean id="kaptchaService" class="com.offer.oj.platform.service.impl.KaptchaServiceImpl"/>
+    <!-- 定义服务信息，引用上面的 bean -->
+    <dubbo:service interface="com.offer.oj.platform.service.KaptchaService" ref="kaptchaService"/>
 
 </beans>

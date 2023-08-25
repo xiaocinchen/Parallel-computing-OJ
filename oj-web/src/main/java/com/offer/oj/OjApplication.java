@@ -20,7 +20,7 @@ import java.util.concurrent.CountDownLatch;
 @EnableMethodSecurity(securedEnabled = true, jsr250Enabled = true)
 public class OjApplication {
 
-    public static void main(String[] args) throws InterruptedException {
+    public static void main(String[] args) {
         SpringApplication.run(OjApplication.class, args);
     }
 }
