@@ -27,9 +27,6 @@ public class QuestionController {
     private QuestionService questionService;
 
 
-
-
-
     @PostMapping("/question/add")
     @ResponseBody
     public Result addQuestion(HttpServletRequest request, @Validated @RequestBody VariableQuestionDTO variableQuestionDTO, BindingResult bindingResult) throws IOException {
